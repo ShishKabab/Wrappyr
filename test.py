@@ -15,14 +15,13 @@ parser.add_argument("input")
 parser.add_argument("-o", "--output")
 parser.add_argument("--cpp")
 parser.add_argument("--header")
-parser.add_argument("--template")
+parser.add_argument("--template", action = 'append', required = True, nargs = '+')
 parser.add_argument("--template-dir")
 args = parser.parse_args()
-args.output = args.output or os.path.splitext(args.input)[0]
-args.cpp = args.cpp or args.output + ".cpp"
-args.header = args.header or args.output + ".h"
-args.template = args.template or args.output + ".tpl"
-args.template_dir = args.template_dir or os.path.dirname(args.template)
+#args.output = args.output or os.path.splitext(args.input)[0]
+#args.cpp = args.cpp or args.output + ".cpp"
+#args.header = args.header or args.output + ".h"
+args.template_dir = args.template_dir or os.path.dirname(args.input)
 
 headerPath = args.input
 headerDoc = lxml.etree.parse(headerPath)
@@ -50,6 +49,7 @@ class Class(Node):
 			if method.isPureVirtual:
 				self.isAbstract = True
 				break
+		self.othersCanCreate = not self.isAbstract and (not self.constructor or self.constructor.access == "public")
 
 		conflicts = defaultdict(list)
 		for method in self.methods:
@@ -71,16 +71,16 @@ class Function(Node):
 		self.args = tuple(i.get('type') for i in node.findall('Argument'))
 		self.returns = node.get('returns')
 
-	def getArgsAsString(self, argConverter, names = ()):
+	def argsAsString(self, names = ()):
 		if len(names) < len(self.args):
 			names = names + (None,) * (len(self.args) - len(names))
 		names = tuple(" " + name if name else "" for name in names)
 
-		return ", ".join(argConverter(arg) + name for arg, name in zip(self.args, names))
+		return ", ".join(getTypeAsString(arg) + name for arg, name in zip(self.args, names))
 
-	def toFunctionPointer(self, argConverter, name = ""):
+	def toFunctionPointer(self, name = ""):
 		#int (*pt2Func)(float, char, char)
-		return "%s (*%s)(%s)" % (argConverter(self.returns), name, self.getArgsAsString(argConverter))
+		return "%s (*%s)(%s)" % (getTypeAsString(self.returns), name, self.argsAsString())
 
 class Member(Node):
 	def __init__(self, node):
@@ -147,10 +147,10 @@ def getTypeAsString(tp):
 		if isinstance(node, (Class, FundamentalType)):
 			name = node.name
 		if isinstance(node, Enumeration):
-			name = "int"
+			name = "unsigned int"
 		if isinstance(node, Function):
 			numPointers -= 1
-			name = node.toFunctionPointer(getTypeAsString)
+			name = node.toFunctionPointer()
 
 		#print tp
 		break
@@ -178,6 +178,24 @@ def isReference(tp):
 
 	return False
 
+def isConst(tp):
+	while True:
+		if tp.endswith("c"):
+			return True
+
+		node = nodesByID.get(tp)
+		if hasattr(node, 'type'):
+			if isinstance(node, Reference):
+				return True
+
+			tp = node.type
+		else:
+			break
+
+		break
+
+	return False
+
 def getIdentifier(function = None, member = None, cls = None, namespaces = None, special = None):
 	if cls:
 		if member:
@@ -187,14 +205,18 @@ def getIdentifier(function = None, member = None, cls = None, namespaces = None,
 				return "%s_New" % (cls.name)
 			elif special == "destructor":
 				return "%s_Delete" % (cls.name)
-			return "%s_%s" % (cls.name, function.name)
+			return "%s_%s" % (cls.name, getattr(function, 'renamed', function.name))
+	import ipdb; ipdb.set_trace()
 
-def fileFilter(file):
-	return "Box2D" in nodesByID[file].path
+def nodeFilter(cls):
+	return "Box2D" in nodesByID[cls.file].path
 
 def resolveNameConflict(funcs = None, cls = None, namespaces = None):
 	for i, f in enumerate(funcs):
-		f.name += str(i)
+		f.renamed = f.name + str(i)
+
+def letterRange(begin, end):
+	return [chr(i) for i in xrange(ord(begin), ord(end))]
 
 classFilter = lambda i: i.get('name') and "<" not in i.get("name") and not bool(i.get("incomplete"))
 nodeTypes = {
@@ -210,6 +232,7 @@ nodeTypes = {
 	'FunctionType': {'type': Function},
 	'Namespace': {'type': Namespace},
 	'Constructor': {'type': Function},
+	'Destructor': {'type': Function},
 	'Method':  {'type': Function},
 	'Field': {'type': Member},
 }
@@ -221,84 +244,118 @@ for nodeName, nodeType in nodeTypes.items():
 		nodeType.get('filter', lambda node: True)(i))
 	nodesByID.update(newNodes)
 	nodesByType[nodeName] = newNodes
+nodesByType['NonPOD'] = dict(chain(nodesByType['Class'].iteritems(), nodesByType['Struct'].iteritems()))
 
 for constructor in nodesByType['Constructor'].values():
-	cls = nodesByType['Class'].get(constructor.context) or nodesByType['Struct'].get(constructor.context)
+	cls = nodesByType['NonPOD'].get(constructor.context)
 	if not cls:
 		continue
 
 	cls.constructor = constructor
 
+for destructor in nodesByType['Destructor'].values():
+	cls = nodesByType['NonPOD'].get(destructor.context)
+	if not cls:
+		continue
+
+	cls.destructor = destructor
+
 for method in nodesByType['Method'].values():
-	cls = nodesByType['Class'].get(method.context) or nodesByType['Struct'].get(method.context)
+	cls = nodesByType['NonPOD'].get(method.context)
 	if not cls:
 		continue
 
 	cls.methods.append(method)
 
 for field in nodesByType['Field'].values():
-	cls = nodesByType['Class'].get(field.context) or nodesByType['Struct'].get(field.context)
+	cls = nodesByType['NonPOD'].get(field.context)
 	if not cls:
 		continue
 
 	cls.members.append(field)
 
-for cls in chain(nodesByType['Class'].values(), nodesByType['Struct'].values()):
+for cls in nodesByType['NonPOD'].values():
 	cls.process()
 
-argNamesCls = tuple(chain('cls', (chr(i) for i in xrange(ord('a'), ord('m')))))
-argNames = tuple(chr(i) for i in xrange(ord('a'), ord('m')))
-header = open(args.header, 'w')
-cpp = open(args.cpp, 'w')
-cpp.write("""#include <Box2D.h>
-#include "%s"
+env = Environment(
+	loader = FileSystemLoader([args.template_dir]),
+)
+for template in args.template:
+	inPath = template[0]
+	if len(template) == 1:
+		outPath = template[0]
+		outPath = outPath[0 : outPath.rfind('.')]
+	else:
+		outPath = template[1]
 
-""" % args.header)
+	template = env.get_template(inPath)
+	content = template.render(
+		identifier = getIdentifier,
+		type2string = getTypeAsString,
+		weWant = nodeFilter,
+		nodesByType = nodesByType,
+		nodesByID = nodesByID,
+		letterRange = letterRange,
+		isReference = isReference,
+		isEnumeration = lambda tp: isinstance(nodesByID.get(tp), Enumeration),
+		isVoid = lambda tp: getTypeAsString(tp) == "void",
+		isConst = isConst,
+	)
+	open(outPath, 'w').write(content)
 
-header.write('extern "C" {\n')
-for cls in chain(nodesByType['Class'].values(), nodesByType['Struct'].values()):
-	if not fileFilter(cls.file):
-		continue
+#argNamesCls = tuple(chain('cls', (chr(i) for i in xrange(ord('a'), ord('m')))))
+#argNames = tuple(chr(i) for i in xrange(ord('a'), ord('m')))
+#header = open(args.header, 'w')
+#cpp = open(args.cpp, 'w')
+#cpp.write("""#include <Box2D.h>
+##include "%s"
 
-	header.write("struct {0};\n".format(cls.name))
+#""" % args.header)
 
-header.write("\n// ----\n\n")
-for cls in chain(nodesByType['Class'].values(), nodesByType['Struct'].values()):
-	if not fileFilter(cls.file):
-		continue
+#header.write('extern "C" {\n')
+#for cls in chain(nodesByType['Class'].values(), nodesByType['Struct'].values()):
+	#if not fileFilter(cls.file):
+		#continue
 
-	header.write("// -- Begin class %s\n" % cls.name)
-	if not cls.isAbstract and (not cls.constructor or cls.constructor.access == "public"):
-		header.write("{0}* {1}({2});\n".format(cls.name,
-			getIdentifier(cls = cls, special = "constructor"),
-			cls.constructor.getArgsAsString(getTypeAsString) if cls.constructor else "")
-		)
+	#header.write("struct {0};\n".format(cls.name))
 
-		cpp.write("{0}* {1}({2}){{\n".format(cls.name,
-			getIdentifier(cls = cls, special = "constructor"),
-			cls.constructor.getArgsAsString(getTypeAsString, argNames) if cls.constructor else "")
-		)
+#header.write("\n// ----\n\n")
+#for cls in chain(nodesByType['Class'].values(), nodesByType['Struct'].values()):
+	#if not fileFilter(cls.file):
+		#continue
 
-		if cls.constructor:
-			args = ", ".join(("*" + name if isReference(arg) else name) for name, arg in zip(argNames, cls.constructor.args))
-		else:
-			args = ""
-		cpp.write("\treturn new {cls.name}({args});\n".format(cls = cls, args = args))
+	#header.write("// -- Begin class %s\n" % cls.name)
+	#if not cls.isAbstract and (not cls.constructor or cls.constructor.access == "public"):
+		#header.write("{0}* {1}({2});\n".format(cls.name,
+			#getIdentifier(cls = cls, special = "constructor"),
+			#cls.constructor.getArgsAsString(getTypeAsString) if cls.constructor else "")
+		#)
 
-		cpp.write("}\n\n")
-	header.write("void {func}({cls.name}*);\n".format(cls = cls, func = getIdentifier(cls = cls, special = "destructor")))
+		#cpp.write("{0}* {1}({2}){{\n".format(cls.name,
+			#getIdentifier(cls = cls, special = "constructor"),
+			#cls.constructor.getArgsAsString(getTypeAsString, argNames) if cls.constructor else "")
+		#)
 
-	for method in cls.methods:
-		args = method.getArgsAsString(getTypeAsString)
-		if args:
-			args = "{0}*, {1}".format(cls.name, args)
-		else:
-			args = "{0}*".format(cls.name)
-		header.write("{retType} {function}({args});\n".format(
-			retType = getTypeAsString(method.returns),
-			function = getIdentifier(method, cls = cls), args = args))
-	header.write("// -- End class %s\n\n" % cls.name)
-header.write('}\n')
+		#if cls.constructor:
+			#args = ", ".join(("*" + name if isReference(arg) else name) for name, arg in zip(argNames, cls.constructor.args))
+		#else:
+			#args = ""
+		#cpp.write("\treturn new {cls.name}({args});\n".format(cls = cls, args = args))
 
-header.close()
-cpp.close()
+		#cpp.write("}\n\n")
+	#header.write("void {func}({cls.name}*);\n".format(cls = cls, func = getIdentifier(cls = cls, special = "destructor")))
+
+	#for method in cls.methods:
+		#args = method.getArgsAsString(getTypeAsString)
+		#if args:
+			#args = "{0}*, {1}".format(cls.name, args)
+		#else:
+			#args = "{0}*".format(cls.name)
+		#header.write("{retType} {function}({args});\n".format(
+			#retType = getTypeAsString(method.returns),
+			#function = getIdentifier(method, cls = cls), args = args))
+	#header.write("// -- End class %s\n\n" % cls.name)
+#header.write('}\n')
+
+#header.close()
+#cpp.close()

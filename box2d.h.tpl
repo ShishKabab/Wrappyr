@@ -1,53 +1,41 @@
+{% from 'common.tpl' import capitalize -%}
+
 extern "C" {
-{% for class in nodesByType.nonPODs %}
+{% for class in classes.values() if class.name and class.name.startswith("b2") %}
 	struct {{ class.name }};
-{% endfor %}
+{%- endfor %}
 
-{% for class in nodesByType.nonPODs %}
-	{% if class.othersCanCreate %}
-	{% if class.constructor %}
-	{{ class.name }}* {{ identifier(cls = class, special = "constructor") }}({{ class.constructor.argsAsString }});
-	{% else %}
-	{{ class.name }}* {{ identifier(cls = class, special = "constructor") }}();
-	{% endif %}
-	{% endif class.constructor %}
-	void {{ class.name }}_Delete(class.constructor.argsAsString);
-	{% for method in class.methods %}
-	{% if method.args %}
-	{{ type2string(method.returns) }} {{ identifier(method, cls = cls) }}({{ class.name }}*, {{ class.constructor.argsAsString }});
-	{% else %}
-	{{ type2string(method.returns) }} {{ identifier(method, cls = cls) }}({{ class.name }}*);
-	{% endif %}
-	{% endfor %}
-{% endfor %}
+{% for class in classes.values() if class.name and class.name.startswith("b2") %}
 
-{#
-if not cls.isAbstract and (not cls.constructor or cls.constructor.access == "public"):
-		header.write("{0}* {1}({2});\n".format(cls.name,
-			getIdentifier(cls = cls, special = "constructor"),
-			cls.constructor.getArgsAsString(getTypeAsString) if cls.constructor else "")
-		)
+{% if not class.abstract %}
+	{% for constructor in class.constructors if constructor.access == 'public' and constructor.valid %}
+	{{ class.name }}* {{ class.name }}__Create{{ loop.index0 if loop.length > 1 else '' }}({{ constructor.argsAsString() }});
+	{%- endfor %}
+{%- endif %} {# End constructor #}
+{% if not class.destructor or class.destructor.access == 'public' %}
+	void {{ class.name }}__Destroy({{ class.name }}*);
+{% endif %} {# End destructor #}
 
-		cpp.write("{0}* {1}({2}){{\n".format(cls.name,
-			getIdentifier(cls = cls, special = "constructor"),
-			cls.constructor.getArgsAsString(getTypeAsString, argNames) if cls.constructor else "")
-		)
+{% for method in class.methods.values() %}
+	{% for signature in method if signature.access == 'public' and not signature.isStatic and not signature.name.startswith('operator') and signature.valid %}
+	{{ signature.returns.asString() }} {% if signature.returns.isCppOnly() %}* {% endif -%}
+	{{ class.name }}_{{ signature.name }}{{ loop.index0 if loop.length > 1 else '' }}(
+		{%- if signature.args -%}
+		{{ class.name }}*, {{ signature.argsAsString() }}
+		{%- else -%}
+		{{ class.name }}*
+		{%- endif -%}
+	);
+	{%- endfor %}
+{%- endfor %}  {# End method #}
 
-		if cls.constructor:
-			args = ", ".join(("*" + name if isReference(arg) else name) for name, arg in zip(argNames, cls.constructor.args))
-		else:
-			args = ""
-		cpp.write("\treturn new {cls.name}({args});\n".format(cls = cls, args = args))
+{% for member in class.members if member.access == 'public' and member.name and member.type.valid %}
+{{ member.type.asString() }} {% if member.type.isCppOnly() %}* {% endif -%}
+{{ class.name }}__Get{{ capitalize(member.name) }}({{ class.name }}*);
+void {{ class.name }}__Set{{ capitalize(member.name) }}({{ class.name }}*, {{ member.type.asString() }}
+	{%- if member.type.isCppOnly() %}*{% endif -%});
+{%- endfor %}  {# End member #}
 
-		cpp.write("}\n\n")
-	header.write("void {func}({cls.name}*);\n".format(cls = cls, func = getIdentifier(cls = cls, special = "destructor")))
+{%- endfor %}  {# End class #}
 
-	for method in cls.methods:
-		args = method.getArgsAsString(getTypeAsString)
-		if args:
-			args = "{0}*, {1}".format(cls.name, args)
-		else:
-			args = "{0}*".format(cls.name)
-		header.write("{retType} {function}({args});\n".format(retType = getTypeAsString(method.returns), function = getIdentifier(method, cls = cls), args = args))
-	header.write("// -- End class %s\n\n" % cls.name)
-#}
+}
