@@ -79,7 +79,7 @@ class Type(Node):
 			elif tp in ('builtin', 'record'):
 				self.name = xml_node.get('name')
 				if self.name == '_Bool':
-					self.name = 'int'
+					self.name = 'unsigned char'
 			elif tp == 'enum':
 				self.name = 'unsigned int'
 			else:

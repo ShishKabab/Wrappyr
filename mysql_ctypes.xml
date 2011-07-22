@@ -1,0 +1,45 @@
+<ctypes>
+	<package name="MySQL">
+		<library name="mysql" path="libmysqlclient.so" default="true" />
+
+		<function name="get_client_info">
+			<call symbol="mysql_get_client_info">
+				<returns>c_char_p</returns>
+			</call>
+		</function>
+
+		<class name="Connection">
+			<method name="__init__">
+				<call symbol="mysql_init">
+					<argument type="mysql.Connection" default="None" />
+				</call>
+			</method>
+
+			<method name="__del__">
+				<raw>self.close()</raw>
+			</method>
+
+			<method name="connect" guard="call_once">
+				<call symbol="mysql_real_connect">
+					<argument name="host" type="c_char_p" default="None" />
+					<argument name="user" type="c_char_p" default="None" />
+					<argument name="pass" type="c_char_p" default="None" />
+					<argument name="db" type="c_char_p" default="None" />
+					<argument name="port" type="c_uint" default="0" />
+					<argument name="unix_socket" type="c_char_p" default="None" />
+					<argument name="client_flag" type="c_ulong" default="0" />
+				</call>
+			</method>
+
+			<method name="query">
+				<call symbol="mysql_query">
+					<argument name="statement" type="c_char_p" />
+				</call>
+			</method>
+
+			<method name="close" guard="call_once">
+				<call symbol="mysql_close" />
+			</method>
+		</class>
+	</package>
+</ctypes>
