@@ -1,0 +1,31 @@
+Clang export:
+- Find a way to distribute plugin
+- Export top-level functions
+- Export namespaces and nested classes
+- Export file paths
+- Export function pointers and arrays
+- Unions?
+
+Clang import:
+- Are Jinja2 a good idea?
+- Create Ctypes XML structure file
+- C++ namespaces and nested classes
+- Static class methods and members
+- Enums
+- Generate classes for inheritance
+- Return references instead of copies from getter functions
+- Unions?
+- PEP8
+- Tests
+
+Ctypes API generator:
+- Cleanup code
+- Type checking
+- Default arguments
+- Enums
+- Make it easier to manipulate structure
+- Deal with inheritance (b2Shape and b2PolygonShape)
+- Static class methods and members
+- Inherit from C++ classes
+- PEP8
+- Tests
