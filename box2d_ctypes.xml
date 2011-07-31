@@ -7,52 +7,59 @@
 				<method name="__init__">
 					<call symbol="b2Vec2__Create0" />
 					<call symbol="b2Vec2__Create1">
-						<argument name="x" type="c_float" default="0.0" />
-						<argument name="y" type="c_float" default="0.0" />
+						<argument name="x" type="ctypes.c_float" default="0.0" />
+						<argument name="y" type="ctypes.c_float" default="0.0" />
 					</call>
 				</method>
 				<member name="x">
 					<getter>
 						<call symbol="b2Vec2__GetX">
-							<returns type="c_float" />
+							<returns type="ctypes.c_float" />
 						</call>
 					</getter>
 					<setter>
 						<call symbol="b2Vec2__SetX">
-							<argument type="c_float" />
+							<argument type="ctypes.c_float" />
 						</call>
 					</setter>
 				</member>
 				<member name="y">
 					<getter>
-						<call symbol="b2Vec2__GetX">
-							<returns type="c_float" />
+						<call symbol="b2Vec2__GetY">
+							<returns type="ctypes.c_float" />
 						</call>
 					</getter>
 					<setter>
-						<call symbol="b2Vec2__SetX">
-							<argument type="c_float" />
+						<call symbol="b2Vec2__SetY">
+							<argument type="ctypes.c_float" />
 						</call>
 					</setter>
 				</member>
 			</class>
 		</package>
 		<package name="collision">
+			<!--<class name="Test">
+				<method name="foo">
+					<call symbol="bla">
+						<returns type="Box2D.collision.shapes.b2PolygonShape" />
+					</call>
+				</method>
+			</class>-->
 			<package name="shapes">
 				<class name="b2PolygonShape">
 					<method name="__init__">
 						<call symbol="b2PolygonShape__Create" />
 					</method>
 					<method name="SetAsBox">
-						<call symbol="b2PolygonShape__SetAsBox0">
-							<argument name="half_width" type="c_float" />
-							<argument name="half_height" type="c_float" />
+						<call symbol="b2PolygonShape_SetAsBox0">
+							<argument name="half_width" type="ctypes.c_float" />
+							<argument name="half_height" type="ctypes.c_float" />
 						</call>
-						<call symbol="b2PolygonShape__SetAsBox1">
-							<argument name="half_width" type="c_float" />
-							<argument name="half_height" type="c_float" />
+						<call symbol="b2PolygonShape_SetAsBox1">
+							<argument name="half_width" type="ctypes.c_float" />
+							<argument name="half_height" type="ctypes.c_float" />
 							<argument name="center" type="Box2D.common.b2Vec2" />
-							<argument name="angle" type="c_float" />
+							<argument name="angle" type="ctypes.c_float" />
 						</call>
 					</method>
 				</class>
@@ -63,24 +70,40 @@
 				<method name="__init__">
 					<call symbol="b2World__Create">
 						<argument name="gravity" type="Box2D.common.b2Vec2" default="0.0" />
-						<argument name="doSleep" type="c_ubyte" default="0.0" />
+						<argument name="doSleep" type="ctypes.c_int" default="0" />
 					</call>
 				</method>
 				<method name="CreateBody">
-					<call symbol="b2World__CreateBody">
-						<argument name="def" type="Box2D.dynamics.b2BodyDef" />
+					<call symbol="b2World_CreateBody">
+						<argument name="bdef" type="Box2D.dynamics.b2BodyDef" />
 						<returns type="Box2D.dynamics.b2Body" ownership="true" />
 					</call>
 				</method>
 				<method name="DestroyBody">
-					<call symbol="b2World__DestroyBody">
+					<call symbol="b2World_DestroyBody">
 						<argument name="body" type="Box2D.dynamics.b2Body" />
 					</call>
+				</method>
+				<method name="Step">
+					<call symbol="b2World_Step">
+						<argument name="timeStep" type="ctypes.c_float" />
+						<argument name="velocityIterations" type="ctypes.c_int" />
+						<argument name="positionIterations" type="ctypes.c_int" />
+					</call>
+				</method>
+				<method name="ClearForces">
+					<call symbol="b2World_ClearForces" />
 				</method>
 			</class>
 			<class name="b2Body">
 				<method name="__del__">
 					<raw>self.world.DestroyBody(self)</raw>
+				</method>
+				<method name="CreateFixture">
+					<call symbol="b2Body_CreateFixture0">
+						<argument name="fixture" type="Box2D.dynamics.b2FixtureDef" />
+						<returns type="Box2D.dynamics.b2Fixture" ownership="false" />
+					</call>
 				</method>
 				<member name="position">
 					<getter>
@@ -89,10 +112,17 @@
 						</call>
 					</getter>
 				</member>
+				<member name="angle">
+					<getter>
+						<call symbol="b2Body_GetAngle">
+							<returns type="ctypes.c_float" />
+						</call>
+					</getter>
+				</member>
 				<member name="world">
 					<getter>
-						<call symbol="b2Body_GetWorld">
-							<returns type="Box2D.common.b2World" ownership="false" />
+						<call symbol="b2Body_GetWorld0">
+							<returns type="Box2D.dynamics.b2World" ownership="false" />
 						</call>
 					</getter>
 				</member>
@@ -105,6 +135,41 @@
 					<setter>
 						<call symbol="b2BodyDef__SetPosition">
 							<argument type="Box2D.common.b2Vec2" />
+						</call>
+					</setter>
+				</member>
+				<member name="type">
+					<setter>
+						<call symbol="b2BodyDef__SetType">
+							<argument type="ctypes.c_uint" />
+						</call>
+					</setter>
+				</member>
+			</class>
+			<class name="b2Fixture">
+			</class>
+			<class name="b2FixtureDef">
+				<method name="__init__">
+					<call symbol="b2FixtureDef__Create" />
+				</method>
+				<member name="shape">
+					<setter>
+						<call symbol="b2FixtureDef__SetShape">
+							<argument type="Box2D.collision.shapes.b2PolygonShape" />
+						</call>
+					</setter>
+				</member>
+				<member name="density">
+					<setter>
+						<call symbol="b2FixtureDef__SetDensity">
+							<argument type="ctypes.c_float" />
+						</call>
+					</setter>
+				</member>
+				<member name="friction">
+					<setter>
+						<call symbol="b2FixtureDef__SetFriction">
+							<argument type="ctypes.c_float" />
 						</call>
 					</setter>
 				</member>

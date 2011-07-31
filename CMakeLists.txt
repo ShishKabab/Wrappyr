@@ -6,3 +6,6 @@ include_directories(/usr/local/include/Box2D)
 add_definitions(-fpermissive)
 add_library(Box2DC box2d.cpp)
 target_link_libraries(Box2DC /usr/local/lib/libBox2D.so)
+
+# add_executable(Box2DC_Test main.cpp)
+# target_link_libraries(Box2DC_Test Box2DC)
