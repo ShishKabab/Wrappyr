@@ -1,22 +1,22 @@
 Clang export:
 - Find a way to distribute plugin
-X Export top-level functions
-X Export POD structs
-X Export function pointers
-X Export file paths
-X Export namespaces and nested classes
-X Export enums
+- Overloaded operators
 - Unions?
 
 Clang import:
 - C++ namespaces and nested classes
 - PEP8
-- Were Jinja2 templates a good idea for this project?
+- Functions
 - Create Ctypes XML structure file
 - Static class methods and members
 - Enums
 - Generate classes for inheritance
 - Return references instead of copies from getter functions
+- Overloaded operators
+- Function returns pointer to copy created by copy constructor when a C++ class is returned. Find more elagant solution.
+- Pointers to pointers
+- Template classes and functions - how?
+- Exceptions - how?
 - Unions?
 - Tests
 
@@ -32,4 +32,10 @@ Ctypes API generator:
 - Deal with inheritance (b2Shape and b2PolygonShape)
 - Static class methods and members
 - Inherit from C++ classes
+- Function overloading
+- Overloaded operators
+- Export Python classes to C++
+- Pointers to pointers
+- Template classes and functions - how?
+- Exceptions - how?
 - Tests
