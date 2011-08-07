@@ -4,14 +4,10 @@ Clang export:
 - Unions?
 
 Clang import:
-- C++ namespaces and nested classes
 - PEP8
 - Functions
-- Create Ctypes XML structure file
 - Static class methods and members
-- Enums
 - Generate classes for inheritance
-- Return references instead of copies from getter functions
 - Overloaded operators
 - Function returns pointer to copy created by copy constructor when a C++ class is returned. Find more elagant solution.
 - Pointers to pointers

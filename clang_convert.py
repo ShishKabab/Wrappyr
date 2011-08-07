@@ -92,8 +92,8 @@ class Type(Node):
 			elif tp in ('builtin', 'record', 'enum'):
 				self.id = xml_node.get('id')
 				self.name = xml_node.get('name')
-				if self.name == '_Bool':
-					self.name = 'bool'
+				#if self.name == '_Bool':
+					#self.name = 'bool'
 			else:
 				self.valid = False
 			self.type = tp
@@ -130,6 +130,8 @@ class Function(Node):
 		Node.__init__(self, xml_node)
 
 		self.access = xml_node.get('access')
+		self.is_constructor = (xml_node.get('constructor') == '1')
+		self.is_destructor = (xml_node.get('destructor') == '1')
 		#self.isFunctionPointer = (xml_node.tag == 'FunctionType')
 		self.isMethod = (xml_node.tag == 'Method')
 		self.isVirtual = (xml_node.get('virtual') == '1')
@@ -138,6 +140,7 @@ class Function(Node):
 		self.args = tuple(Argument(i) for i in xml_node.findall('Argument'))
 		self.returns = Type(xml_node.find('Returns').find('Type'))
 		self.valid = all(i.type.valid for i in self.args) and self.returns.valid
+		self.extern_c = (xml_node.get('extern_c') == '1')
 
 	def argsAsString(self, names = ()):
 		if len(names) < len(self.args):
@@ -173,6 +176,9 @@ class Namespace(object):
 	def getChild(self, name):
 		ns = self
 		for part in name.split("::"):
+			if not part:
+				continue
+
 			child = ns.children.get(part)
 			if not child:
 				child = ns.children[part] = Namespace(self, part)
@@ -235,6 +241,9 @@ class ExportFilter(object):
 	def __init__(self, importer):
 		self.importer = importer
 
+	def filter_namespace(self, ns):
+		return True
+
 	def filter_class(self, cls):
 		return cls.isValid(self.importer) and cls.access in ('unknown', 'public')
 
@@ -242,15 +251,25 @@ class ExportFilter(object):
 		return all(self.filter_method_signature(cls, sig) for sig in method)
 
 	def filter_method_signature(self, cls, signature):
-		return signature.access == 'public' and not signature.isStatic \
-			and not signature.name.startswith('operator') \
-			and signature.valid
+		return self.filter_function(signature) and \
+			signature.access == 'public' and \
+			not signature.isStatic
 
 	def filter_member(self, cls, member):
 		return member.access == 'public' and member.name \
+			and (member.type.type != 'builtin' or not member.type.pointers) \
+			and member.type.pointers <= 1 \
 			and member.type.valid
 
+	def filter_function(self, f):
+		return not f.name.startswith('operator') \
+			and f.valid
+
 class ClangExport(object):
+	@staticmethod
+	def iletters():
+		return (chr(i) for i in xrange(ord('a'), ord('m')))
+
 	def get_filter(self, importer):
 		return ExportFilter(importer)
 
@@ -362,7 +381,7 @@ class HeaderExport(ClangExport):
 			f.write('\n}\n')
 
 class SourceExport(ClangExport):
-	letters = tuple(chr(i) for i in xrange(ord('a'), ord('m')))
+	letters = tuple(ClangExport.iletters())
 
 	def get_includes(self):
 		pass
@@ -381,6 +400,7 @@ class SourceExport(ClangExport):
 	def export_class(self, cls):
 		full_name = cls.getFullName()
 		full_name_underscore = cls.getFullName("__")
+
 		block = SourceBlock()
 		block.add_line("")
 		block.add_line("//")
@@ -389,7 +409,7 @@ class SourceExport(ClangExport):
 
 		# Constructor
 		if not cls.isAbstract(self.importer):
-			for i, constructor in enumerate(cls.constructors):
+			for constructor in cls.constructors:
 				if not self.filter.filter_method_signature(cls, constructor):
 					continue
 				block.add_line("void* %s(%s){" % (
@@ -485,9 +505,212 @@ class SourceExport(ClangExport):
 			f.write(self.export_namespace(importer.root_namespace)
 				.as_text())
 
+class CtypesFilter(ExportFilter):
+	pass
+
 class CtypesExport(ClangExport):
+	builtin_dict = {
+		'_Bool': 'ctypes.c_bool',
+		'char': 'ctypes.c_char',
+		'wchar_t': 'ctypes.c_wchar',
+		'char': 'ctypes.c_byte',
+		'unsigned char': 'ctypes.c_ubyte',
+		'short': 'ctypes.c_short',
+		'unsigned short': 'ctypes.c_ushort',
+		'int': 'ctypes.c_int',
+		'unsigned int': 'ctypes.c_uint',
+		'long': 'ctypes.c_long',
+		'unsigned long': 'ctypes.c_ulong',
+		'long long': 'ctypes.c_longlong',
+		'unsigned long long': 'ctypes.c_ulonglong',
+		'float': 'ctypes.c_float',
+		'double': 'ctypes.c_double',
+		'long double': 'ctypes.c_longdouble',
+	}
+
+	def package_for_namespace(self, ns):
+		return ns.name or "exported"
+
+	def export_function(self, f):
+		block = SourceBlock()
+		if not f.extern_c:
+			return block
+
+		block.add_line('<function name="%s">' % f.name)
+		block.add_line('</function>')
+		return block
+
+	def export_method(self, cls, method):
+		block = SourceBlock()
+		if not method:
+			return block
+
+		first_signature = method[0]
+		if first_signature.is_constructor:
+			name = "__init__"
+		elif first_signature.is_destructor:
+			name = "__del__"
+		else:
+			name = first_signature.name
+
+		block.add_line('<method name="%s">' % name)
+		for signature in method:
+			if self.filter.filter_method_signature(cls, signature):
+				block.add_block(self.export_call(signature, cls, method), 1)
+		block.add_line('</method>')
+
+		return block
+
+	def export_constructor(self, cls):
+		block = SourceBlock()
+
+		cls_name_underscore = cls.getFullName("__")
+		block.add_line('<method name="__init__">')
+
+		for constructor in cls.constructors:
+			block.add_block(self.export_call(constructor, cls), 1)
+
+		block.add_line('</method>')
+		return block
+
+	def export_call(self, f, cls = None, method = None):
+		cls_name_underscore = cls.getFullName("__")
+
+		if f.is_constructor:
+			symbol = self.symbol_for_constructor(
+				cls, cls_name_underscore, f)
+		elif f.is_destructor:
+			symbol = self.symbol_for_destructor(
+				cls, cls_name_underscore, f)
+		else:
+			symbol = self.symbol_for_method_signature(
+				cls, cls_name_underscore, method, f)
+
+		returns_nothing = (f.is_constructor or f.is_destructor
+			or (f.returns.name == 'void' and not f.returns.pointers))
+
+		block = SourceBlock()
+		if returns_nothing and not f.args:
+			block.add_line('<call symbol="%s" />' % symbol)
+			return block
+
+		block.add_line('<call symbol="%s">' % symbol)
+		for arg, letter in zip(f.args, self.iletters()):
+			block.add_line('<argument name="%s" type="%s" />' % (
+				arg.name or letter,
+				self.type_as_ctype(arg.type))
+			, 1)
+		if not returns_nothing:
+			block.add_line('<returns type="%s" ownership="%d" />' % (
+				self.type_as_ctype(f.returns),
+				bool(method and f.returns.isCppOnly()))
+			, 1)
+
+		block.add_line('</call>')
+
+		return block
+
+	def type_as_ctype(self, type):
+		if type.type == 'builtin' and not type.refs:
+			if type.pointers == 1:
+				if type.name == 'void':
+					return "ctypes.c_void_p"
+				if type.name == 'char':
+					return "ctypes.c_char_p"
+				if type.name == 'wchar':
+					return "ctypes.c_wchar_p"
+			elif not type.pointers:
+				return self.builtin_dict[type.name]
+		elif (type.pointers + type.refs) <= 1 and type.type in ('record', 'enum'):
+			path = self.package_for_namespace(self.importer.root_namespace)
+			path = [path] if path else []
+			path += type.name.split("::")
+
+			return ".".join(path)
+
+		raise Exception("Don't know how to export type '%s%s%s'" % (type.name,
+			'*' * type.pointers,
+			'&' * type.refs))
+
+	def export_destructor(self, cls):
+		block = SourceBlock()
+		return block
+
+	def export_member(self, cls, member):
+		getter, setter = self.symbols_for_member(cls, cls.getFullName("__"), member)
+		type = self.type_as_ctype(member.type)
+
+		block = SourceBlock()
+		block.add_line('<member name="%s">' % member.name)
+
+		block.add_line('<getter>', 1)
+		block.add_line('<call symbol="%s">' % getter, 2)
+		block.add_line('<returns type="%s" />' % type, 3)
+		block.add_line('</call>', 2)
+		block.add_line('</getter>', 1)
+
+		block.add_line('<setter>', 1)
+		block.add_line('<call symbol="%s">' % setter, 2)
+		block.add_line('<argument type="%s" />' % type, 3)
+		block.add_line('</call>', 2)
+		block.add_line('</setter>', 1)
+
+		block.add_line('</member>')
+		return block
+
+	def export_class(self, cls):
+		full_name = cls.getFullName()
+		full_name_underscore = cls.getFullName("__")
+
+		block = SourceBlock()
+		block.add_line('<class name="%s">' % cls.name)
+
+		if not cls.isAbstract(self.importer) and cls.constructors:
+			block.add_block(self.export_constructor(cls), 1)
+		if not cls.destructor or cls.destructor.access == 'public':
+			block.add_block(self.export_destructor(cls), 1)
+		for method in cls.methods.values():
+			if self.filter.filter_method(cls, method):
+				block.add_block(self.export_method(cls, method), 1)
+		for member in cls.members:
+			if self.filter.filter_member(cls, member):
+				block.add_block(self.export_member(cls, member), 1)
+
+		block.add_line('</class>')
+		return block
+
+	def export_namespace(self, ns):
+		package_name = self.package_for_namespace(ns)
+
+		block = SourceBlock()
+		if package_name:
+			block.add_line('<package name="%s">' % package_name)
+			for node in ns.nodes:
+				if isinstance(node, Class):
+					if self.filter.filter_class(node):
+						block.add_block(self.export_class(node), 1)
+				if isinstance(node, Function):
+					if self.filter.filter_function(node):
+						block.add_block(self.export_function(node), 1)
+
+		child_indent = int(bool(package_name))
+		for child in ns.children.values():
+			if self.filter.filter_namespace(child):
+				block.add_block(self.export_namespace(child), child_indent)
+
+		if package_name:
+			block.add_line('</package>')
+
+		return block
+
 	def export(self, importer, path):
 		self.setup(importer)
+
+		with open(path, 'w') as f:
+			f.write("<ctypes>\n")
+			f.write(self.export_namespace(importer.root_namespace)
+				.as_text(1))
+			f.write("\n</ctypes>")
 
 class CeguiFilter(ExportFilter):
 	def filter_class(self, cls):
@@ -531,9 +754,13 @@ class CeguiSourceExport(SourceExport):
 		return '#include <CEGUI.h>\n#include "cegui.h"'
 
 class CeguiCtypesExport(CtypesExport):
-	pass
+	def package_for_namespace(self, ns):
+		return ns.name
 
 class Box2DFilter(ExportFilter):
+	def filter_namespace(self, ns):
+		return not ns.name
+
 	def filter_class(self, cls):
 		if not ExportFilter.filter_class(self, cls):
 			return False
@@ -551,7 +778,11 @@ class Box2DSourceExport(SourceExport):
 		return '#include <Box2D.h>\n#include "box2d.h"'
 
 class Box2DCtypesExport(CtypesExport):
-	pass
+	def get_filter(self, importer):
+		return Box2DFilter(importer)
+
+	def package_for_namespace(self, ns):
+		return ns.name or "Box2D"
 
 pkgs = {
 	'__default__': {
