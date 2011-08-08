@@ -8,7 +8,6 @@ set(BUILD_SHARED_LIBS true)
 # target_link_libraries(CEGUIC /usr/local/lib/libCEGUIBase.so)
 
 include_directories(/usr/local/include/Box2D)
-add_definitions(-fpermissive)
 add_library(Box2DC box2d.cpp)
 target_link_libraries(Box2DC /usr/local/lib/libBox2D.so)
 

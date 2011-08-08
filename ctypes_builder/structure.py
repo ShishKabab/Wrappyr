@@ -1,31 +1,146 @@
 from itertools import chain
 from collections import defaultdict
-from lxml.etree import parse as parseXML, fromstring as parseXMLFromString
+from lxml.etree import parse as parse_xml, fromstring as parse_xml_from_string
 from MultiDict import OrderedMultiDict
 
-def addNamedItem(prop):
+def add_named_item(prop):
 	def add(self, item):
+		item.parent = self
 		self.children[item.name] = item
 		getattr(self, prop)[item.name] = item
 
 	return add
 
-def boolFromString(s):
+def add_list_item(prop):
+	def add(self, item):
+		item.parent = self
+		self.children[getattr(item, 'name', None)] = item
+		getattr(self, prop).append(item)
+
+	return add
+
+def add_single_item(prop):
+	def add(self, item):
+		cur = getattr(self, prop)
+		if cur:
+			cur.parent = None
+		item.parent = self
+
+		if cur:
+			remove_from_children(self, cur)
+		self.children[item.name] = item
+
+		setattr(self, prop, item)
+
+	return add
+
+def remove_from_children(parent, child):
+	name = getattr(child, 'name', None)
+	children = parent.children.getall(name)
+	if len(children) == 1:
+		del parent.children[name]
+	else:
+		children.remove(child)
+
+def remove_named_item(prop):
+	def remove(self, item):
+		item.parent = None
+		remove_from_children(self, item)
+		del getattr(self, prop)[item.name]
+
+	return remove
+
+def remove_list_item(prop):
+	def remove(self, item):
+		item.parent = None
+		remove_from_children(self, item)
+		getattr(self, prop).remove(item)
+
+	return remove
+
+def remove_single_item(prop):
+	def remove(self, item):
+		item.parent = None
+		remove_from_children(self, item)
+		setattr(self, prop, None)
+
+	return remove
+
+def every_named_item(prop):
+	def every(self):
+		return getattr(self, prop).values()
+
+	return every
+
+def every_list_item(prop):
+	def every(self):
+		return getattr(self, prop)
+
+	return every
+
+def every_single_item(prop):
+	""" Returns item in a single-item tuple or an empty tuple
+
+	Needed so CTypesStructure.diplay won't get confused when you return (None,) """
+
+	def every(self):
+		item = getattr(self, prop, None)
+		return (item,) if item else ()
+
+	return every
+
+def _setup_child(item_type, cls, prop, name, type, add = None, remove = None, every = None):
+	children = cls.layout.get('children', {})
+	if not children:
+		cls.layout['children'] = children
+
+	layout_item = children.get(prop, {})
+	if not layout_item:
+		children[prop] = layout_item
+
+	layout_item.update({
+		'name': name,
+		'type': type,
+	})
+	if add != False:
+		layout_item['add'] = add or 'add_' + type.lower()
+		add_func = globals()["add_%s_item" % item_type](prop)
+		setattr(cls, layout_item['add'], add_func)
+	if remove != False:
+		layout_item['remove'] = remove or 'remove_' + type.lower()
+		remove_func = globals()["remove_%s_item" % item_type](prop)
+		setattr(cls, layout_item['remove'], remove_func)
+
+	if every != False:
+		layout_item['every'] = every or 'every_%s' + type.lower()
+		every_func = globals()["every_%s_item" % item_type](prop)
+		setattr(cls, layout_item['every'], every_func)
+
+def setup_named_child(cls, prop, name, type, add = None, remove = None, every = None):
+	_setup_child('named', cls, prop, name, type, add, remove, every)
+
+def setup_list_child(cls, prop, name, type, add = None, remove = None, every = None):
+	_setup_child('list', cls, prop, name, type, add, remove, every)
+
+def setup_single_child(cls, prop, name, type, add = None, remove = None, every = None):
+	_setup_child('single', cls, prop, name, type, add, remove, every)
+
+def bool_from_string(s):
 	return s.lower() in ('1', 'true')
 
 class Node(object):
 	types = {}
 
-	def __init__(self, parent, name = None):
-		self.parent = parent
+	def __init__(self, name = None):
+		self.parent = None
 		self.name = name
 		self.children = OrderedMultiDict()
 
-	def addNodesFromXML(self, xml_node, name, cls, add_func):
+	def add_nodes_from_xml(self, xml_node, name, cls, add_func):
 		for node in xml_node.findall(name):
-			add_func(cls.fromXML(self, node))
+			add_func(cls.from_xml(node))
 
-	def getPath(self, top = None):
+	def get_path(self, top = None):
 		path = []
 
 		node = self
@@ -38,14 +153,14 @@ class Node(object):
 		if not top or node == top:
 			return ".".join(path)
 
-	def getClosestParentModule(self):
+	def get_closest_parent_module(self):
 		parent = self.parent
 		while parent:
 			if isinstance(parent, Module):
 				return parent
 			parent = parent.parent
 
-	def getDistanceToParent(self, parent):
+	def get_distance_to_parent(self, parent):
 		i = 0
 
 		node = self
@@ -56,10 +171,10 @@ class Node(object):
 
 			node = node.parent
 
-	def findLowestCommonParent(self, other):
-		aParents = reversed(list(self.parents()))
-		bParents = reversed(list(other.parents()))
-		for a, b in reversed(zip(aParents, bParents)): # Zip makes both paths the same height
+	def find_lowest_common_parent(self, other):
+		a_parents = reversed(list(self.parents()))
+		b_parents = reversed(list(other.parents()))
+		for a, b in reversed(zip(a_parents, b_parents)): # Zip makes both paths the same height
 			if a == b:
 				return a
 
@@ -70,7 +185,7 @@ class Node(object):
 			parent = parent.parent
 
 	@classmethod
-	def getLayouts(cls):
+	def get_layouts(cls):
 		layouts = []
 		nodecls = cls
 		while nodecls != Node:
@@ -80,18 +195,18 @@ class Node(object):
 		return layouts
 
 	@classmethod
-	def fromXML(cls, parent, xml_node):
+	def from_xml(cls, xml_node):
 		kwds = {}
 
-		layouts = cls.getLayouts()
+		layouts = cls.get_layouts()
 		for layout in layouts:
 			for prop, conv in layout.get('properties', {}).items():
 				kwds[prop] = conv(xml_node.get(prop))
 
-		node = cls(parent, **kwds)
+		node = cls(**kwds)
 		for layout in layouts:
 			for name, group in layout.get('children', {}).items():
-				add = group.get('add') or 'add' + group['type']
+				add = group['add']
 				add = getattr(node, add)
 				tp = cls.types[group['type']]
 
@@ -101,7 +216,7 @@ class Node(object):
 					xml_child_nodes = chain.from_iterable(xml_node.findall(i) for i in group['name'])
 
 				for xml_child_node in xml_child_nodes:
-					add(tp.fromXML(node, xml_child_node))
+					add(tp.from_xml(xml_child_node))
 
 		return node
 
@@ -126,42 +241,52 @@ class Module(Node):
 		}
 	}
 
-	def __init__(self, parent, name):
-		Node.__init__(self, parent, name)
+	def __init__(self, name):
+		Node.__init__(self, name)
 
 		self.libraries = {}
 		self.functions = {}
 		self.classes = {}
 
-	addLibrary = addNamedItem('libraries')
-	addFunction = addNamedItem('functions')
-	addClass = addNamedItem('classes')
+	#add_library = add_named_item('libraries')
+	#add_function = add_named_item('functions')
+	#add_class = add_named_item('classes')
 
-	def findLibrary(self, name = None):
+	class LibraryNotFound(Exception): pass
+	def find_library(self, name = None):
 		mod = self
-		while mod:
+		while mod.parent:
 			for lib in mod.libraries.values():
 				if (name and lib.name == name) or (not name and lib.default):
 					return lib
 			mod = mod.parent
 
-	def getNodeImport(self, node):
+		if name:
+			raise self.LibraryNotFound("Could not find library '%s'" % name)
+		else:
+			raise self.LibraryNotFound("Could not find default library")
+
+	def get_node_import(self, node):
 		if self in node.parents():
 			lcp = self
 		else:
-			lcp = self.findLowestCommonParent(node)
+			lcp = self.find_lowest_common_parent(node)
 
 		if lcp != self:
-			distance = self.getDistanceToParent(lcp)
+			distance = self.get_distance_to_parent(lcp)
 			return "from %s%s import %s" % (
 				("." * (distance + 1)),
-				node.getClosestParentModule().getPath(lcp),
+				node.get_closest_parent_module().get_path(lcp),
 				node.name
 			)
 		elif node.parent != self:
-			return "from .%s import %s" % (node.getClosestParentModule().getPath(self), node.name)
+			return "from .%s import %s" % (node.get_closest_parent_module().get_path(self), node.name)
 		else:
 			return ""
+setup_named_child(Module, 'libraries', 'library', 'Library')
+setup_named_child(Module, 'functions', 'function', 'Function')
+setup_named_child(Module, 'classes', 'class', 'Class')
+
 Node.types['Module'] = Module
 
 class Package(Module):
@@ -178,15 +303,14 @@ class Package(Module):
 		}
 	}
 
-	def __init__(self, parent, name):
-		Module.__init__(self, parent, name)
+	def __init__(self, name):
+		Module.__init__(self, name)
 
 		self.packages = {}
 		self.modules = {}
+setup_named_child(Package, 'packages', 'package', 'Package')
+setup_named_child(Package, 'modules', 'module', 'Module')
 
-	addPackage = addNamedItem('packages')
-	addModule = addNamedItem('modules')
-		#return pkg
 Node.types['Package'] = Package
 
 class Library(Node):
@@ -194,12 +318,12 @@ class Library(Node):
 		'properties': {
 			'name': str,
 			'path': str,
-			'default': boolFromString
+			'default': bool_from_string
 		},
 	}
 
-	def __init__(self, parent, name, path, default = False):
-		Node.__init__(self, parent, name)
+	def __init__(self, name, path, default = False):
+		Node.__init__(self, name)
 
 		self.name = name
 		self.path = path
@@ -223,14 +347,20 @@ class Class(Node):
 		}
 	}
 
-	def __init__(self, parent, name):
-		Node.__init__(self, parent, name)
+	def __init__(self, name):
+		Node.__init__(self, name)
 
 		self.methods = {}
 		self.members = {}
 
-	addMethod = addNamedItem('methods')
-	addMember = addNamedItem('members')
+	add_method = add_named_item('methods')
+	add_member = add_named_item('members')
+
+	def is_empty(self):
+		return not any((self.methods, self.members))
+setup_named_child(Class, 'methods', 'method', 'Method')
+setup_named_child(Class, 'members', 'member', 'Member')
+
 Node.types['Class'] = Class
 
 class Function(Node):
@@ -244,30 +374,31 @@ class Function(Node):
 			'ops': {
 				'name': ('call', 'raw'),
 				'type': 'Operation',
-				'add': 'addOperation',
-				'all': 'getAllOperations'
+				'add': 'add_operation',
 			}
 		}
 	}
 
-	def __init__(self, parent, name):
-		Node.__init__(self, parent, name)
+	def __init__(self, name):
+		Node.__init__(self, name)
 
 		self.name = name
 		self.ops = []
 		self.raw = None
 
-	def addOperation(self, op):
+	_add_operation = add_list_item('ops')
+	def add_operation(self, op):
 		if self.raw:
 			raise self.CannotAddOperation("Function '%s' has raw code and you tried to add a '%s' operation" %
 				(self.name, type(op).__name__))
+		if self.raw == False and not isinstance(op, Call):
+			raise self.CannotAddOperation("Function '%s' has C calls and you tried to add a '%s' operation" %
+				(self.name, type(op).__name__))
 		self.raw = isinstance(op, RawCode)
 
-		self.ops.append(op)
-		self.children[None] = op
+		self._add_operation(op)
+setup_list_child(Function, 'ops', ('call', 'raw'), 'Operation', add = False)
 
-	def getAllOperations(self):
-		return self.ops
 Node.types['Function'] = Function
 
 class Method(Function):
@@ -283,53 +414,42 @@ class Member(Node):
 			'getter': {
 				'name': 'getter',
 				'type': 'Method',
-				'add': 'setGetter',
-				'all': 'getGetters'
+				'add': 'set_getter',
+				'every': 'every_getter'
 			},
 			'setter': {
 				'name': 'setter',
 				'type': 'Method',
-				'add': 'setSetter',
-				'all': 'getSetters'
+				'add': 'set_setter',
+				'every': 'every_setter'
 			},
 		}
 	}
 
-	def __init__(self, parent, name, getter = None, setter = None):
-		Node.__init__(self, parent, name)
+	def __init__(self, name, getter = None, setter = None):
+		Node.__init__(self, name)
 
 		self.name = name
 		self.getter = getter
 		self.setter = setter
+setup_single_child(Member, 'getter', 'getter', 'Method', add = 'set_getter')
+setup_single_child(Member, 'setter', 'setter', 'Method', add = 'set_setter')
 
-	def setGetter(self, getter):
-		self.getter = getter
-		self.children[None] = getter
-
-	def setSetter(self, setter):
-		self.setter = setter
-		self.children[None] = setter
-
-	def getGetters(self):
-		return (self.getter,) if self.getter else ()
-
-	def getSetters(self):
-		return (self.setter,) if self.setter else ()
 Node.types['Member'] = Member
 
 class Operation(Node):
 	layout = {}
 	op_types = {}
 
-	def __init__(self, parent):
-		Node.__init__(self, parent)
+	def __init__(self):
+		Node.__init__(self)
 
 	@classmethod
-	def fromXML(cls, parent, xml_node):
+	def from_xml(cls, xml_node):
 		if cls == Operation:
-			return cls.op_types[xml_node.tag].fromXML(parent, xml_node)
+			return cls.op_types[xml_node.tag].from_xml(xml_node)
 		else:
-			return Node.fromXML.__func__(cls, parent, xml_node)
+			return Node.from_xml.__func__(cls, xml_node)
 Node.types['Operation'] = Operation
 
 class Call(Operation):
@@ -343,46 +463,44 @@ class Call(Operation):
 			'args': {
 				'name': 'argument',
 				'type': 'Argument',
-				'add': 'addArgument',
-				'all': 'getAllArguments'
+				'add': 'add_argument',
+				'every': 'every_argument'
 			},
 			'returns': {
 				'name': 'returns',
 				'type': 'ReturnValue',
-				'add': 'setReturnValue',
-				'all': 'getReturnValues'
+				'add': 'set_return_value',
+				'every': 'every_return_value'
 			}
 		}
 	}
 
-	def __init__(self, parent, symbol, library = None):
-		Operation.__init__(self, parent)
+	def __init__(self, symbol, library = None):
+		Operation.__init__(self)
 
 		self.symbol = symbol
 		self.library = library
 		self.args = []
 		self.returns = None
 
-	def addArgument(self, arg):
-		self.args.append(arg)
-		self.children[None] = arg
+	#add_argument = add_list_item('args')
+	#get_every_arguments = every_list_items('args')
 
-	def getAllArguments(self):
-		return self.args
+	#set_return_value = add_single_item('returns')
+	#get_return_values = every_single_items('returns')
 
-	def setReturnValue(self, ret):
-		self.returns = ret
-		self.children[None] = ret
-
-	def getReturnValues(self):
-		return (self.returns,) if self.returns else ()
-
-	def getReturnValueAsCType(self):
+	def get_return_value_as_ctype(self):
 		if not self.returns:
 			return "ctypes.c_void_p" if self.parent.name == "__init__" else "None"
 		if isinstance(self.returns.type, Class):
 			return "ctypes.c_void_p"
 		return self.returns.type
+setup_list_child(Call, 'args', 'argument', 'Argument')
+setup_single_child(Call, 'returns', 'returns', 'ReturnValue',
+	add = 'set_return_value',
+	remove = 'remove_return_value',
+	every = 'every_return_value')
+
 Operation.op_types['call'] = Call
 Node.types['Call'] = Call
 
@@ -390,12 +508,12 @@ class RawCode(Operation):
 	layout = {
 		'properties': {
 			'code': str,
-			'args': lambda v: v or ''
+			'args': lambda v: (() if not v else v.split(','))
 		}
 	}
 
-	def __init__(self, parent, code, args = ''):
-		Operation.__init__(self, parent)
+	def __init__(self, code, args = ''):
+		Operation.__init__(self)
 
 		self.code = code
 		self.args = args
@@ -411,8 +529,8 @@ class Argument(Node):
 		}
 	}
 
-	def __init__(self, parent, type, name = None, default = None):
-		Node.__init__(self, parent, name)
+	def __init__(self, type, name = None, default = None):
+		Node.__init__(self, name)
 
 		self.type = type
 		self.name = name
@@ -423,12 +541,12 @@ class ReturnValue(Node):
 	layout = {
 		'properties': {
 			'type': str,
-			'ownership': lambda v: False if v is None else boolFromString(v)
+			'ownership': lambda v: False if v is None else bool_from_string(v)
 		}
 	}
 
-	def __init__(self, parent, type, ownership = False):
-		Node.__init__(self, parent)
+	def __init__(self, type, ownership = False):
+		Node.__init__(self)
 
 		self.type = type
 		self.ownership = ownership
@@ -454,10 +572,10 @@ class CTypesStructure(Node):
 		self.packages = {}
 		self.modules = {}
 
-	addPackage = addNamedItem('packages')
-	addModule = addNamedItem('modules')
+	#add_package = add_named_item('packages')
+	#add_module = add_named_item('modules')
 
-	def getByPath(self, path):
+	def get_by_path(self, path):
 		node = self
 		for name in path.split("."):
 			node = node.children.get(name)
@@ -466,61 +584,54 @@ class CTypesStructure(Node):
 
 		return node
 
-	def resolveTypes(self, node = None):
+	def resolve_types(self, node = None):
 		if not node:
 			node = self
 
 		type = getattr(node, 'type', False)
 		if isinstance(type, basestring):
-			type = self.getByPath(type)
+			type = self.get_by_path(type)
 			if type:
 				node.type = type
 
 		for child in node.children.allvalues():
-			self.resolveTypes(child)
+			self.resolve_types(child)
 
 	def display(self, node = None, depth = 0):
 		if not node:
 			node = self
 
-		layouts = []
-		cls = type(node)
-		while cls != Node:
-			layouts.insert(0, cls.layout)
-			cls = cls.__base__
-
 		padding = "\t" * depth
 		props = []
-		for layout in layouts:
+		for layout in node.get_layouts():
 			for name in layout.get('properties', {}).keys():
 				prop = getattr(node, name)
 				if isinstance(prop, Node):
-					path = prop.getPath()
+					path = prop.get_path()
 					if path:
 						prop = "<%s '%s'>"  % (type(prop).__name__, path)
 				props.append("%s = %r" % (name, prop))
 
 		print "%s%s(%s){" % (padding, type(node).__name__, ", ".join(props))
-		for layout in layouts:
-			for groupName, group in layout.get('children', {}).items():
-				groupChildren = group.get('all')
-				if groupChildren:
-					groupChildren = getattr(node, groupChildren)
-				else:
-					groupChildren = getattr(node, groupName).values
+		for layout in node.get_layouts():
+			for group in layout.get('children', {}).values():
+				group_children = group['every']
+				group_children = getattr(node, group_children)
 
-				for child in groupChildren():
+				for child in group_children():
 					self.display(child, depth + 1)
 		print "%s}" % padding
 
 	@classmethod
 	def load(cls, file_path):
-		return cls.fromXML(parseXML(file_path))
+		return cls.from_xml(parse_xml(file_path))
 
 	@classmethod
-	def fromXML(cls, xml_node):
+	def from_xml(cls, xml_node):
 		s = cls()
-		s.addNodesFromXML(xml_node, 'package', Package, s.addPackage)
-		s.addNodesFromXML(xml_node, 'module', Module, s.addModule)
-		s.resolveTypes()
+		s.add_nodes_from_xml(xml_node, 'package', Package, s.add_package)
+		s.add_nodes_from_xml(xml_node, 'module', Module, s.add_module)
+		s.resolve_types()
 		return s
+setup_named_child(CTypesStructure, 'packages', 'package', 'Package')
+setup_named_child(CTypesStructure, 'modules', 'module', 'Module')

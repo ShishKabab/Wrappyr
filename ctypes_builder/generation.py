@@ -47,8 +47,8 @@ def get_converted_argument_list(call):
 def get_calls_per_library(calls):
 	calls_per_lib = defaultdict(list)
 	for call in calls:
-		mod = call.getClosestParentModule()
-		lib = mod.findLibrary(call.library)
+		mod = call.get_closest_parent_module()
+		lib = mod.find_library(call.library)
 		calls_per_lib[lib].append(call)
 
 	return calls_per_lib.items()
@@ -134,7 +134,7 @@ def write_module(mod, base_dir):
 			f.write("\t\treturn cls\n")
 
 		for cls in mod.classes.values():
-			cls_module = cls.getClosestParentModule()
+			cls_module = cls.get_closest_parent_module()
 
 			calls = []
 			for method in cls.methods.values():
@@ -148,7 +148,7 @@ def write_module(mod, base_dir):
 
 			calls_per_lib = get_calls_per_library(calls)
 			calls_per_lib = sorted(calls_per_lib, key =
-				lambda lib_calls: cls_module.getDistanceToParent(lib_calls[0].parent))
+				lambda lib_calls: cls_module.get_distance_to_parent(lib_calls[0].parent))
 
 			if not calls_per_lib:
 				continue
@@ -157,14 +157,14 @@ def write_module(mod, base_dir):
 			f.write("def init_cls():\n")
 			f.write("\t%s._calls = {}\n\n" % cls.name)
 			for lib, calls in calls_per_lib:
-				distance = cls_module.getDistanceToParent(lib.parent)
+				distance = cls_module.get_distance_to_parent(lib.parent)
 				if distance > 0:
 					f.write("\tfrom %s import _libraries\n" % ("." * (distance + 1)))
-					f.write("\tlib = _libraries['%s']\n\n" % lib.name)
+				f.write("\tlib = _libraries['%s']\n\n" % lib.name)
 
 				for call in calls:
 					if call.returns and isinstance(call.returns.type, Class):
-						imp = cls_module.getNodeImport(call.returns.type)
+						imp = cls_module.get_node_import(call.returns.type)
 						if imp:
 							f.write("\t%s as retcls%d\n" % (imp, calls_processed))
 						else:
@@ -174,7 +174,7 @@ def write_module(mod, base_dir):
 						("ctypes.c_void_p",) if call.parent.name != "__init__" else (),
 						(("ctypes.c_void_p" if isinstance(arg.type, Class) else arg.type) for arg in call.args)
 					)))
-					f.write("\tcall.restype = %s\n" % call.getReturnValueAsCType())
+					f.write("\tcall.restype = %s\n" % call.get_return_value_as_ctype())
 					if call.returns and isinstance(call.returns.type, Class):
 						f.write("\tcall.convert_res = lambda v: retcls%d._from_c(v, %r)\n" %
 							(calls_processed, call.returns.ownership))
@@ -201,3 +201,4 @@ def generate_structure(s, base_dir):
 		write_package(pkg, base_dir)
 	for mod in s.modules.values():
 		write_module(mod, base_dir)
+

@@ -52,8 +52,39 @@ class Class(Node):
 		self.destructor = self.destructor and self.destructor[0]
 		self.abstract = any(i.isPure for methods in self.methods.values() for i in methods)
 
+	def get_pure_virtual_signatures(self, importer = None, recursive = True):
+		signatures = [signature
+			for method in self.methods.values()
+			for signature in method
+			if signature.isPure]
+		if recursive:
+			for base_ref in self.bases:
+				base = importer.nodes[base_ref.id]
+				signatures.extend(base.get_pure_virtual_signatures(importer))
+		return signatures
+
+	def get_implemented_signatures(self, importer = None, recursive = True):
+		signatures = [signature
+			for method in self.methods.values()
+			for signature in method
+			if not signature.isPure]
+		if recursive:
+			for base_ref in self.bases:
+				base = importer.nodes[base_ref.id]
+				signatures.extend(base.get_pure_virtual_signatures(importer))
+		return signatures
+
 	def isAbstract(self, importer):
-		return self.abstract or any(importer.nodes[base.id].isAbstract(importer) for base in self.bases)
+		pure = self.get_pure_virtual_signatures(importer)
+		pure = [(sig.name,) + tuple((arg.type for arg in sig.args)) for sig in pure]
+		pure = set(pure)
+
+		nonpure = self.get_implemented_signatures(importer)
+		nonpure = [(sig.name,) + tuple((arg.type for arg in sig.args)) for sig in nonpure]
+		nonpure = set(nonpure)
+
+		return bool(pure - nonpure)
+		#return self.abstract or any(importer.nodes[base.id].isAbstract(importer) for base in self.bases)
 
 	def isValid(self, importer):
 		return self.name != None and len(self.name) > 0 and \
@@ -92,8 +123,8 @@ class Type(Node):
 			elif tp in ('builtin', 'record', 'enum'):
 				self.id = xml_node.get('id')
 				self.name = xml_node.get('name')
-				#if self.name == '_Bool':
-					#self.name = 'bool'
+				if self.name == '_Bool':
+					self.name = 'unsigned char'
 			else:
 				self.valid = False
 			self.type = tp
@@ -124,6 +155,18 @@ class Type(Node):
 
 	def as_parameter_type(self):
 		return "(%s)" % (self.asString(False))
+
+	def __hash__(self):
+		return hash((self.pointers, self.refs, self.name,
+			self.id, self.valid, self.const))
+
+	def __eq__(self, other):
+		a = (self.pointers, self.refs, self.name,
+			self.id, self.valid, self.const)
+		b = (other.pointers, other.refs, other.name,
+			other.id, other.valid, other.const)
+
+		return a == b
 
 class Function(Node):
 	def __init__(self, xml_node):
@@ -248,7 +291,7 @@ class ExportFilter(object):
 		return cls.isValid(self.importer) and cls.access in ('unknown', 'public')
 
 	def filter_method(self, cls, method):
-		return all(self.filter_method_signature(cls, sig) for sig in method)
+		return any(self.filter_method_signature(cls, sig) for sig in method)
 
 	def filter_method_signature(self, cls, signature):
 		return self.filter_function(signature) and \
@@ -256,14 +299,20 @@ class ExportFilter(object):
 			not signature.isStatic
 
 	def filter_member(self, cls, member):
-		return member.access == 'public' and member.name \
-			and (member.type.type != 'builtin' or not member.type.pointers) \
-			and member.type.pointers <= 1 \
-			and member.type.valid
+		type = member.type
+
+		return (member.access == 'public' and member.name
+			and not (type.type in ('builtin', 'enum') and type.pointers)
+			#and (not type.id or self.importer.nodes.get(type.id))
+			and (type.type != 'record' or self.importer.nodes.get(type.id))
+			and type.pointers <= 1
+			and type.valid)
 
 	def filter_function(self, f):
-		return not f.name.startswith('operator') \
-			and f.valid
+		return (not f.name.startswith('operator')
+			#and all(not arg.type.id or self.importer.nodes.get(arg.type.id) for arg in f.args)
+			#and (not f.returns.id or self.importer.nodes.get(f.returns.id))
+			and f.valid)
 
 class ClangExport(object):
 	@staticmethod
@@ -273,7 +322,7 @@ class ClangExport(object):
 	def get_filter(self, importer):
 		return ExportFilter(importer)
 
-	def symbol_for_constructor(self, cls, cls_name_underscore, constructor):
+	def symbol_for_constructor(self, cls, cls_name_underscore, constructor = None):
 		return "%s__Create%s" % (
 			cls_name_underscore,
 			(cls.constructors.index(constructor) if len(cls.constructors) > 1 else '')
@@ -322,12 +371,17 @@ class HeaderExport(ClangExport):
 
 		# Constructor
 		if not cls.isAbstract(self.importer):
-			for i, constructor in enumerate(cls.constructors):
-				if not self.filter.filter_method_signature(cls, constructor):
-					continue
-				block.add_line("void* %s(%s);" % (
-					self.symbol_for_constructor(cls, full_name_underscore, constructor),
-					constructor.argsAsString()
+			if cls.constructors:
+				for i, constructor in enumerate(cls.constructors):
+					if not self.filter.filter_method_signature(cls, constructor):
+						continue
+					block.add_line("void* %s(%s);" % (
+						self.symbol_for_constructor(cls, full_name_underscore, constructor),
+						constructor.argsAsString()
+					))
+			else:
+				block.add_line("void* %s();" % (
+					self.symbol_for_constructor(cls, full_name_underscore),
 				))
 
 		# Destructor
@@ -407,19 +461,29 @@ class SourceExport(ClangExport):
 		block.add_line("// Begin class '%s'" % cls.getFullName())
 		block.add_line("//")
 
+		#if cls.name == 'b2Body':
+			#import ipdb; ipdb.set_trace()
+
 		# Constructor
 		if not cls.isAbstract(self.importer):
-			for constructor in cls.constructors:
-				if not self.filter.filter_method_signature(cls, constructor):
-					continue
-				block.add_line("void* %s(%s){" % (
-					self.symbol_for_constructor(cls, full_name_underscore, constructor),
-					constructor.argsAsString(self.letters)
+			if cls.constructors:
+				for constructor in cls.constructors:
+					if not self.filter.filter_method_signature(cls, constructor):
+						continue
+					block.add_line("void* %s(%s){" % (
+						self.symbol_for_constructor(cls, full_name_underscore, constructor),
+						constructor.argsAsString(self.letters)
+					))
+					block.add_line("return new %s(%s);" % (
+						full_name,
+						self.args_as_params(constructor))
+					, 1)
+					block.add_line("}")
+			else:
+				block.add_line("void* %s(){" % (
+					self.symbol_for_constructor(cls, full_name_underscore),
 				))
-				block.add_line("return new %s(%s);" % (
-					full_name,
-					self.args_as_params(constructor))
-				, 1)
+				block.add_line("return new %s;" % full_name, 1)
 				block.add_line("}")
 
 		# Destructor
@@ -487,10 +551,17 @@ class SourceExport(ClangExport):
 
 
 			# Setter
-			block.add_line("void %s(void*, %s){" % (
+			block.add_line("void %s(void* cls, %s v){" % (
 				setter,
 				member.type.asString(),
 			))
+			block.add_line("((%s*)cls)->%s = %s((%s%s)v);" % (
+				full_name,
+				member.name,
+				'*' if type.isCppOnly() else '',
+				member.type.name,
+				"*" * (type.refs + type.pointers + int(type.isCppOnly()))
+			), 1)
 			block.add_line("}")
 
 		return block
@@ -504,9 +575,6 @@ class SourceExport(ClangExport):
 				f.write('%s\n\n' % includes)
 			f.write(self.export_namespace(importer.root_namespace)
 				.as_text())
-
-class CtypesFilter(ExportFilter):
-	pass
 
 class CtypesExport(ClangExport):
 	builtin_dict = {
@@ -568,7 +636,8 @@ class CtypesExport(ClangExport):
 		block.add_line('<method name="__init__">')
 
 		for constructor in cls.constructors:
-			block.add_block(self.export_call(constructor, cls), 1)
+			if self.filter.filter_method_signature:
+				block.add_block(self.export_call(constructor, cls), 1)
 
 		block.add_line('</method>')
 		return block
@@ -621,6 +690,8 @@ class CtypesExport(ClangExport):
 					return "ctypes.c_wchar_p"
 			elif not type.pointers:
 				return self.builtin_dict[type.name]
+		elif type.type == 'enum':
+			return "ctypes.c_uint"
 		elif (type.pointers + type.refs) <= 1 and type.type in ('record', 'enum'):
 			path = self.package_for_namespace(self.importer.root_namespace)
 			path = [path] if path else []
@@ -665,7 +736,7 @@ class CtypesExport(ClangExport):
 		block = SourceBlock()
 		block.add_line('<class name="%s">' % cls.name)
 
-		if not cls.isAbstract(self.importer) and cls.constructors:
+		if not cls.isAbstract(self.importer) and cls.constructors and self.filter.filter_method(cls, cls.constructors):
 			block.add_block(self.export_constructor(cls), 1)
 		if not cls.destructor or cls.destructor.access == 'public':
 			block.add_block(self.export_destructor(cls), 1)
