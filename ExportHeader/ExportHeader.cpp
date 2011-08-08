@@ -75,9 +75,10 @@ public:
 
 // 			D->dumpXML(llvm::errs());
 
-// 			if (const NamedDecl *ND = dyn_cast<NamedDecl>(D)){
+// 			if (const NamedDecl *ND = dyn_cast<NamedDecl>(D))
 // 				llvm::errs() << "top-level-decl: \"" << ND->getNameAsString() << "\"\n";
 //
+// 			if (const NamedDecl *ND = dyn_cast<NamedDecl>(D)){
 // 				if (const TagDecl *TD = dyn_cast<TagDecl>(ND)){
 // 					llvm::errs() << "tag-decl: \"" << ND->getNameAsString() << "\"\n";
 // 					if (TD->isClass()){
@@ -94,19 +95,32 @@ public:
 
 	void HandleDecl(const Decl* D){
 		if(const RecordDecl* RD = dyn_cast<RecordDecl>(D)){
+			if(RD->isDependentType())
+				return;
+
 			if(const CXXRecordDecl* cls = dyn_cast<CXXRecordDecl>(RD)){
-				if(cls->isDependentType() || cls->getTemplateSpecializationKind() > 0 ||
-					!cls->getDefinition() || (!cls->isClass() && !cls->isStruct()))
+				if(cls->getTemplateSpecializationKind() > 0 ||
+					!cls->hasDefinition() || !cls->isDefinition() || (!cls->isClass() && !cls->isStruct()))
 					return;
 			}
 
 			HandleRecord(RD);
-		} else if(const FunctionDecl* FD = dyn_cast<FunctionDecl>(D))
+		} else if(const FunctionDecl* FD = dyn_cast<FunctionDecl>(D)){
+
+
+			if(FD->isFunctionTemplateSpecialization() || FD->getTemplatedKind() != FunctionDecl::TK_NonTemplate ||
+				FD->getDescribedFunctionTemplate() || FD->getNameAsString().find('<') != std::string::npos ||
+				FD->getNameAsString().find('&') != std::string::npos)
+				return;
+
 			HandleFunction(FD);
-		else if(const EnumDecl* ED = dyn_cast<EnumDecl>(D))
+		} else if(const EnumDecl* ED = dyn_cast<EnumDecl>(D)){
 			HandleEnum(ED);
-		else if(const NamespaceDecl* NsD = dyn_cast<NamespaceDecl>(D))
+		} else if(const NamespaceDecl* NsD = dyn_cast<NamespaceDecl>(D)){
+			llvm::errs() << "top-level-decl: \"" << D << "\"\n";
+
 			HandleContextChildren(NsD);
+		}
 	}
 
 // 	virtual void HandleTagDeclDefinition(TagDecl* D){
@@ -124,7 +138,8 @@ public:
 // 	}
 
 	void HandleFunction(const FunctionDecl* FD){
-		llvm::outs() << "<Function name=\"" << FD->getNameAsString() << "\">\n";
+		llvm::outs() << "<Function name=\"" << FD->getNameAsString() << "\" "
+			<< "extern_c=\"" << FD->isExternC() << "\">\n";
 
 		HandleContext(FD);
 
@@ -145,7 +160,8 @@ public:
 
 		llvm::outs() << "<" << (cls ? "Class" : "Struct") << " "
 			<< "id=\"" << (void*)RD << "\" "
-			<< "name=\"" << RD->getNameAsString() << "\"";
+			<< "name=\"" << RD->getNameAsString() << "\" "
+			<< "access=\"" << accessAsString(RD->getAccess()) << "\"";
 		if(cls)
 			llvm::outs() << " dynamic=\"" << cls->isDynamicClass() << "\"";
 		llvm::outs() << ">\n";
@@ -188,7 +204,7 @@ public:
 
 		for(CXXRecordDecl::method_iterator i = cls->method_begin(), e = cls->method_end(); i != e; ++i){
 			const CXXMethodDecl* MD = *i;
-			if(MD->getTemplatedKind() != FunctionDecl::TK_NonTemplate)
+			if(MD->getTemplatedKind() != FunctionDecl::TK_NonTemplate || MD->isOverloadedOperator())
 				continue;
 
 			llvm::outs() << "<Method name=\"" << MD->getNameAsString() << "\" "
@@ -213,7 +229,9 @@ public:
 	}
 
 	void HandleEnum(const EnumDecl* ED){
-		llvm::outs() << "<Enum id=\"" << (void*)ED << "\" name=\"" << ED->getNameAsString() << "\">\n";
+		llvm::outs() << "<Enum id=\"" << (void*)ED << "\" "
+			<< "name=\"" << ED->getNameAsString() << "\" "
+			<< "access=\"" << accessAsString(ED->getAccess()) << "\">\n";
 
 		HandleContext(ED);
 		for(EnumDecl::enumerator_iterator i = ED->enumerator_begin(), e = ED->enumerator_end(); i != e; ++i){
@@ -248,9 +266,11 @@ public:
 		} else if(const BuiltinType* BT = dyn_cast<BuiltinType>(tp)){
 			llvm::outs() << "type=\"builtin\" name=\"" << BT->getName(m_langOpts) << "\">";
 		} else if(const RecordType* RT = dyn_cast<RecordType>(tp)){
-			llvm::outs() << "type=\"record\" id=\"" << ((void*)RT->getDecl()) << "\" name=\"" << RT->getDecl()->getNameAsString() << "\">";
+			llvm::outs() << "type=\"record\" id=\"" << ((void*)RT->getDecl()) << "\" "
+				<< "name=\"" << GetFullName(RT->getDecl()) << "\">";
 		} else if(const EnumType* ET = dyn_cast<EnumType>(tp)){
-			llvm::outs() << "type=\"enum\" id=\"" << ((void*)ET->getDecl()) << "\" name=\"" << ET->getDecl()->getNameAsString() << "\">";
+			llvm::outs() << "type=\"enum\" id=\"" << ((void*)ET->getDecl()) << "\" "
+				<< "name=\"" << GetFullName(ET->getDecl()) << "\">";
 		} else if(const FunctionType* FT = dyn_cast<FunctionType>(tp)){
 			llvm::outs() << "type=\"function\">\n";
 
@@ -341,6 +361,25 @@ public:
 
 			HandleDecl(*i);
 		}
+	}
+
+	std::string GetFullName(const DeclContext* DC){
+		std::string retVal;
+		std::stack<const NamedDecl*> decls;
+		while(DC){
+			if(const NamedDecl* ND = dyn_cast<NamedDecl>(DC)){
+				decls.push(ND);
+			}
+			DC = DC->getParent();
+		}
+		while(!decls.empty()){
+			retVal += decls.top()->getNameAsString();
+			if(decls.size() > 1)
+				retVal += "::";
+			decls.pop();
+		}
+
+		return retVal;
 	}
 private:
 	LangOptions m_langOpts;
