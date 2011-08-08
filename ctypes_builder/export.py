@@ -196,7 +196,7 @@ def write_package(pkg, base_dir):
 	for mod in pkg.modules.values():
 		write_module(mod, base_dir)
 
-def generate_structure(s, base_dir):
+def export_structure(s, base_dir):
 	for pkg in s.packages.values():
 		write_package(pkg, base_dir)
 	for mod in s.modules.values():

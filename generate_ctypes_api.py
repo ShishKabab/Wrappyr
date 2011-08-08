@@ -5,7 +5,7 @@ import pprint
 import string
 
 from ctypes_builder.structure import CTypesStructure, Package
-from ctypes_builder.generation import generate_structure
+from ctypes_builder.export import export_structure
 
 class CTypesStructureVisitor(object):
 	def process(self, node):
@@ -151,5 +151,5 @@ if __name__ == "__main__":
 	PythonKeywordRemover().process(s)
 
 	#s.display()
-	generate_structure(s, args.output_path)
+	export_structure(s, args.output_path)
 
