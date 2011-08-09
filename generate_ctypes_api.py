@@ -81,7 +81,7 @@ class AmbigousOverloadRemover(CTypesStructureVisitor):
 		self.process_function(f)
 
 class PythonKeywordRemover(CTypesStructureVisitor):
-	python_keywords = set(['def', 'class', 'for', 'in'])
+	python_keywords = set(['def', 'class', 'for', 'in', 'pass'])
 
 	def __init__(self):
 		self.letters = set(string.ascii_lowercase)
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 	#print s.get_by_path('Box2D.collision.test').get_path(s.get_by_path('Box2D'))
 
 	UninterestingCopyConstructorRemover().process(s)
-	Box2DBodyCreateFixtureFixer().process(s)
+	#Box2DBodyCreateFixtureFixer().process(s)
 	ConflictingOverloadRemover().process(s)
 	AmbigousOverloadRemover().process(s)
 	PythonKeywordRemover().process(s)

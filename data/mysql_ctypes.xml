@@ -11,7 +11,7 @@
 		<class name="Connection">
 			<method name="__init__">
 				<call symbol="mysql_init">
-					<argument type="mysql.Connection" default="None" />
+					<argument name="other" type="ctypes.c_void_p" />
 				</call>
 			</method>
 

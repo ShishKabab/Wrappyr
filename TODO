@@ -19,11 +19,10 @@ Clang import:
 Ctypes API generator:
 - PEP8
 - Cleanup code
-- Arrays
+- Pointers and arrays
 - Type checking
 - Default arguments
 - Enums
-- Make it easier to manipulate structure
 - Destruction, ownership, stealing ownership
 - Deal with inheritance (b2Shape and b2PolygonShape)
 - Static class methods and members
@@ -31,7 +30,6 @@ Ctypes API generator:
 - Function overloading
 - Overloaded operators
 - Export Python classes to C++
-- Pointers to pointers
 - Template classes and functions - how?
 - Exceptions - how?
 - Tests

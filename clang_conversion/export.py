@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import sys
 import os
 import time
@@ -9,7 +11,7 @@ from collections import defaultdict
 
 from lxml.etree import parse as parse_xml, fromstring as parse_xml_from_string
 
-from structure import Class, Function
+from .structure import Class, Function
 
 class SourceBlock(object):
 	def __init__(self):

@@ -1,0 +1,5120 @@
+<HeaderExport>
+<Struct id="0xc0cdf20" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/types.h" line="144" column="12" />
+</Context>
+<Field name="__val" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+</Struct>
+<Struct id="0xc0fdcb0" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/sigset.h" line="29" column="9" />
+</Context>
+<Field name="__val" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+</Struct>
+<Struct id="0xc114870" name="timespec" access="unknown">
+<Context>
+<Physical file="/usr/include/time.h" line="120" column="8" />
+</Context>
+<Field name="tv_sec" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+<Field name="tv_nsec" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc114950" name="timeval" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/time.h" line="75" column="8" />
+</Context>
+<Field name="tv_sec" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+<Field name="tv_usec" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc114ac0" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/sys/select.h" line="67" column="9" />
+</Context>
+<Field name="__fds_bits" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+</Struct>
+<Function name="select" extern_c="1">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/sys/select.h" line="109" column="12" />
+</Context>
+<Argument name="__nfds" optional="0">
+<Type const="0" type="builtin" name="int"></Type>
+</Argument>
+<Argument name="__readfds" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc114ac0" name=""></Type>
+</Type>
+</Argument>
+<Argument name="__writefds" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc114ac0" name=""></Type>
+</Type>
+</Argument>
+<Argument name="__exceptfds" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc114ac0" name=""></Type>
+</Type>
+</Argument>
+<Argument name="__timeout" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc114950" name="timeval"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="pselect" extern_c="1">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/sys/select.h" line="121" column="12" />
+</Context>
+<Argument name="__nfds" optional="0">
+<Type const="0" type="builtin" name="int"></Type>
+</Argument>
+<Argument name="__readfds" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc114ac0" name=""></Type>
+</Type>
+</Argument>
+<Argument name="__writefds" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc114ac0" name=""></Type>
+</Type>
+</Argument>
+<Argument name="__exceptfds" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc114ac0" name=""></Type>
+</Type>
+</Argument>
+<Argument name="__timeout" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="record" id="0xc114870" name="timespec"></Type>
+</Type>
+</Argument>
+<Argument name="__sigmask" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="record" id="0xc0fdcb0" name=""></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="gnu_dev_major" extern_c="1">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/sys/sysmacros.h" line="31" column="21" />
+</Context>
+<Argument name="__dev" optional="0">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="gnu_dev_minor" extern_c="1">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/sys/sysmacros.h" line="34" column="21" />
+</Context>
+<Argument name="__dev" optional="0">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="gnu_dev_makedev" extern_c="1">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/sys/sysmacros.h" line="37" column="31" />
+</Context>
+<Argument name="__major" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="__minor" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Returns>
+</Function> 
+<Struct id="0xc119530" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="39" column="9" />
+</Context>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc1196d0" name="__pthread_internal_slist" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="46" column="16" />
+</Context>
+<Field name="__next" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1196d0" name="__pthread_internal_slist"></Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc119820" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="54" column="9" />
+</Context>
+<Field name="__data" access="public">
+<Type const="0" type="record" id="0xc119880" name="__pthread_mutex_s"></Type>
+</Field>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc119880" name="__pthread_mutex_s" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="56" column="10" />
+</Context>
+<Field name="__lock" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="__count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="__owner" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="__kind" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="__nusers" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="" access="unknown">
+<Type const="0" type="record" id="0xc119a30" name="__pthread_mutex_s::"></Type>
+</Field>
+</Struct>
+<Struct id="0xc119a30" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="65" column="19" />
+</Context>
+<Field name="__spins" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="__list" access="public">
+<Type const="0" type="record" id="0xc1196d0" name="__pthread_internal_slist"></Type>
+</Field>
+</Struct>
+<Struct id="0xc119d90" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="75" column="9" />
+</Context>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc119f30" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="84" column="9" />
+</Context>
+<Field name="__data" access="public">
+<Type const="0" type="record" id="0xc119f90" name="::"></Type>
+</Field>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="long long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc119f90" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="86" column="3" />
+</Context>
+<Field name="__lock" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="__futex" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="__total_seq" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="__wakeup_seq" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="__woken_seq" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="__mutex" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+<Field name="__nwaiters" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="__broadcast_seq" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+</Struct>
+<Struct id="0xc11e9b0" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="101" column="9" />
+</Context>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc11eba0" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="119" column="9" />
+</Context>
+<Field name="__data" access="public">
+<Type const="0" type="record" id="0xc11ec00" name="::"></Type>
+</Field>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc11ec00" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="121" column="3" />
+</Context>
+<Field name="__lock" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="__nr_readers" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="__readers_wakeup" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="__writer_wakeup" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="__nr_readers_queued" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="__nr_writers_queued" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="__flags" access="public">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Field>
+<Field name="__shared" access="public">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Field>
+<Field name="__pad1" access="public">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Field>
+<Field name="__pad2" access="public">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Field>
+<Field name="__writer" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+</Struct>
+<Struct id="0xc11f0c0" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="141" column="9" />
+</Context>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc11f2a0" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="156" column="9" />
+</Context>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc11f440" name="" access="unknown">
+<Context>
+<Physical file="/usr/include/i386-linux-gnu/bits/pthreadtypes.h" line="162" column="9" />
+</Context>
+<Field name="__size" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="__align" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+</Struct>
+<Enum id="0xc11f620" name="enum_server_command" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="55" column="6" />
+</Context>
+<Constant name="COM_SLEEP" value="0" />
+<Constant name="COM_QUIT" value="1" />
+<Constant name="COM_INIT_DB" value="2" />
+<Constant name="COM_QUERY" value="3" />
+<Constant name="COM_FIELD_LIST" value="4" />
+<Constant name="COM_CREATE_DB" value="5" />
+<Constant name="COM_DROP_DB" value="6" />
+<Constant name="COM_REFRESH" value="7" />
+<Constant name="COM_SHUTDOWN" value="8" />
+<Constant name="COM_STATISTICS" value="9" />
+<Constant name="COM_PROCESS_INFO" value="10" />
+<Constant name="COM_CONNECT" value="11" />
+<Constant name="COM_PROCESS_KILL" value="12" />
+<Constant name="COM_DEBUG" value="13" />
+<Constant name="COM_PING" value="14" />
+<Constant name="COM_TIME" value="15" />
+<Constant name="COM_DELAYED_INSERT" value="16" />
+<Constant name="COM_CHANGE_USER" value="17" />
+<Constant name="COM_BINLOG_DUMP" value="18" />
+<Constant name="COM_TABLE_DUMP" value="19" />
+<Constant name="COM_CONNECT_OUT" value="20" />
+<Constant name="COM_REGISTER_SLAVE" value="21" />
+<Constant name="COM_STMT_PREPARE" value="22" />
+<Constant name="COM_STMT_EXECUTE" value="23" />
+<Constant name="COM_STMT_SEND_LONG_DATA" value="24" />
+<Constant name="COM_STMT_CLOSE" value="25" />
+<Constant name="COM_STMT_RESET" value="26" />
+<Constant name="COM_SET_OPTION" value="27" />
+<Constant name="COM_STMT_FETCH" value="28" />
+<Constant name="COM_DAEMON" value="29" />
+<Constant name="COM_END" value="30" />
+</Enum>
+<Struct id="0xc1215f0" name="st_vio" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="228" column="8" />
+</Context>
+</Struct>
+<Struct id="0xc1216b0" name="st_net" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="239" column="16" />
+</Context>
+<Field name="vio" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1215f0" name="st_vio"></Type>
+</Type>
+</Field>
+<Field name="buff" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Field>
+<Field name="buff_end" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Field>
+<Field name="write_pos" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Field>
+<Field name="read_pos" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Field>
+<Field name="fd" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="remain_in_buf" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="length" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="buf_length" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="where_b" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="max_packet" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="max_packet_size" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="pkt_nr" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="compress_pkt_nr" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="write_timeout" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="read_timeout" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="retry_count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="fcntl" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="return_status" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Type>
+</Field>
+<Field name="reading_or_writing" access="public">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Field>
+<Field name="save_char" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="unused0" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="unused" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="compress" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="unused1" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="query_cache_query" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Field>
+<Field name="last_errno" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="error" access="public">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Field>
+<Field name="unused2" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="return_errno" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="last_error" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="sqlstate" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Enum id="0xc128a40" name="enum_field_types" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="295" column="6" />
+</Context>
+<Constant name="MYSQL_TYPE_DECIMAL" value="0" />
+<Constant name="MYSQL_TYPE_TINY" value="1" />
+<Constant name="MYSQL_TYPE_SHORT" value="2" />
+<Constant name="MYSQL_TYPE_LONG" value="3" />
+<Constant name="MYSQL_TYPE_FLOAT" value="4" />
+<Constant name="MYSQL_TYPE_DOUBLE" value="5" />
+<Constant name="MYSQL_TYPE_NULL" value="6" />
+<Constant name="MYSQL_TYPE_TIMESTAMP" value="7" />
+<Constant name="MYSQL_TYPE_LONGLONG" value="8" />
+<Constant name="MYSQL_TYPE_INT24" value="9" />
+<Constant name="MYSQL_TYPE_DATE" value="10" />
+<Constant name="MYSQL_TYPE_TIME" value="11" />
+<Constant name="MYSQL_TYPE_DATETIME" value="12" />
+<Constant name="MYSQL_TYPE_YEAR" value="13" />
+<Constant name="MYSQL_TYPE_NEWDATE" value="14" />
+<Constant name="MYSQL_TYPE_VARCHAR" value="15" />
+<Constant name="MYSQL_TYPE_BIT" value="16" />
+<Constant name="MYSQL_TYPE_NEWDECIMAL" value="246" />
+<Constant name="MYSQL_TYPE_ENUM" value="247" />
+<Constant name="MYSQL_TYPE_SET" value="248" />
+<Constant name="MYSQL_TYPE_TINY_BLOB" value="249" />
+<Constant name="MYSQL_TYPE_MEDIUM_BLOB" value="250" />
+<Constant name="MYSQL_TYPE_LONG_BLOB" value="251" />
+<Constant name="MYSQL_TYPE_BLOB" value="252" />
+<Constant name="MYSQL_TYPE_VAR_STRING" value="253" />
+<Constant name="MYSQL_TYPE_STRING" value="254" />
+<Constant name="MYSQL_TYPE_GEOMETRY" value="255" />
+</Enum>
+<Enum id="0xc129200" name="mysql_enum_shutdown_level" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="357" column="6" />
+</Context>
+<Constant name="SHUTDOWN_DEFAULT" value="0" />
+<Constant name="SHUTDOWN_WAIT_CONNECTIONS" value="1" />
+<Constant name="SHUTDOWN_WAIT_TRANSACTIONS" value="2" />
+<Constant name="SHUTDOWN_WAIT_UPDATES" value="8" />
+<Constant name="SHUTDOWN_WAIT_ALL_BUFFERS" value="16" />
+<Constant name="SHUTDOWN_WAIT_CRITICAL_BUFFERS" value="17" />
+<Constant name="KILL_QUERY" value="254" />
+<Constant name="KILL_CONNECTION" value="255" />
+</Enum>
+<Enum id="0xc129840" name="enum_cursor_type" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="382" column="6" />
+</Context>
+<Constant name="CURSOR_TYPE_NO_CURSOR" value="0" />
+<Constant name="CURSOR_TYPE_READ_ONLY" value="1" />
+<Constant name="CURSOR_TYPE_FOR_UPDATE" value="2" />
+<Constant name="CURSOR_TYPE_SCROLLABLE" value="4" />
+</Enum>
+<Enum id="0xc12c690" name="enum_mysql_set_option" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="392" column="6" />
+</Context>
+<Constant name="MYSQL_OPTION_MULTI_STATEMENTS_ON" value="0" />
+<Constant name="MYSQL_OPTION_MULTI_STATEMENTS_OFF" value="1" />
+</Enum>
+<Function name="my_net_init" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="404" column="9" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Argument name="vio" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1215f0" name="st_vio"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="my_net_local_init" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="405" column="6" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="net_end" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="406" column="6" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="net_clear" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="407" column="8" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Argument name="clear_buffer" optional="0">
+<Type const="0" type="builtin" name="char"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="net_realloc" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="408" column="9" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="net_flush" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="409" column="9" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="my_net_write" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="410" column="9" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Argument name="packet" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Argument name="len" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="net_write_command" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="411" column="9" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Argument name="command" optional="0">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Argument>
+<Argument name="header" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Argument name="head_len" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="packet" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Argument name="len" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="net_real_write" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="414" column="5" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Argument name="packet" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Argument name="len" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="my_net_read" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="415" column="15" />
+</Context>
+<Argument name="net" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Returns>
+</Function> 
+<Struct id="0xc12d6f0" name="sockaddr" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="426" column="8" />
+</Context>
+</Struct>
+<Function name="my_connect" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="427" column="5" />
+</Context>
+<Argument name="s" optional="0">
+<Type const="0" type="builtin" name="int"></Type>
+</Argument>
+<Argument name="name" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="record" id="0xc12d6f0" name="sockaddr"></Type>
+</Type>
+</Argument>
+<Argument name="namelen" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="timeout" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Struct id="0xc12d9e0" name="rand_struct" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="430" column="8" />
+</Context>
+<Field name="seed1" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="seed2" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="max_value" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="max_value_dbl" access="public">
+<Type const="0" type="builtin" name="double"></Type>
+</Field>
+</Struct>
+<Enum id="0xc12db40" name="Item_result" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="441" column="6" />
+</Context>
+<Constant name="STRING_RESULT" value="0" />
+<Constant name="REAL_RESULT" value="1" />
+<Constant name="INT_RESULT" value="2" />
+<Constant name="ROW_RESULT" value="3" />
+<Constant name="DECIMAL_RESULT" value="4" />
+</Enum>
+<Struct id="0xc12dd00" name="st_udf_args" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="444" column="16" />
+</Context>
+<Field name="arg_count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="arg_type" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="enum" id="0xc12db40" name="Item_result"></Type>
+</Type>
+</Field>
+<Field name="args" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Field>
+<Field name="lengths" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Field>
+<Field name="maybe_null" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="attributes" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Field>
+<Field name="attribute_lengths" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc12e070" name="st_udf_init" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="458" column="16" />
+</Context>
+<Field name="maybe_null" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="decimals" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="max_length" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="ptr" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="const_item" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Function name="randominit" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="487" column="6" />
+</Context>
+<Argument name="" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc12d9e0" name="rand_struct"></Type>
+</Type>
+</Argument>
+<Argument name="seed1" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Argument name="seed2" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="my_rnd" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="489" column="8" />
+</Context>
+<Argument name="" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc12d9e0" name="rand_struct"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="double"></Type>
+</Returns>
+</Function> 
+<Function name="create_random_string" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="490" column="6" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="rand_st" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc12d9e0" name="rand_struct"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="hash_password" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="492" column="6" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Argument>
+<Argument name="password" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="password_len" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="make_scrambled_password_323" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="493" column="6" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="password" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="scramble_323" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="494" column="6" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="message" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="password" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="check_scramble_323" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="495" column="9" />
+</Context>
+<Argument name="" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="message" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="salt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="get_salt_from_password_323" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="497" column="6" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Argument>
+<Argument name="password" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="make_password_from_salt_323" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="498" column="6" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="salt" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned long"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="make_scrambled_password" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="500" column="6" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="password" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="scramble" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="501" column="6" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="message" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="password" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="check_scramble" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="502" column="9" />
+</Context>
+<Argument name="reply" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="message" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="hash_stage2" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="get_salt_from_password" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="504" column="6" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Argument name="password" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="make_password_from_salt" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="505" column="6" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="hash_stage2" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="octet2hex" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="506" column="7" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="str" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="len" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="get_tty_password" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="510" column="7" />
+</Context>
+<Argument name="opt_message" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_errno_to_sqlstate" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="511" column="13" />
+</Context>
+<Argument name="mysql_errno" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="my_thread_init" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="515" column="9" />
+</Context>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="my_thread_end" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql_com.h" line="516" column="6" />
+</Context>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Enum id="0xc12fe80" name="enum_mysql_timestamp_type" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_time.h" line="28" column="6" />
+</Context>
+<Constant name="MYSQL_TIMESTAMP_NONE" value="-2" />
+<Constant name="MYSQL_TIMESTAMP_ERROR" value="-1" />
+<Constant name="MYSQL_TIMESTAMP_DATE" value="0" />
+<Constant name="MYSQL_TIMESTAMP_DATETIME" value="1" />
+<Constant name="MYSQL_TIMESTAMP_TIME" value="2" />
+</Enum>
+<Struct id="0xc1300b0" name="st_mysql_time" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql_time.h" line="47" column="16" />
+</Context>
+<Field name="year" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="month" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="day" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="hour" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="minute" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="second" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="second_part" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="neg" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="time_type" access="public">
+<Type const="0" type="enum" id="0xc12fe80" name="enum_mysql_timestamp_type"></Type>
+</Field>
+</Struct>
+<Struct id="0xc1303e0" name="st_list" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/my_list.h" line="23" column="16" />
+</Context>
+<Field name="prev" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Field>
+<Field name="next" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Field>
+<Field name="data" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Function name="list_add" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/my_list.h" line="30" column="14" />
+</Context>
+<Argument name="root" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Argument name="element" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="list_delete" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/my_list.h" line="31" column="14" />
+</Context>
+<Argument name="root" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Argument name="element" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="list_cons" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/my_list.h" line="32" column="14" />
+</Context>
+<Argument name="data" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Argument name="root" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="list_reverse" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/my_list.h" line="33" column="14" />
+</Context>
+<Argument name="root" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="list_free" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/my_list.h" line="34" column="13" />
+</Context>
+<Argument name="root" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Argument name="free_data" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="list_length" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/my_list.h" line="35" column="21" />
+</Context>
+<Argument name="" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="list_walk" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/my_list.h" line="36" column="12" />
+</Context>
+<Argument name="" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Argument>
+<Argument name="action" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Argument>
+<Argument name="argument" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Struct id="0xc134050" name="st_mysql_field" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="97" column="16" />
+</Context>
+<Field name="name" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="org_name" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="table" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="org_table" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="db" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="catalog" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="def" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="length" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="max_length" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="name_length" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="org_name_length" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="table_length" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="org_table_length" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="db_length" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="catalog_length" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="def_length" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="flags" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="decimals" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="charsetnr" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="type" access="public">
+<Type const="0" type="enum" id="0xc128a40" name="enum_field_types"></Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc1362a0" name="st_used_mem" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/my_alloc.h" line="26" column="16" />
+</Context>
+<Field name="next" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1362a0" name="st_used_mem"></Type>
+</Type>
+</Field>
+<Field name="left" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="size" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+</Struct>
+<Struct id="0xc136470" name="st_mem_root" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/my_alloc.h" line="34" column="16" />
+</Context>
+<Field name="free" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1362a0" name="st_used_mem"></Type>
+</Type>
+</Field>
+<Field name="used" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1362a0" name="st_used_mem"></Type>
+</Type>
+</Field>
+<Field name="pre_alloc" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1362a0" name="st_used_mem"></Type>
+</Type>
+</Field>
+<Field name="min_malloc" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="block_size" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="block_num" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="first_block_usage" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="error_handler" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc136830" name="st_typelib" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/typelib.h" line="22" column="16" />
+</Context>
+<Field name="count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="name" access="public">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="type_names" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Field>
+<Field name="type_lengths" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Type>
+</Field>
+</Struct>
+<Function name="find_typeset" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/typelib.h" line="29" column="21" />
+</Context>
+<Argument name="x" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="typelib" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc136830" name="st_typelib"></Type>
+</Type>
+</Argument>
+<Argument name="error_position" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="int"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Returns>
+</Function> 
+<Function name="find_type_or_exit" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/typelib.h" line="30" column="12" />
+</Context>
+<Argument name="x" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="typelib" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc136830" name="st_typelib"></Type>
+</Type>
+</Argument>
+<Argument name="option" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="find_type" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/typelib.h" line="32" column="12" />
+</Context>
+<Argument name="x" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="typelib" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="record" id="0xc136830" name="st_typelib"></Type>
+</Type>
+</Argument>
+<Argument name="full_name" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="make_type" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/typelib.h" line="33" column="13" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="nr" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="typelib" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc136830" name="st_typelib"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="get_type" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/typelib.h" line="34" column="20" />
+</Context>
+<Argument name="typelib" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc136830" name="st_typelib"></Type>
+</Type>
+</Argument>
+<Argument name="nr" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="copy_typelib" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/typelib.h" line="35" column="17" />
+</Context>
+<Argument name="root" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc136470" name="st_mem_root"></Type>
+</Type>
+</Argument>
+<Argument name="from" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc136830" name="st_typelib"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc136830" name="st_typelib"></Type>
+</Type>
+</Returns>
+</Function> 
+<Struct id="0xc139b50" name="st_mysql_rows" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="141" column="16" />
+</Context>
+<Field name="next" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Field>
+<Field name="data" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Field>
+<Field name="length" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+</Struct>
+<Struct id="0xc139da0" name="embedded_query_result" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="151" column="16" />
+</Context>
+</Struct>
+<Struct id="0xc139e70" name="st_mysql_data" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="152" column="16" />
+</Context>
+<Field name="data" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Field>
+<Field name="embedded_info" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139da0" name="embedded_query_result"></Type>
+</Type>
+</Field>
+<Field name="alloc" access="public">
+<Type const="0" type="record" id="0xc136470" name="st_mem_root"></Type>
+</Field>
+<Field name="rows" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="fields" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Enum id="0xc13a100" name="mysql_option" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="162" column="6" />
+</Context>
+<Constant name="MYSQL_OPT_CONNECT_TIMEOUT" value="0" />
+<Constant name="MYSQL_OPT_COMPRESS" value="1" />
+<Constant name="MYSQL_OPT_NAMED_PIPE" value="2" />
+<Constant name="MYSQL_INIT_COMMAND" value="3" />
+<Constant name="MYSQL_READ_DEFAULT_FILE" value="4" />
+<Constant name="MYSQL_READ_DEFAULT_GROUP" value="5" />
+<Constant name="MYSQL_SET_CHARSET_DIR" value="6" />
+<Constant name="MYSQL_SET_CHARSET_NAME" value="7" />
+<Constant name="MYSQL_OPT_LOCAL_INFILE" value="8" />
+<Constant name="MYSQL_OPT_PROTOCOL" value="9" />
+<Constant name="MYSQL_SHARED_MEMORY_BASE_NAME" value="10" />
+<Constant name="MYSQL_OPT_READ_TIMEOUT" value="11" />
+<Constant name="MYSQL_OPT_WRITE_TIMEOUT" value="12" />
+<Constant name="MYSQL_OPT_USE_RESULT" value="13" />
+<Constant name="MYSQL_OPT_USE_REMOTE_CONNECTION" value="14" />
+<Constant name="MYSQL_OPT_USE_EMBEDDED_CONNECTION" value="15" />
+<Constant name="MYSQL_OPT_GUESS_CONNECTION" value="16" />
+<Constant name="MYSQL_SET_CLIENT_IP" value="17" />
+<Constant name="MYSQL_SECURE_AUTH" value="18" />
+<Constant name="MYSQL_REPORT_DATA_TRUNCATION" value="19" />
+<Constant name="MYSQL_OPT_RECONNECT" value="20" />
+<Constant name="MYSQL_OPT_SSL_VERIFY_SERVER_CERT" value="21" />
+</Enum>
+<Struct id="0xc13b720" name="st_mysql_options" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="175" column="8" />
+</Context>
+<Field name="connect_timeout" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="read_timeout" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="write_timeout" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="port" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="protocol" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="client_flag" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="host" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="user" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="password" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="unix_socket" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="db" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="init_commands" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ba40" name="st_dynamic_array"></Type>
+</Type>
+</Field>
+<Field name="my_cnf_file" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="my_cnf_group" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="charset_dir" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="charset_name" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="ssl_key" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="ssl_cert" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="ssl_ca" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="ssl_capath" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="ssl_cipher" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="shared_memory_base_name" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="max_allowed_packet" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="use_ssl" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="compress" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="named_pipe" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="rpl_probe" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="rpl_parse" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="no_master_reads" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="separate_thread" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="methods_to_use" access="public">
+<Type const="0" type="enum" id="0xc13a100" name="mysql_option"></Type>
+</Field>
+<Field name="client_ip" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="secure_auth" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="report_data_truncation" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="local_infile_init" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="local_infile_read" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="local_infile_end" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="local_infile_error" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="local_infile_userdata" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc13ba40" name="st_dynamic_array" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="180" column="10" />
+</Context>
+</Struct>
+<Enum id="0xc13c7e0" name="mysql_status" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="225" column="6" />
+</Context>
+<Constant name="MYSQL_STATUS_READY" value="0" />
+<Constant name="MYSQL_STATUS_GET_RESULT" value="1" />
+<Constant name="MYSQL_STATUS_USE_RESULT" value="2" />
+<Constant name="MYSQL_STATUS_STATEMENT_GET_RESULT" value="3" />
+</Enum>
+<Enum id="0xc13c940" name="mysql_protocol_type" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="231" column="6" />
+</Context>
+<Constant name="MYSQL_PROTOCOL_DEFAULT" value="0" />
+<Constant name="MYSQL_PROTOCOL_TCP" value="1" />
+<Constant name="MYSQL_PROTOCOL_SOCKET" value="2" />
+<Constant name="MYSQL_PROTOCOL_PIPE" value="3" />
+<Constant name="MYSQL_PROTOCOL_MEMORY" value="4" />
+</Enum>
+<Enum id="0xc13cae0" name="mysql_rpl_type" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="241" column="6" />
+</Context>
+<Constant name="MYSQL_RPL_MASTER" value="0" />
+<Constant name="MYSQL_RPL_SLAVE" value="1" />
+<Constant name="MYSQL_RPL_ADMIN" value="2" />
+</Enum>
+<Struct id="0xc13cc00" name="character_set" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="246" column="16" />
+</Context>
+<Field name="number" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="state" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="csname" access="public">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="name" access="public">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="comment" access="public">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="dir" access="public">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="mbminlen" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="mbmaxlen" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+</Struct>
+<Struct id="0xc13ced0" name="st_mysql_methods" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="258" column="8" />
+</Context>
+</Struct>
+<Struct id="0xc13cf30" name="st_mysql_stmt" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="259" column="8" />
+</Context>
+</Struct>
+<Struct id="0xc13cf90" name="st_mysql" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="261" column="16" />
+</Context>
+<Field name="net" access="public">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Field>
+<Field name="connector_fd" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Field>
+<Field name="host" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="user" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="passwd" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="unix_socket" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="server_version" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="host_info" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="info" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="db" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="charset" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13d270" name="charset_info_st"></Type>
+</Type>
+</Field>
+<Field name="fields" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Field>
+<Field name="field_alloc" access="public">
+<Type const="0" type="record" id="0xc136470" name="st_mem_root"></Type>
+</Field>
+<Field name="affected_rows" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="insert_id" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="extra_info" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="thread_id" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="packet_length" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="port" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="client_flag" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="server_capabilities" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="protocol_version" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="field_count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="server_status" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="server_language" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="warning_count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="options" access="public">
+<Type const="0" type="record" id="0xc13b720" name="st_mysql_options"></Type>
+</Field>
+<Field name="status" access="public">
+<Type const="0" type="enum" id="0xc13c7e0" name="mysql_status"></Type>
+</Field>
+<Field name="free_me" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="reconnect" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="scramble" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="rpl_pivot" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="master" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Field>
+<Field name="next_slave" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Field>
+<Field name="last_used_slave" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Field>
+<Field name="last_used_con" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Field>
+<Field name="stmts" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Type>
+</Field>
+<Field name="methods" access="public">
+<Type const="0" type="pointer">
+<Type const="1" type="record" id="0xc13ced0" name="st_mysql_methods"></Type>
+</Type>
+</Field>
+<Field name="thd" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+<Field name="unbuffered_fetch_owner" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="info_buffer" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc13d270" name="charset_info_st" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="267" column="10" />
+</Context>
+</Struct>
+<Struct id="0xc13ddd0" name="st_mysql_res" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="319" column="16" />
+</Context>
+<Field name="row_count" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="fields" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Field>
+<Field name="data" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139e70" name="st_mysql_data"></Type>
+</Type>
+</Field>
+<Field name="data_cursor" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Field>
+<Field name="lengths" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Field>
+<Field name="handle" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Field>
+<Field name="methods" access="public">
+<Type const="0" type="pointer">
+<Type const="1" type="record" id="0xc13ced0" name="st_mysql_methods"></Type>
+</Type>
+</Field>
+<Field name="row" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Field>
+<Field name="current_row" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Field>
+<Field name="field_alloc" access="public">
+<Type const="0" type="record" id="0xc136470" name="st_mem_root"></Type>
+</Field>
+<Field name="field_count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="current_field" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="eof" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="unbuffered_fetch_cancelled" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc13e2f0" name="st_mysql_manager" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="351" column="16" />
+</Context>
+<Field name="net" access="public">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Field>
+<Field name="host" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="user" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="passwd" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="net_buf" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="net_buf_pos" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="net_data_end" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="port" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="cmd_status" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="last_errno" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="net_buf_size" access="public">
+<Type const="0" type="builtin" name="int"></Type>
+</Field>
+<Field name="free_me" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="eof" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="last_error" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc145000" name="st_mysql_parameters" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="366" column="16" />
+</Context>
+<Field name="p_max_allowed_packet" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Field>
+<Field name="p_net_buffer_length" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Function name="mysql_server_init" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="383" column="13" />
+</Context>
+<Argument name="argc" optional="0">
+<Type const="0" type="builtin" name="int"></Type>
+</Argument>
+<Argument name="argv" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Argument>
+<Argument name="groups" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_server_end" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="384" column="14" />
+</Context>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_parameters" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="398" column="27" />
+</Context>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc145000" name="st_mysql_parameters"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_thread_init" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="406" column="17" />
+</Context>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_thread_end" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="407" column="14" />
+</Context>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_num_rows" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="414" column="22" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_num_fields" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="415" column="22" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_eof" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="416" column="17" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_fetch_field_direct" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="417" column="22" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Argument name="fieldnr" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_fetch_fields" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="419" column="23" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_row_tell" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="420" column="26" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_field_tell" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="421" column="28" />
+</Context>
+<Argument name="res" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_field_count" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="423" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_affected_rows" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="424" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_insert_id" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="425" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_errno" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="426" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_error" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="427" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_sqlstate" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="428" column="21" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_warning_count" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="429" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_info" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="430" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_thread_id" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="431" column="23" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_character_set_name" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="432" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_set_character_set" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="433" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="csname" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_init" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="435" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_ssl_set" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="436" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="key" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="cert" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="ca" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="capath" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="cipher" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_ssl_cipher" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="439" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_change_user" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="440" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="user" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="passwd" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="db" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_real_connect" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="442" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="host" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="user" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="passwd" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="db" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="port" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="unix_socket" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="clientflag" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_select_db" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="449" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="db" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_query" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="450" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="q" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_send_query" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="451" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="q" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_real_query" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="453" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="q" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_store_result" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="455" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_use_result" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="456" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_master_query" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="459" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="q" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_master_send_query" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="461" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="q" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_slave_query" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="464" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="q" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_slave_send_query" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="466" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="q" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_character_set_info" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="468" column="21" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="charset" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cc00" name="character_set"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_set_local_infile_handler" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="476" column="1" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="local_infile_init" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Argument>
+<Argument name="local_infile_read" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Argument>
+<Argument name="local_infile_end" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Argument>
+<Argument name="local_infile_error" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Argument>
+<Argument name="" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_set_local_infile_default" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="487" column="1" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_enable_rpl_parse" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="494" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_disable_rpl_parse" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="495" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_rpl_parse_enabled" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="497" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_enable_reads_from_master" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="500" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_disable_reads_from_master" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="501" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_reads_from_master_enabled" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="503" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_rpl_query_type" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="505" column="33" />
+</Context>
+<Argument name="q" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="len" optional="0">
+<Type const="0" type="builtin" name="int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="enum" id="0xc13cae0" name="mysql_rpl_type"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_rpl_probe" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="508" column="18" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_set_master" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="511" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="host" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="port" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="user" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="passwd" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_add_slave" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="515" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="host" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="port" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="user" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="passwd" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_shutdown" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="520" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="shutdown_level" optional="0">
+<Type const="0" type="enum" id="0xc129200" name="mysql_enum_shutdown_level"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_dump_debug_info" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="523" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_refresh" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="524" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="refresh_options" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_kill" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="526" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="pid" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_set_server_option" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="527" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="option" optional="0">
+<Type const="0" type="enum" id="0xc12c690" name="enum_mysql_set_option"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_ping" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="530" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stat" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="531" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_server_info" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="532" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_client_info" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="533" column="22" />
+</Context>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_client_version" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="534" column="23" />
+</Context>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_host_info" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="535" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_server_version" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="536" column="23" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_get_proto_info" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="537" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_list_dbs" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="538" column="21" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="wild" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_list_tables" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="539" column="21" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="wild" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_list_processes" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="540" column="21" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_options" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="541" column="14" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="option" optional="0">
+<Type const="0" type="enum" id="0xc13a100" name="mysql_option"></Type>
+</Argument>
+<Argument name="arg" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_free_result" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="543" column="15" />
+</Context>
+<Argument name="result" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_data_seek" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="544" column="15" />
+</Context>
+<Argument name="result" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Argument name="offset" optional="0">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_row_seek" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="546" column="26" />
+</Context>
+<Argument name="result" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Argument name="offset" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_field_seek" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="548" column="28" />
+</Context>
+<Argument name="result" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Argument name="offset" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_fetch_row" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="550" column="19" />
+</Context>
+<Argument name="result" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_fetch_lengths" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="551" column="25" />
+</Context>
+<Argument name="result" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_fetch_field" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="552" column="23" />
+</Context>
+<Argument name="result" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_list_fields" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="553" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="table" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="wild" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_escape_string" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="555" column="23" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="from" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="from_length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_hex_string" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="557" column="23" />
+</Context>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="from" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="from_length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_real_escape_string" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="559" column="23" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="to" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="from" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_debug" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="562" column="15" />
+</Context>
+<Argument name="debug" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="myodbc_remove_escape" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="563" column="16" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="name" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_thread_safe" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="564" column="22" />
+</Context>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_embedded" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="565" column="18" />
+</Context>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_manager_init" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="566" column="25" />
+</Context>
+<Argument name="con" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13e2f0" name="st_mysql_manager"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13e2f0" name="st_mysql_manager"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_manager_connect" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="567" column="25" />
+</Context>
+<Argument name="con" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13e2f0" name="st_mysql_manager"></Type>
+</Type>
+</Argument>
+<Argument name="host" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="user" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="passwd" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="port" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13e2f0" name="st_mysql_manager"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_manager_close" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="572" column="25" />
+</Context>
+<Argument name="con" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13e2f0" name="st_mysql_manager"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_manager_command" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="573" column="25" />
+</Context>
+<Argument name="con" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13e2f0" name="st_mysql_manager"></Type>
+</Type>
+</Argument>
+<Argument name="cmd" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="cmd_len" optional="0">
+<Type const="0" type="builtin" name="int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_manager_fetch_line" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="575" column="25" />
+</Context>
+<Argument name="con" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13e2f0" name="st_mysql_manager"></Type>
+</Type>
+</Argument>
+<Argument name="res_buf" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="res_buf_size" optional="0">
+<Type const="0" type="builtin" name="int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_read_query_result" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="578" column="25" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Enum id="0xc14eb80" name="enum_mysql_stmt_state" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="587" column="6" />
+</Context>
+<Constant name="MYSQL_STMT_INIT_DONE" value="1" />
+<Constant name="MYSQL_STMT_PREPARE_DONE" value="2" />
+<Constant name="MYSQL_STMT_EXECUTE_DONE" value="3" />
+<Constant name="MYSQL_STMT_FETCH_DONE" value="4" />
+</Enum>
+<Struct id="0xc14ed00" name="st_mysql_bind" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="657" column="16" />
+</Context>
+<Field name="length" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Field>
+<Field name="is_null" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="buffer" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+<Field name="error" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Field>
+<Field name="row_ptr" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Field>
+<Field name="store_param_func" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc1216b0" name="st_net"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14ed00" name="st_mysql_bind"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="fetch_result" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14ed00" name="st_mysql_bind"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="skip_result" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14ed00" name="st_mysql_bind"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="buffer_length" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="offset" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="length_value" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="param_number" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="pack_length" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="buffer_type" access="public">
+<Type const="0" type="enum" id="0xc128a40" name="enum_field_types"></Type>
+</Field>
+<Field name="error_value" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="is_unsigned" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="long_data_used" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="is_null_value" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Struct id="0xc14f770" name="st_mysql_stmt" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="686" column="16" />
+</Context>
+<Field name="mem_root" access="public">
+<Type const="0" type="record" id="0xc136470" name="st_mem_root"></Type>
+</Field>
+<Field name="list" access="public">
+<Type const="0" type="record" id="0xc1303e0" name="st_list"></Type>
+</Field>
+<Field name="mysql" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Field>
+<Field name="params" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14ed00" name="st_mysql_bind"></Type>
+</Type>
+</Field>
+<Field name="bind" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14ed00" name="st_mysql_bind"></Type>
+</Type>
+</Field>
+<Field name="fields" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Field>
+<Field name="result" access="public">
+<Type const="0" type="record" id="0xc139e70" name="st_mysql_data"></Type>
+</Field>
+<Field name="data_cursor" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Field>
+<Field name="read_row_func" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="affected_rows" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="insert_id" access="public">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Field>
+<Field name="stmt_id" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="flags" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="prefetch_rows" access="public">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Field>
+<Field name="server_status" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="last_errno" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="param_count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="field_count" access="public">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Field>
+<Field name="state" access="public">
+<Type const="0" type="enum" id="0xc14eb80" name="enum_mysql_stmt_state"></Type>
+</Field>
+<Field name="last_error" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="sqlstate" access="public">
+<Type const="0" type="unknown"></Type>
+</Field>
+<Field name="send_types_to_server" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="bind_param_done" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="bind_result_done" access="public">
+<Type const="0" type="builtin" name="unsigned char"></Type>
+</Field>
+<Field name="unbuffered_fetch_cancelled" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="update_max_length" access="public">
+<Type const="0" type="builtin" name="char"></Type>
+</Field>
+<Field name="extension" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Field>
+</Struct>
+<Enum id="0xc150170" name="enum_stmt_attr_type" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="733" column="6" />
+</Context>
+<Constant name="STMT_ATTR_UPDATE_MAX_LENGTH" value="0" />
+<Constant name="STMT_ATTR_CURSOR_TYPE" value="1" />
+<Constant name="STMT_ATTR_PREFETCH_ROWS" value="2" />
+</Enum>
+<Struct id="0xc150290" name="st_mysql_methods" access="unknown">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="756" column="16" />
+</Context>
+<Field name="read_query_result" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="advanced_command" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="enum" id="0xc11f620" name="enum_server_command"></Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="unsigned char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="char"></Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="read_rows" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139e70" name="st_mysql_data"></Type>
+</Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="use_result" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="fetch_lengths" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="flush_use_result" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="list_fields" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc134050" name="st_mysql_field"></Type>
+</Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="read_prepare_result" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="stmt_execute" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="read_binary_rows" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="unbuffered_fetch" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="free_embedded_thd" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="read_statistics" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="next_result" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="read_change_user_result" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+<Field name="read_rows_from_cursor" access="public">
+<Type const="0" type="pointer">
+<Type const="0" type="function">
+<Argument>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Type>
+</Type>
+</Field>
+</Struct>
+<Function name="mysql_stmt_init" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="788" column="22" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_prepare" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="789" column="13" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="query" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_execute" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="791" column="13" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_fetch" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="792" column="13" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_fetch_column" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="793" column="13" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="bind_arg" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14ed00" name="st_mysql_bind"></Type>
+</Type>
+</Argument>
+<Argument name="column" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="offset" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_store_result" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="796" column="13" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_param_count" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="797" column="23" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_attr_set" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="798" column="17" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="attr_type" optional="0">
+<Type const="0" type="enum" id="0xc150170" name="enum_stmt_attr_type"></Type>
+</Argument>
+<Argument name="attr" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_attr_get" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="801" column="17" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="attr_type" optional="0">
+<Type const="0" type="enum" id="0xc150170" name="enum_stmt_attr_type"></Type>
+</Argument>
+<Argument name="attr" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="builtin" name="void"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_bind_param" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="804" column="17" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="bnd" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14ed00" name="st_mysql_bind"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_bind_result" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="805" column="17" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="bnd" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14ed00" name="st_mysql_bind"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_close" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="806" column="17" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_reset" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="807" column="17" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_free_result" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="808" column="17" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_send_long_data" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="809" column="17" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="param_number" optional="0">
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Argument>
+<Argument name="data" optional="0">
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Argument>
+<Argument name="length" optional="0">
+<Type const="0" type="builtin" name="unsigned long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_result_metadata" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="813" column="20" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_param_metadata" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="814" column="20" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13ddd0" name="st_mysql_res"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_errno" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="815" column="22" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_error" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="816" column="21" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_sqlstate" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="817" column="21" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="1" type="builtin" name="char"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_row_seek" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="818" column="26" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="offset" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_row_tell" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="820" column="26" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc139b50" name="st_mysql_rows"></Type>
+</Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_data_seek" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="821" column="14" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Argument name="offset" optional="0">
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_num_rows" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="822" column="22" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_affected_rows" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="823" column="22" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_insert_id" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="824" column="22" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned long long"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_stmt_field_count" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="825" column="22" />
+</Context>
+<Argument name="stmt" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc14f770" name="st_mysql_stmt"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="unsigned int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_commit" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="827" column="17" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_rollback" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="828" column="17" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_autocommit" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="829" column="17" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Argument name="auto_mode" optional="0">
+<Type const="0" type="builtin" name="char"></Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_more_results" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="830" column="17" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="char"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_next_result" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="831" column="13" />
+</Context>
+<Argument name="mysql" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="int"></Type>
+</Returns>
+</Function> 
+<Function name="mysql_close" extern_c="1">
+<Context>
+<Physical file="/usr/include/mysql/mysql.h" line="832" column="14" />
+</Context>
+<Argument name="sock" optional="0">
+<Type const="0" type="pointer">
+<Type const="0" type="record" id="0xc13cf90" name="st_mysql"></Type>
+</Type>
+</Argument>
+<Returns>
+<Type const="0" type="builtin" name="void"></Type>
+</Returns>
+</Function> 
+</HeaderExport>

@@ -1,7 +1,9 @@
+from __future__ import absolute_import
+
 import os
 from collections import defaultdict
 from itertools import chain
-from structure import Package, Class, Method, Member
+from .structure import Package, Class, Method, Member
 
 class NoCommonArguments(Exception): pass
 def get_call_args(f):
