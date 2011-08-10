@@ -6,6 +6,7 @@ import string
 
 from ctypes_builder.structure import CTypesStructure, Package
 from ctypes_builder.export import export_structure
+from utils.str import SourceBlock
 
 class CTypesStructureVisitor(object):
 	def process(self, node):

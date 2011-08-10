@@ -55,7 +55,8 @@ Ctypes API generator
 
   * When you inherit from a C++ class a vtable should be constructed
 
-    * This means that you cannot change the class after it's created
+    * Should be doable with a metaclass
+    * You can override __setattr__ in a metaclass so the vtable can be changed after the class is created
 
   * And the contructor of the C++ class in the Python API should decide whether the normal constructor or
       the constructor for an inherited class should be used.
@@ -63,6 +64,10 @@ Ctypes API generator
 * Function overloading
 * Overloaded operators
 * Export Python classes to C++
+
+  * Would be nice so you can re-implement Python classes in C++ and vice versa without changing any client code.
+  * Would require hints (in the form of decorators?) about the arguments and return values of methods.
+
 * Template classes and functions - how?
 * Exceptions - how?
 * Tests

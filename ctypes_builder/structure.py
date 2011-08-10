@@ -1,9 +1,9 @@
 from itertools import chain
 from collections import defaultdict
 from lxml.etree import parse as parse_xml, fromstring as parse_xml_from_string
-from MultiDict import OrderedMultiDict
+from utils.MultiDict import OrderedMultiDict
 
-def add_named_item(prop):
+def _add_named_item(prop):
 	def add(self, item):
 		item.parent = self
 		self.children[item.name] = item
@@ -11,7 +11,7 @@ def add_named_item(prop):
 
 	return add
 
-def add_list_item(prop):
+def _add_list_item(prop):
 	def add(self, item):
 		item.parent = self
 		self.children[getattr(item, 'name', None)] = item
@@ -19,7 +19,7 @@ def add_list_item(prop):
 
 	return add
 
-def add_single_item(prop):
+def _add_single_item(prop):
 	def add(self, item):
 		cur = getattr(self, prop)
 		if cur:
@@ -34,7 +34,7 @@ def add_single_item(prop):
 
 	return add
 
-def remove_from_children(parent, child):
+def _remove_from_children(parent, child):
 	name = getattr(child, 'name', None)
 	children = parent.children.getall(name)
 	if len(children) == 1:
@@ -42,7 +42,7 @@ def remove_from_children(parent, child):
 	else:
 		children.remove(child)
 
-def remove_named_item(prop):
+def _remove_named_item(prop):
 	def remove(self, item):
 		item.parent = None
 		remove_from_children(self, item)
@@ -50,35 +50,35 @@ def remove_named_item(prop):
 
 	return remove
 
-def remove_list_item(prop):
+def _remove_list_item(prop):
 	def remove(self, item):
 		item.parent = None
-		remove_from_children(self, item)
+		_remove_from_children(self, item)
 		getattr(self, prop).remove(item)
 
 	return remove
 
-def remove_single_item(prop):
+def _remove_single_item(prop):
 	def remove(self, item):
 		item.parent = None
-		remove_from_children(self, item)
+		_remove_from_children(self, item)
 		setattr(self, prop, None)
 
 	return remove
 
-def every_named_item(prop):
+def _every_named_item(prop):
 	def every(self):
 		return getattr(self, prop).values()
 
 	return every
 
-def every_list_item(prop):
+def _every_list_item(prop):
 	def every(self):
 		return getattr(self, prop)
 
 	return every
 
-def every_single_item(prop):
+def _every_single_item(prop):
 	""" Returns item in a single-item tuple or an empty tuple
 
 	Needed so CTypesStructure.diplay won't get confused when you return (None,) """
@@ -104,28 +104,28 @@ def _setup_child(item_type, cls, prop, name, type, add = None, remove = None, ev
 	})
 	if add != False:
 		layout_item['add'] = add or 'add_' + type.lower()
-		add_func = globals()["add_%s_item" % item_type](prop)
+		add_func = globals()["_add_%s_item" % item_type](prop)
 		setattr(cls, layout_item['add'], add_func)
 	if remove != False:
 		layout_item['remove'] = remove or 'remove_' + type.lower()
-		remove_func = globals()["remove_%s_item" % item_type](prop)
+		remove_func = globals()["_remove_%s_item" % item_type](prop)
 		setattr(cls, layout_item['remove'], remove_func)
 
 	if every != False:
 		layout_item['every'] = every or 'every_%s' + type.lower()
-		every_func = globals()["every_%s_item" % item_type](prop)
+		every_func = globals()["_every_%s_item" % item_type](prop)
 		setattr(cls, layout_item['every'], every_func)
 
-def setup_named_child(cls, prop, name, type, add = None, remove = None, every = None):
+def _setup_named_child(cls, prop, name, type, add = None, remove = None, every = None):
 	_setup_child('named', cls, prop, name, type, add, remove, every)
 
-def setup_list_child(cls, prop, name, type, add = None, remove = None, every = None):
+def _setup_list_child(cls, prop, name, type, add = None, remove = None, every = None):
 	_setup_child('list', cls, prop, name, type, add, remove, every)
 
-def setup_single_child(cls, prop, name, type, add = None, remove = None, every = None):
+def _setup_single_child(cls, prop, name, type, add = None, remove = None, every = None):
 	_setup_child('single', cls, prop, name, type, add, remove, every)
 
-def bool_from_string(s):
+def _bool_from_string(s):
 	return s.lower() in ('1', 'true')
 
 class Node(object):
@@ -225,20 +225,6 @@ class Module(Node):
 		'properties': {
 			'name': str
 		},
-		'children': {
-			'libraries': {
-				'name': 'library',
-				'type': 'Library'
-			},
-			'functions': {
-				'name': 'function',
-				'type': 'Function'
-			},
-			'classes': {
-				'name': 'class',
-				'type': 'Class'
-			},
-		}
 	}
 
 	def __init__(self, name):
@@ -283,33 +269,22 @@ class Module(Node):
 			return "from .%s import %s" % (node.get_closest_parent_module().get_path(self), node.name)
 		else:
 			return ""
-setup_named_child(Module, 'libraries', 'library', 'Library')
-setup_named_child(Module, 'functions', 'function', 'Function')
-setup_named_child(Module, 'classes', 'class', 'Class')
+_setup_named_child(Module, 'libraries', 'library', 'Library')
+_setup_named_child(Module, 'functions', 'function', 'Function')
+_setup_named_child(Module, 'classes', 'class', 'Class')
 
 Node.types['Module'] = Module
 
 class Package(Module):
-	layout = {
-		'children': {
-			'packages': {
-				'name': 'package',
-				'type': 'Package'
-			},
-			'modules': {
-				'name': 'module',
-				'type': 'Module'
-			},
-		}
-	}
+	layout = {}
 
 	def __init__(self, name):
 		Module.__init__(self, name)
 
 		self.packages = {}
 		self.modules = {}
-setup_named_child(Package, 'packages', 'package', 'Package')
-setup_named_child(Package, 'modules', 'module', 'Module')
+_setup_named_child(Package, 'packages', 'package', 'Package')
+_setup_named_child(Package, 'modules', 'module', 'Module')
 
 Node.types['Package'] = Package
 
@@ -318,7 +293,7 @@ class Library(Node):
 		'properties': {
 			'name': str,
 			'path': str,
-			'default': bool_from_string
+			'default': _bool_from_string
 		},
 	}
 
@@ -335,16 +310,6 @@ class Class(Node):
 		'properties': {
 			'name': str
 		},
-		'children': {
-			'methods': {
-				'name': 'method',
-				'type': 'Method'
-			},
-			'members': {
-				'name': 'member',
-				'type': 'Member'
-			},
-		}
 	}
 
 	def __init__(self, name):
@@ -353,13 +318,10 @@ class Class(Node):
 		self.methods = {}
 		self.members = {}
 
-	add_method = add_named_item('methods')
-	add_member = add_named_item('members')
-
 	def is_empty(self):
 		return not any((self.methods, self.members))
-setup_named_child(Class, 'methods', 'method', 'Method')
-setup_named_child(Class, 'members', 'member', 'Member')
+_setup_named_child(Class, 'methods', 'method', 'Method')
+_setup_named_child(Class, 'members', 'member', 'Member')
 
 Node.types['Class'] = Class
 
@@ -372,8 +334,6 @@ class Function(Node):
 		},
 		'children': {
 			'ops': {
-				'name': ('call', 'raw'),
-				'type': 'Operation',
 				'add': 'add_operation',
 			}
 		}
@@ -386,7 +346,7 @@ class Function(Node):
 		self.ops = []
 		self.raw = None
 
-	_add_operation = add_list_item('ops')
+	_add_operation = _add_list_item('ops')
 	def add_operation(self, op):
 		if self.raw:
 			raise self.CannotAddOperation("Function '%s' has raw code and you tried to add a '%s' operation" %
@@ -397,7 +357,7 @@ class Function(Node):
 		self.raw = isinstance(op, RawCode)
 
 		self._add_operation(op)
-setup_list_child(Function, 'ops', ('call', 'raw'), 'Operation', add = False)
+_setup_list_child(Function, 'ops', ('call', 'raw'), 'Operation', add = False)
 
 Node.types['Function'] = Function
 
@@ -410,20 +370,6 @@ class Member(Node):
 		'properties': {
 			'name': str
 		},
-		'children': {
-			'getter': {
-				'name': 'getter',
-				'type': 'Method',
-				'add': 'set_getter',
-				'every': 'every_getter'
-			},
-			'setter': {
-				'name': 'setter',
-				'type': 'Method',
-				'add': 'set_setter',
-				'every': 'every_setter'
-			},
-		}
 	}
 
 	def __init__(self, name, getter = None, setter = None):
@@ -432,8 +378,8 @@ class Member(Node):
 		self.name = name
 		self.getter = getter
 		self.setter = setter
-setup_single_child(Member, 'getter', 'getter', 'Method', add = 'set_getter')
-setup_single_child(Member, 'setter', 'setter', 'Method', add = 'set_setter')
+_setup_single_child(Member, 'getter', 'getter', 'Method', add = 'set_getter')
+_setup_single_child(Member, 'setter', 'setter', 'Method', add = 'set_setter')
 
 Node.types['Member'] = Member
 
@@ -458,21 +404,6 @@ class Call(Operation):
 			'symbol': str,
 			'library': lambda v: v and str(v)
 		},
-
-		'children': {
-			'args': {
-				'name': 'argument',
-				'type': 'Argument',
-				'add': 'add_argument',
-				'every': 'every_argument'
-			},
-			'returns': {
-				'name': 'returns',
-				'type': 'ReturnValue',
-				'add': 'set_return_value',
-				'every': 'every_return_value'
-			}
-		}
 	}
 
 	def __init__(self, symbol, library = None):
@@ -483,20 +414,14 @@ class Call(Operation):
 		self.args = []
 		self.returns = None
 
-	#add_argument = add_list_item('args')
-	#get_every_arguments = every_list_items('args')
-
-	#set_return_value = add_single_item('returns')
-	#get_return_values = every_single_items('returns')
-
 	def get_return_value_as_ctype(self):
 		if not self.returns:
 			return "ctypes.c_void_p" if self.parent.name == "__init__" else "None"
 		if isinstance(self.returns.type, Class):
 			return "ctypes.c_void_p"
 		return self.returns.type
-setup_list_child(Call, 'args', 'argument', 'Argument')
-setup_single_child(Call, 'returns', 'returns', 'ReturnValue',
+_setup_list_child(Call, 'args', 'argument', 'Argument')
+_setup_single_child(Call, 'returns', 'returns', 'ReturnValue',
 	add = 'set_return_value',
 	remove = 'remove_return_value',
 	every = 'every_return_value')
@@ -541,7 +466,7 @@ class ReturnValue(Node):
 	layout = {
 		'properties': {
 			'type': str,
-			'ownership': lambda v: False if v is None else bool_from_string(v)
+			'ownership': lambda v: False if v is None else _bool_from_string(v)
 		}
 	}
 
@@ -553,18 +478,7 @@ class ReturnValue(Node):
 Node.types['ReturnValue'] = ReturnValue
 
 class CTypesStructure(Node):
-	layout = {
-		'children': {
-			'packages': {
-				'name': 'package',
-				'type': 'Package'
-			},
-			'modules': {
-				'name': 'module',
-				'type': 'Module'
-			},
-		}
-	}
+	layout = {}
 
 	def __init__(self):
 		Node.__init__(self, None)
@@ -633,5 +547,5 @@ class CTypesStructure(Node):
 		s.add_nodes_from_xml(xml_node, 'module', Module, s.add_module)
 		s.resolve_types()
 		return s
-setup_named_child(CTypesStructure, 'packages', 'package', 'Package')
-setup_named_child(CTypesStructure, 'modules', 'module', 'Module')
+_setup_named_child(CTypesStructure, 'packages', 'package', 'Package')
+_setup_named_child(CTypesStructure, 'modules', 'module', 'Module')

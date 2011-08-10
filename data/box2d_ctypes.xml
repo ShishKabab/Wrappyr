@@ -1,5 +1,7 @@
 <ctypes>
 	<package name="Box2D">
+		<library path="./libBox2DC.so" name="Box2D" default="true" />
+
 		<class name="b2ContactRegister">
 			<member name="primary">
 				<getter>
