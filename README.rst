@@ -19,7 +19,7 @@ PyWrap is a collection of tools making it easier to create a Ctypes-based API to
 
 Status
 ======
-I've been able to get the `Hello World example`_ of the Box2D C++ library working from Python. PyWrap currently ignores functions and methods which use C/C++ language features that are not supported yet. Currently a few language features are missing that prevent most libraries from doing anything useful, like array pointers (needed for the MySQL C API), function pointers and C++ class inheritence (needed for Box2D callbacks). Those features are the highest priority for now. See TODO.rst for more information.
+I've been able to get the `Hello World example`_ of the Box2D C++ library working from Python. PyWrap currently ignores functions and methods which use C/C++ language features that are not supported yet. Currently a few language features are missing that prevent most libraries from doing anything useful, like array pointers (needed for the MySQL C API), function pointers and C++ class inheritence (needed for Box2D callbacks). Those features are the highest priority for now. Along with that, desctruction is not implemented yet, so memory will leak. But this is easy to implement. See TODO.rst for more information.
 
 .. _`Hello World example`: http://box2d.org/manual.html#_Toc258082968
 
