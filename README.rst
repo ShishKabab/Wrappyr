@@ -1,10 +1,10 @@
-======
-PyWrap
-======
+=======
+Wrappyr
+=======
 
 :author: Vincent den Boer
 
-PyWrap is a collection of tools making it easier to create a Ctypes-based API to C/C++ code. It is composed of three parts:
+Wrappyr is a collection of tools making it easier to create a Ctypes-based API to C/C++ code. It is composed of three parts:
 
 * A Clang_ plugin that dumps classes, functions, etc. from a header file to XML.
 * A tool that imports the XML file produced by the Clang plugin and does two things:
@@ -19,9 +19,10 @@ PyWrap is a collection of tools making it easier to create a Ctypes-based API to
 
 Status
 ======
-I've been able to get the `Hello World example`_ of the Box2D C++ library working from Python. PyWrap currently ignores functions and methods which use C/C++ language features that are not supported yet. Currently a few language features are missing that prevent most libraries from doing anything useful, like array pointers (needed for the MySQL C API), function pointers and C++ class inheritence (needed for Box2D callbacks). Those features are the highest priority for now. Along with that, desctruction is not implemented yet, so memory will leak. But this is easy to implement. See TODO.rst for more information.
+I've been able to get the `Hello World example`_ of the Box2D C++ library working from Python. Wrappyr currently ignores functions and methods which use C/C++ language features that are not supported yet. Currently a few language features are missing that prevent most libraries from doing anything useful, like array pointers (needed for the MySQL C API), function pointers and C++ class inheritence (needed for Box2D callbacks). Those features are the highest priority for now. Along with that, destruction is not implemented yet, so memory will leak. But this is easy to implement. See `TODO.rst`_ for more information.
 
 .. _`Hello World example`: http://box2d.org/manual.html#_Toc258082968
+.. _`TODO.rst`: ./TODO.rst
 
 Some code is rather messy right now, because I focused on getting a working prototype as soon as possible. Also, I think the project should be restructured a bit to be used as a library. This would allow C/C++ project to ship with a Python script with the classes needed to generate a Python API. Also, the whole process of going from C/C++ code to a Python API through these three steps could maybe be streamlined into a single script to make the process less cumbersome.
 
@@ -29,12 +30,15 @@ Using the Clang plugin
 ======================
 The Clang plugin is a bit of a pain to get running, but I haven't found more convenient way to do it yet.
 
-* Setup LLVM and Clang using `these instructions`, but be careful to use CMake to build Clang (Adjusting Makefiles didn't work for me).
+* Setup LLVM and Clang using `these instructions`_, but be careful to use CMake to build Clang (Adjusting Makefiles didn't work for me).
 * Copy the ExportHeader/ directory to <llvm_root>/llvm/tools/clang/examples .
 * Add the line 'add_directory(ExportHeader)' to <llvm_root>/llvm/tools/clang/examples/CMakeLists.txt
 * Run 'make' in <llvm_root>/llvm/tools/clang/
 
+.. _`these instructions`: http://clang.llvm.org/get_started.html
+
 If everything went successful, you should now be able to dump a C/C++ header file to XML with these commands adjusted to your needs::
+
 	For C:
 		../../bin/clang -cc1 -load ../../lib/ExportHeader.so -plugin export-hdr \
 			-I/usr/include/i386-linux-gnu/ /usr/include/mysql/mysql.h \
