@@ -59,7 +59,9 @@ def _remove_list_item(prop):
 	return remove
 
 def _remove_single_item(prop):
-	def remove(self, item):
+	def remove(self, item = None):
+		item = item or getattr(self, prop)
+
 		item.parent = None
 		_remove_from_children(self, item)
 		setattr(self, prop, None)
@@ -89,7 +91,9 @@ def _every_single_item(prop):
 
 	return every
 
-def _setup_child(item_type, cls, prop, name, type, add = None, remove = None, every = None):
+def _setup_child(item_type, cls, prop, name, type, singular = None, add = None, remove = None, every = None):
+	singular = singular or type.lower()
+
 	children = cls.layout.get('children', {})
 	if not children:
 		cls.layout['children'] = children
@@ -103,27 +107,29 @@ def _setup_child(item_type, cls, prop, name, type, add = None, remove = None, ev
 		'type': type,
 	})
 	if add != False:
-		layout_item['add'] = add or 'add_' + type.lower()
+		layout_item['add'] = add or 'add_' + singular
 		add_func = globals()["_add_%s_item" % item_type](prop)
+		add_func.__doc__ = 'Add a %s to this %s' % (singular, cls.__name__)
 		setattr(cls, layout_item['add'], add_func)
 	if remove != False:
-		layout_item['remove'] = remove or 'remove_' + type.lower()
+		layout_item['remove'] = remove or 'remove_' + singular
 		remove_func = globals()["_remove_%s_item" % item_type](prop)
+		remove_func.__doc__ = 'Remove a %s from this %s' % (singular, cls.__name__)
 		setattr(cls, layout_item['remove'], remove_func)
-
 	if every != False:
-		layout_item['every'] = every or 'every_%s' + type.lower()
+		layout_item['every'] = every or 'every_' + singular
 		every_func = globals()["_every_%s_item" % item_type](prop)
+		every_func.__doc__ = 'Return every %s of this %s' % (singular, cls.__name__)
 		setattr(cls, layout_item['every'], every_func)
 
-def _setup_named_child(cls, prop, name, type, add = None, remove = None, every = None):
-	_setup_child('named', cls, prop, name, type, add, remove, every)
+def _setup_named_child(cls, prop, name, type, singular = None, add = None, remove = None, every = None):
+	_setup_child('named', cls, prop, name, type, singular, add, remove, every)
 
-def _setup_list_child(cls, prop, name, type, add = None, remove = None, every = None):
-	_setup_child('list', cls, prop, name, type, add, remove, every)
+def _setup_list_child(cls, prop, name, type, singular = None, add = None, remove = None, every = None):
+	_setup_child('list', cls, prop, name, type, singular, add, remove, every)
 
-def _setup_single_child(cls, prop, name, type, add = None, remove = None, every = None):
-	_setup_child('single', cls, prop, name, type, add, remove, every)
+def _setup_single_child(cls, prop, name, type, singular = None, add = None, remove = None, every = None):
+	_setup_child('single', cls, prop, name, type, singular, add, remove, every)
 
 def _bool_from_string(s):
 	return s.lower() in ('1', 'true')
@@ -233,10 +239,6 @@ class Module(Node):
 		self.libraries = {}
 		self.functions = {}
 		self.classes = {}
-
-	#add_library = add_named_item('libraries')
-	#add_function = add_named_item('functions')
-	#add_class = add_named_item('classes')
 
 	class LibraryNotFound(Exception): pass
 	def find_library(self, name = None):
@@ -378,8 +380,8 @@ class Member(Node):
 		self.name = name
 		self.getter = getter
 		self.setter = setter
-_setup_single_child(Member, 'getter', 'getter', 'Method', add = 'set_getter')
-_setup_single_child(Member, 'setter', 'setter', 'Method', add = 'set_setter')
+_setup_single_child(Member, 'getter', 'getter', 'Method', singular = 'getter')
+_setup_single_child(Member, 'setter', 'setter', 'Method', singular = 'setter')
 
 Node.types['Member'] = Member
 
@@ -421,10 +423,7 @@ class Call(Operation):
 			return "ctypes.c_void_p"
 		return self.returns.type
 _setup_list_child(Call, 'args', 'argument', 'Argument')
-_setup_single_child(Call, 'returns', 'returns', 'ReturnValue',
-	add = 'set_return_value',
-	remove = 'remove_return_value',
-	every = 'every_return_value')
+_setup_single_child(Call, 'returns', 'returns', 'ReturnValue', singular = 'return_value')
 
 Operation.op_types['call'] = Call
 Node.types['Call'] = Call

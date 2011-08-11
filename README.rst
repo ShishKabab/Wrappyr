@@ -68,7 +68,7 @@ To generate the Python API from XML, use the generate_ctypes_api.py script::
 
 	./generate_ctypes_api.py box2d_ctypes.xml --output-path=/tmp/
 
-This will create all root-level packages and modules defined in the XML file in /tmp/. In this script some preprocessing is done to replace reserved Python keywords for example. You can also do some cosmetic preprocessing here, like grouping functions to a class (for ex. a MySQL connection), moving classes around to sub-packages or renaming classes and functions to conform to PEP8 naming conventions.
+This will create all root-level packages and modules defined in the XML file in /tmp/. In this script some preprocessing is done to replace reserved Python keywords for example. You can also do some cosmetic preprocessing here, like grouping functions to a class (for ex. a MySQL connection), moving classes around to sub-packages or renaming classes and functions to conform to PEP8 naming conventions. See ctypes_builder/README.rst for more information on how the XML file is structured and the API is structured.
 
 This script will eventually get replaced by something prettier.
 

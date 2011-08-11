@@ -1,6 +1,11 @@
 import re
 
 class SourceBlock(object):
+	""" Collection of lines that remember indentation.
+
+	Useful when returning text from functions that you may need
+	to indent further. """
+
 	def __init__(self):
 		self.lines = []
 

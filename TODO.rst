@@ -63,6 +63,7 @@ Ctypes API generator
 
 * Function overloading
 * Overloaded operators
+* Null pointers and None
 * Export Python classes to C++
 
   * Would be nice so you can re-implement Python classes in C++ and vice versa without changing any client code.
