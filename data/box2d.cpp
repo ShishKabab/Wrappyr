@@ -8,8 +8,17 @@
 void* b2ContactRegister__Create(){
 	return new b2ContactRegister;
 }
+void* b2ContactRegister__CreateArray(int n){
+	return new b2ContactRegister[n];
+}
 void b2ContactRegister__Destroy(void* cls){
 	delete (b2ContactRegister*)cls;
+}
+void b2ContactRegister__DestroyArray(void* arr){
+	delete[] (b2ContactRegister*)arr;
+}
+unsigned int b2ContactRegister__Size(){
+	return sizeof(b2ContactRegister);
 }
 unsigned char b2ContactRegister__Get_Primary(void* cls){
 	return ((b2ContactRegister*)cls)->primary;
@@ -24,8 +33,17 @@ void b2ContactRegister__Set_Primary(void* cls, unsigned char v){
 void* b2DistanceOutput__Create(){
 	return new b2DistanceOutput;
 }
+void* b2DistanceOutput__CreateArray(int n){
+	return new b2DistanceOutput[n];
+}
 void b2DistanceOutput__Destroy(void* cls){
 	delete (b2DistanceOutput*)cls;
+}
+void b2DistanceOutput__DestroyArray(void* arr){
+	delete[] (b2DistanceOutput*)arr;
+}
+unsigned int b2DistanceOutput__Size(){
+	return sizeof(b2DistanceOutput);
 }
 void* b2DistanceOutput__Get_PointA(void* cls){
 	return &((b2DistanceOutput*)cls)->pointA;
@@ -58,6 +76,12 @@ void b2DistanceOutput__Set_Iterations(void* cls, int v){
 void b2RayCastCallback__Destroy(void* cls){
 	delete (b2RayCastCallback*)cls;
 }
+void b2RayCastCallback__DestroyArray(void* arr){
+	delete[] (b2RayCastCallback*)arr;
+}
+unsigned int b2RayCastCallback__Size(){
+	return sizeof(b2RayCastCallback);
+}
 
 //
 // Begin class 'b2ContactListener'
@@ -65,8 +89,17 @@ void b2RayCastCallback__Destroy(void* cls){
 void* b2ContactListener__Create(){
 	return new b2ContactListener;
 }
+void* b2ContactListener__CreateArray(int n){
+	return new b2ContactListener[n];
+}
 void b2ContactListener__Destroy(void* cls){
 	delete (b2ContactListener*)cls;
+}
+void b2ContactListener__DestroyArray(void* arr){
+	delete[] (b2ContactListener*)arr;
+}
+unsigned int b2ContactListener__Size(){
+	return sizeof(b2ContactListener);
 }
 void b2ContactListener_EndContact(void* cls, void* a){
 	((b2ContactListener*)cls)->EndContact(((b2Contact*)a));
@@ -87,8 +120,17 @@ void b2ContactListener_PostSolve(void* cls, void* a, void* b){
 void* b2Version__Create(){
 	return new b2Version;
 }
+void* b2Version__CreateArray(int n){
+	return new b2Version[n];
+}
 void b2Version__Destroy(void* cls){
 	delete (b2Version*)cls;
+}
+void b2Version__DestroyArray(void* arr){
+	delete[] (b2Version*)arr;
+}
+unsigned int b2Version__Size(){
+	return sizeof(b2Version);
 }
 int b2Version__Get_Major(void* cls){
 	return ((b2Version*)cls)->major;
@@ -115,8 +157,17 @@ void b2Version__Set_Revision(void* cls, int v){
 void* b2TOIOutput__Create(){
 	return new b2TOIOutput;
 }
+void* b2TOIOutput__CreateArray(int n){
+	return new b2TOIOutput[n];
+}
 void b2TOIOutput__Destroy(void* cls){
 	delete (b2TOIOutput*)cls;
+}
+void b2TOIOutput__DestroyArray(void* arr){
+	delete[] (b2TOIOutput*)arr;
+}
+unsigned int b2TOIOutput__Size(){
+	return sizeof(b2TOIOutput);
 }
 unsigned int b2TOIOutput__Get_State(void* cls){
 	return ((b2TOIOutput*)cls)->state;
@@ -137,8 +188,17 @@ void b2TOIOutput__Set_T(void* cls, float v){
 void* b2TOIInput__Create(){
 	return new b2TOIInput;
 }
+void* b2TOIInput__CreateArray(int n){
+	return new b2TOIInput[n];
+}
 void b2TOIInput__Destroy(void* cls){
 	delete (b2TOIInput*)cls;
+}
+void b2TOIInput__DestroyArray(void* arr){
+	delete[] (b2TOIInput*)arr;
+}
+unsigned int b2TOIInput__Size(){
+	return sizeof(b2TOIInput);
 }
 void* b2TOIInput__Get_ProxyA(void* cls){
 	return &((b2TOIInput*)cls)->proxyA;
@@ -177,6 +237,12 @@ void b2TOIInput__Set_TMax(void* cls, float v){
 void b2PulleyJoint__Destroy(void* cls){
 	delete (b2PulleyJoint*)cls;
 }
+void b2PulleyJoint__DestroyArray(void* arr){
+	delete[] (b2PulleyJoint*)arr;
+}
+unsigned int b2PulleyJoint__Size(){
+	return sizeof(b2PulleyJoint);
+}
 void* b2PulleyJoint_GetAnchorA(void* cls){
 	return new b2Vec2(((b2PulleyJoint*)cls)->GetAnchorA());
 }
@@ -211,6 +277,12 @@ float b2PulleyJoint_GetRatio(void* cls){
 void b2QueryCallback__Destroy(void* cls){
 	delete (b2QueryCallback*)cls;
 }
+void b2QueryCallback__DestroyArray(void* arr){
+	delete[] (b2QueryCallback*)arr;
+}
+unsigned int b2QueryCallback__Size(){
+	return sizeof(b2QueryCallback);
+}
 
 //
 // Begin class 'b2DistanceJointDef'
@@ -218,8 +290,17 @@ void b2QueryCallback__Destroy(void* cls){
 void* b2DistanceJointDef__Create(){
 	return new b2DistanceJointDef();
 }
+void* b2DistanceJointDef__CreateArray(int n){
+	return new b2DistanceJointDef[n];
+}
 void b2DistanceJointDef__Destroy(void* cls){
 	delete (b2DistanceJointDef*)cls;
+}
+void b2DistanceJointDef__DestroyArray(void* arr){
+	delete[] (b2DistanceJointDef*)arr;
+}
+unsigned int b2DistanceJointDef__Size(){
+	return sizeof(b2DistanceJointDef);
 }
 void b2DistanceJointDef_Initialize(void* cls, void* a, void* b, void* c, void* d){
 	((b2DistanceJointDef*)cls)->Initialize(((b2Body*)a), ((b2Body*)b), *((b2Vec2*)c), *((b2Vec2*)d));
@@ -261,8 +342,17 @@ void b2DistanceJointDef__Set_DampingRatio(void* cls, float v){
 void* b2FrictionJointDef__Create(){
 	return new b2FrictionJointDef();
 }
+void* b2FrictionJointDef__CreateArray(int n){
+	return new b2FrictionJointDef[n];
+}
 void b2FrictionJointDef__Destroy(void* cls){
 	delete (b2FrictionJointDef*)cls;
+}
+void b2FrictionJointDef__DestroyArray(void* arr){
+	delete[] (b2FrictionJointDef*)arr;
+}
+unsigned int b2FrictionJointDef__Size(){
+	return sizeof(b2FrictionJointDef);
 }
 void b2FrictionJointDef_Initialize(void* cls, void* a, void* b, void* c){
 	((b2FrictionJointDef*)cls)->Initialize(((b2Body*)a), ((b2Body*)b), *((b2Vec2*)c));
@@ -298,8 +388,17 @@ void b2FrictionJointDef__Set_MaxTorque(void* cls, float v){
 void* b2RopeDef__Create(){
 	return new b2RopeDef();
 }
+void* b2RopeDef__CreateArray(int n){
+	return new b2RopeDef[n];
+}
 void b2RopeDef__Destroy(void* cls){
 	delete (b2RopeDef*)cls;
+}
+void b2RopeDef__DestroyArray(void* arr){
+	delete[] (b2RopeDef*)arr;
+}
+unsigned int b2RopeDef__Size(){
+	return sizeof(b2RopeDef);
 }
 void* b2RopeDef__Get_Vertices(void* cls){
 	return ((b2RopeDef*)cls)->vertices;
@@ -344,8 +443,17 @@ void b2RopeDef__Set_K3(void* cls, float v){
 void* b2MassData__Create(){
 	return new b2MassData;
 }
+void* b2MassData__CreateArray(int n){
+	return new b2MassData[n];
+}
 void b2MassData__Destroy(void* cls){
 	delete (b2MassData*)cls;
+}
+void b2MassData__DestroyArray(void* arr){
+	delete[] (b2MassData*)arr;
+}
+unsigned int b2MassData__Size(){
+	return sizeof(b2MassData);
 }
 float b2MassData__Get_Mass(void* cls){
 	return ((b2MassData*)cls)->mass;
@@ -372,6 +480,12 @@ void b2MassData__Set_I(void* cls, float v){
 void b2WeldJoint__Destroy(void* cls){
 	delete (b2WeldJoint*)cls;
 }
+void b2WeldJoint__DestroyArray(void* arr){
+	delete[] (b2WeldJoint*)arr;
+}
+unsigned int b2WeldJoint__Size(){
+	return sizeof(b2WeldJoint);
+}
 void* b2WeldJoint_GetAnchorA(void* cls){
 	return new b2Vec2(((b2WeldJoint*)cls)->GetAnchorA());
 }
@@ -391,8 +505,17 @@ void* b2WeldJoint_GetReactionForce(void* cls, float a){
 void* b2ContactFilter__Create(){
 	return new b2ContactFilter;
 }
+void* b2ContactFilter__CreateArray(int n){
+	return new b2ContactFilter[n];
+}
 void b2ContactFilter__Destroy(void* cls){
 	delete (b2ContactFilter*)cls;
+}
+void b2ContactFilter__DestroyArray(void* arr){
+	delete[] (b2ContactFilter*)arr;
+}
+unsigned int b2ContactFilter__Size(){
+	return sizeof(b2ContactFilter);
 }
 unsigned char b2ContactFilter_ShouldCollide(void* cls, void* a, void* b){
 	return ((b2ContactFilter*)cls)->ShouldCollide(((b2Fixture*)a), ((b2Fixture*)b));
@@ -401,6 +524,9 @@ unsigned char b2ContactFilter_ShouldCollide(void* cls, void* a, void* b){
 //
 // Begin class 'b2Body'
 //
+unsigned int b2Body__Size(){
+	return sizeof(b2Body);
+}
 float b2Body_GetAngle(void* cls){
 	return ((b2Body*)cls)->GetAngle();
 }
@@ -585,8 +711,17 @@ void* b2Body_GetPosition(void* cls){
 void* b2PrismaticJointDef__Create(){
 	return new b2PrismaticJointDef();
 }
+void* b2PrismaticJointDef__CreateArray(int n){
+	return new b2PrismaticJointDef[n];
+}
 void b2PrismaticJointDef__Destroy(void* cls){
 	delete (b2PrismaticJointDef*)cls;
+}
+void b2PrismaticJointDef__DestroyArray(void* arr){
+	delete[] (b2PrismaticJointDef*)arr;
+}
+unsigned int b2PrismaticJointDef__Size(){
+	return sizeof(b2PrismaticJointDef);
 }
 void b2PrismaticJointDef_Initialize(void* cls, void* a, void* b, void* c, void* d){
 	((b2PrismaticJointDef*)cls)->Initialize(((b2Body*)a), ((b2Body*)b), *((b2Vec2*)c), *((b2Vec2*)d));
@@ -658,8 +793,17 @@ void b2PrismaticJointDef__Set_MotorSpeed(void* cls, float v){
 void* b2RayCastOutput__Create(){
 	return new b2RayCastOutput;
 }
+void* b2RayCastOutput__CreateArray(int n){
+	return new b2RayCastOutput[n];
+}
 void b2RayCastOutput__Destroy(void* cls){
 	delete (b2RayCastOutput*)cls;
+}
+void b2RayCastOutput__DestroyArray(void* arr){
+	delete[] (b2RayCastOutput*)arr;
+}
+unsigned int b2RayCastOutput__Size(){
+	return sizeof(b2RayCastOutput);
 }
 void* b2RayCastOutput__Get_Normal(void* cls){
 	return &((b2RayCastOutput*)cls)->normal;
@@ -679,6 +823,12 @@ void b2RayCastOutput__Set_Fraction(void* cls, float v){
 //
 void b2WheelJoint__Destroy(void* cls){
 	delete (b2WheelJoint*)cls;
+}
+void b2WheelJoint__DestroyArray(void* arr){
+	delete[] (b2WheelJoint*)arr;
+}
+unsigned int b2WheelJoint__Size(){
+	return sizeof(b2WheelJoint);
 }
 unsigned char b2WheelJoint_IsMotorEnabled(void* cls){
 	return ((b2WheelJoint*)cls)->IsMotorEnabled();
@@ -738,8 +888,17 @@ void b2WheelJoint_EnableMotor(void* cls, unsigned char a){
 void* b2BlockAllocator__Create(){
 	return new b2BlockAllocator();
 }
+void* b2BlockAllocator__CreateArray(int n){
+	return new b2BlockAllocator[n];
+}
 void b2BlockAllocator__Destroy(void* cls){
 	delete (b2BlockAllocator*)cls;
+}
+void b2BlockAllocator__DestroyArray(void* arr){
+	delete[] (b2BlockAllocator*)arr;
+}
+unsigned int b2BlockAllocator__Size(){
+	return sizeof(b2BlockAllocator);
 }
 void b2BlockAllocator_Clear(void* cls){
 	((b2BlockAllocator*)cls)->Clear();
@@ -763,8 +922,17 @@ void* b2Vec3__Create1(float a, float b, float c){
 void* b2Vec3__Create2(void* a){
 	return new b2Vec3(*((b2Vec3*)a));
 }
+void* b2Vec3__CreateArray(int n){
+	return new b2Vec3[n];
+}
 void b2Vec3__Destroy(void* cls){
 	delete (b2Vec3*)cls;
+}
+void b2Vec3__DestroyArray(void* arr){
+	delete[] (b2Vec3*)arr;
+}
+unsigned int b2Vec3__Size(){
+	return sizeof(b2Vec3);
 }
 void b2Vec3_SetZero(void* cls){
 	((b2Vec3*)cls)->SetZero();
@@ -797,8 +965,17 @@ void b2Vec3__Set_Z(void* cls, float v){
 void* b2RevoluteJointDef__Create(){
 	return new b2RevoluteJointDef();
 }
+void* b2RevoluteJointDef__CreateArray(int n){
+	return new b2RevoluteJointDef[n];
+}
 void b2RevoluteJointDef__Destroy(void* cls){
 	delete (b2RevoluteJointDef*)cls;
+}
+void b2RevoluteJointDef__DestroyArray(void* arr){
+	delete[] (b2RevoluteJointDef*)arr;
+}
+unsigned int b2RevoluteJointDef__Size(){
+	return sizeof(b2RevoluteJointDef);
 }
 void b2RevoluteJointDef_Initialize(void* cls, void* a, void* b, void* c){
 	((b2RevoluteJointDef*)cls)->Initialize(((b2Body*)a), ((b2Body*)b), *((b2Vec2*)c));
@@ -863,6 +1040,12 @@ void b2RevoluteJointDef__Set_MaxMotorTorque(void* cls, float v){
 //
 void b2Fixture__Destroy(void* cls){
 	delete (b2Fixture*)cls;
+}
+void b2Fixture__DestroyArray(void* arr){
+	delete[] (b2Fixture*)arr;
+}
+unsigned int b2Fixture__Size(){
+	return sizeof(b2Fixture);
 }
 float b2Fixture_GetRestitution(void* cls){
 	return ((b2Fixture*)cls)->GetRestitution();
@@ -943,6 +1126,12 @@ float b2Fixture_GetDensity(void* cls){
 void b2PrismaticJoint__Destroy(void* cls){
 	delete (b2PrismaticJoint*)cls;
 }
+void b2PrismaticJoint__DestroyArray(void* arr){
+	delete[] (b2PrismaticJoint*)arr;
+}
+unsigned int b2PrismaticJoint__Size(){
+	return sizeof(b2PrismaticJoint);
+}
 unsigned char b2PrismaticJoint_IsMotorEnabled(void* cls){
 	return ((b2PrismaticJoint*)cls)->IsMotorEnabled();
 }
@@ -1001,8 +1190,17 @@ void b2PrismaticJoint_EnableLimit(void* cls, unsigned char a){
 void* b2PolygonShape__Create(){
 	return new b2PolygonShape();
 }
+void* b2PolygonShape__CreateArray(int n){
+	return new b2PolygonShape[n];
+}
 void b2PolygonShape__Destroy(void* cls){
 	delete (b2PolygonShape*)cls;
+}
+void b2PolygonShape__DestroyArray(void* arr){
+	delete[] (b2PolygonShape*)arr;
+}
+unsigned int b2PolygonShape__Size(){
+	return sizeof(b2PolygonShape);
 }
 void b2PolygonShape_Set(void* cls, void* a, int b){
 	((b2PolygonShape*)cls)->Set(((b2Vec2*)a), ((int)b));
@@ -1056,8 +1254,17 @@ void b2PolygonShape__Set_MVertexCount(void* cls, int v){
 void* b2Jacobian__Create(){
 	return new b2Jacobian;
 }
+void* b2Jacobian__CreateArray(int n){
+	return new b2Jacobian[n];
+}
 void b2Jacobian__Destroy(void* cls){
 	delete (b2Jacobian*)cls;
+}
+void b2Jacobian__DestroyArray(void* arr){
+	delete[] (b2Jacobian*)arr;
+}
+unsigned int b2Jacobian__Size(){
+	return sizeof(b2Jacobian);
 }
 void* b2Jacobian__Get_Linear(void* cls){
 	return &((b2Jacobian*)cls)->linear;
@@ -1084,8 +1291,17 @@ void b2Jacobian__Set_AngularB(void* cls, float v){
 void* b2ContactFeature__Create(){
 	return new b2ContactFeature;
 }
+void* b2ContactFeature__CreateArray(int n){
+	return new b2ContactFeature[n];
+}
 void b2ContactFeature__Destroy(void* cls){
 	delete (b2ContactFeature*)cls;
+}
+void b2ContactFeature__DestroyArray(void* arr){
+	delete[] (b2ContactFeature*)arr;
+}
+unsigned int b2ContactFeature__Size(){
+	return sizeof(b2ContactFeature);
 }
 unsigned char b2ContactFeature__Get_IndexA(void* cls){
 	return ((b2ContactFeature*)cls)->indexA;
@@ -1118,8 +1334,17 @@ void b2ContactFeature__Set_TypeB(void* cls, unsigned char v){
 void* b2SolverData__Create(){
 	return new b2SolverData;
 }
+void* b2SolverData__CreateArray(int n){
+	return new b2SolverData[n];
+}
 void b2SolverData__Destroy(void* cls){
 	delete (b2SolverData*)cls;
+}
+void b2SolverData__DestroyArray(void* arr){
+	delete[] (b2SolverData*)arr;
+}
+unsigned int b2SolverData__Size(){
+	return sizeof(b2SolverData);
 }
 void* b2SolverData__Get_Step(void* cls){
 	return &((b2SolverData*)cls)->step;
@@ -1146,8 +1371,17 @@ void b2SolverData__Set_Velocities(void* cls, void* v){
 void* b2Pair__Create(){
 	return new b2Pair;
 }
+void* b2Pair__CreateArray(int n){
+	return new b2Pair[n];
+}
 void b2Pair__Destroy(void* cls){
 	delete (b2Pair*)cls;
+}
+void b2Pair__DestroyArray(void* arr){
+	delete[] (b2Pair*)arr;
+}
+unsigned int b2Pair__Size(){
+	return sizeof(b2Pair);
 }
 int b2Pair__Get_ProxyIdA(void* cls){
 	return ((b2Pair*)cls)->proxyIdA;
@@ -1176,6 +1410,12 @@ void* b2World__Create(void* a, unsigned char b){
 }
 void b2World__Destroy(void* cls){
 	delete (b2World*)cls;
+}
+void b2World__DestroyArray(void* arr){
+	delete[] (b2World*)arr;
+}
+unsigned int b2World__Size(){
+	return sizeof(b2World);
 }
 void b2World_QueryAABB(void* cls, void* a, void* b){
 	((b2World*)cls)->QueryAABB(((b2QueryCallback*)a), *((b2AABB*)b));
@@ -1292,6 +1532,12 @@ void b2World_SetContactFilter(void* cls, void* a){
 void b2Shape__Destroy(void* cls){
 	delete (b2Shape*)cls;
 }
+void b2Shape__DestroyArray(void* arr){
+	delete[] (b2Shape*)arr;
+}
+unsigned int b2Shape__Size(){
+	return sizeof(b2Shape);
+}
 unsigned int b2Shape_GetType(void* cls){
 	return ((b2Shape*)cls)->GetType();
 }
@@ -1313,6 +1559,12 @@ void b2Shape__Set_MRadius(void* cls, float v){
 //
 void b2DistanceJoint__Destroy(void* cls){
 	delete (b2DistanceJoint*)cls;
+}
+void b2DistanceJoint__DestroyArray(void* arr){
+	delete[] (b2DistanceJoint*)arr;
+}
+unsigned int b2DistanceJoint__Size(){
+	return sizeof(b2DistanceJoint);
 }
 void* b2DistanceJoint_GetAnchorA(void* cls){
 	return new b2Vec2(((b2DistanceJoint*)cls)->GetAnchorA());
@@ -1351,8 +1603,17 @@ void b2DistanceJoint_SetLength(void* cls, float a){
 void* b2TreeNode__Create(){
 	return new b2TreeNode;
 }
+void* b2TreeNode__CreateArray(int n){
+	return new b2TreeNode[n];
+}
 void b2TreeNode__Destroy(void* cls){
 	delete (b2TreeNode*)cls;
+}
+void b2TreeNode__DestroyArray(void* arr){
+	delete[] (b2TreeNode*)arr;
+}
+unsigned int b2TreeNode__Size(){
+	return sizeof(b2TreeNode);
 }
 unsigned char b2TreeNode_IsLeaf(void* cls){
 	return ((b2TreeNode*)cls)->IsLeaf();
@@ -1388,8 +1649,17 @@ void b2TreeNode__Set_Height(void* cls, int v){
 void* b2CircleShape__Create(){
 	return new b2CircleShape();
 }
+void* b2CircleShape__CreateArray(int n){
+	return new b2CircleShape[n];
+}
 void b2CircleShape__Destroy(void* cls){
 	delete (b2CircleShape*)cls;
+}
+void b2CircleShape__DestroyArray(void* arr){
+	delete[] (b2CircleShape*)arr;
+}
+unsigned int b2CircleShape__Size(){
+	return sizeof(b2CircleShape);
 }
 void b2CircleShape_ComputeMass(void* cls, void* a, float b){
 	((b2CircleShape*)cls)->ComputeMass(((b2MassData*)a), ((float)b));
@@ -1434,8 +1704,17 @@ void b2CircleShape__Set_MP(void* cls, void* v){
 void* b2JointEdge__Create(){
 	return new b2JointEdge;
 }
+void* b2JointEdge__CreateArray(int n){
+	return new b2JointEdge[n];
+}
 void b2JointEdge__Destroy(void* cls){
 	delete (b2JointEdge*)cls;
+}
+void b2JointEdge__DestroyArray(void* arr){
+	delete[] (b2JointEdge*)arr;
+}
+unsigned int b2JointEdge__Size(){
+	return sizeof(b2JointEdge);
 }
 void* b2JointEdge__Get_Other(void* cls){
 	return ((b2JointEdge*)cls)->other;
@@ -1462,8 +1741,17 @@ void b2JointEdge__Set_Next(void* cls, void* v){
 void* b2RopeJointDef__Create(){
 	return new b2RopeJointDef();
 }
+void* b2RopeJointDef__CreateArray(int n){
+	return new b2RopeJointDef[n];
+}
 void b2RopeJointDef__Destroy(void* cls){
 	delete (b2RopeJointDef*)cls;
+}
+void b2RopeJointDef__DestroyArray(void* arr){
+	delete[] (b2RopeJointDef*)arr;
+}
+unsigned int b2RopeJointDef__Size(){
+	return sizeof(b2RopeJointDef);
 }
 void* b2RopeJointDef__Get_LocalAnchorA(void* cls){
 	return &((b2RopeJointDef*)cls)->localAnchorA;
@@ -1490,8 +1778,17 @@ void b2RopeJointDef__Set_MaxLength(void* cls, float v){
 void* b2Position__Create(){
 	return new b2Position;
 }
+void* b2Position__CreateArray(int n){
+	return new b2Position[n];
+}
 void b2Position__Destroy(void* cls){
 	delete (b2Position*)cls;
+}
+void b2Position__DestroyArray(void* arr){
+	delete[] (b2Position*)arr;
+}
+unsigned int b2Position__Size(){
+	return sizeof(b2Position);
 }
 void* b2Position__Get_C(void* cls){
 	return &((b2Position*)cls)->c;
@@ -1512,8 +1809,17 @@ void b2Position__Set_A(void* cls, float v){
 void* b2Profile__Create(){
 	return new b2Profile;
 }
+void* b2Profile__CreateArray(int n){
+	return new b2Profile[n];
+}
 void b2Profile__Destroy(void* cls){
 	delete (b2Profile*)cls;
+}
+void b2Profile__DestroyArray(void* arr){
+	delete[] (b2Profile*)arr;
+}
+unsigned int b2Profile__Size(){
+	return sizeof(b2Profile);
 }
 float b2Profile__Get_Step(void* cls){
 	return ((b2Profile*)cls)->step;
@@ -1569,6 +1875,12 @@ void b2Profile__Set_SolveTOI(void* cls, float v){
 //
 void b2RevoluteJoint__Destroy(void* cls){
 	delete (b2RevoluteJoint*)cls;
+}
+void b2RevoluteJoint__DestroyArray(void* arr){
+	delete[] (b2RevoluteJoint*)arr;
+}
+unsigned int b2RevoluteJoint__Size(){
+	return sizeof(b2RevoluteJoint);
 }
 unsigned char b2RevoluteJoint_IsMotorEnabled(void* cls){
 	return ((b2RevoluteJoint*)cls)->IsMotorEnabled();
@@ -1631,8 +1943,17 @@ void* b2Mat33__Create0(){
 void* b2Mat33__Create1(void* a, void* b, void* c){
 	return new b2Mat33(*((b2Vec3*)a), *((b2Vec3*)b), *((b2Vec3*)c));
 }
+void* b2Mat33__CreateArray(int n){
+	return new b2Mat33[n];
+}
 void b2Mat33__Destroy(void* cls){
 	delete (b2Mat33*)cls;
+}
+void b2Mat33__DestroyArray(void* arr){
+	delete[] (b2Mat33*)arr;
+}
+unsigned int b2Mat33__Size(){
+	return sizeof(b2Mat33);
 }
 void b2Mat33_SetZero(void* cls){
 	((b2Mat33*)cls)->SetZero();
@@ -1668,8 +1989,17 @@ void b2Mat33__Set_Ez(void* cls, void* v){
 void* b2TimeStep__Create(){
 	return new b2TimeStep;
 }
+void* b2TimeStep__CreateArray(int n){
+	return new b2TimeStep[n];
+}
 void b2TimeStep__Destroy(void* cls){
 	delete (b2TimeStep*)cls;
+}
+void b2TimeStep__DestroyArray(void* arr){
+	delete[] (b2TimeStep*)arr;
+}
+unsigned int b2TimeStep__Size(){
+	return sizeof(b2TimeStep);
 }
 float b2TimeStep__Get_Dt(void* cls){
 	return ((b2TimeStep*)cls)->dt;
@@ -1714,8 +2044,17 @@ void b2TimeStep__Set_WarmStarting(void* cls, unsigned char v){
 void* b2ContactImpulse__Create(){
 	return new b2ContactImpulse;
 }
+void* b2ContactImpulse__CreateArray(int n){
+	return new b2ContactImpulse[n];
+}
 void b2ContactImpulse__Destroy(void* cls){
 	delete (b2ContactImpulse*)cls;
+}
+void b2ContactImpulse__DestroyArray(void* arr){
+	delete[] (b2ContactImpulse*)arr;
+}
+unsigned int b2ContactImpulse__Size(){
+	return sizeof(b2ContactImpulse);
 }
 
 //
@@ -1724,8 +2063,17 @@ void b2ContactImpulse__Destroy(void* cls){
 void* b2Sweep__Create(){
 	return new b2Sweep;
 }
+void* b2Sweep__CreateArray(int n){
+	return new b2Sweep[n];
+}
 void b2Sweep__Destroy(void* cls){
 	delete (b2Sweep*)cls;
+}
+void b2Sweep__DestroyArray(void* arr){
+	delete[] (b2Sweep*)arr;
+}
+unsigned int b2Sweep__Size(){
+	return sizeof(b2Sweep);
 }
 void b2Sweep_Normalize(void* cls){
 	((b2Sweep*)cls)->Normalize();
@@ -1779,6 +2127,12 @@ void b2Sweep__Set_Alpha0(void* cls, float v){
 void b2FrictionJoint__Destroy(void* cls){
 	delete (b2FrictionJoint*)cls;
 }
+void b2FrictionJoint__DestroyArray(void* arr){
+	delete[] (b2FrictionJoint*)arr;
+}
+unsigned int b2FrictionJoint__Size(){
+	return sizeof(b2FrictionJoint);
+}
 void b2FrictionJoint_SetMaxTorque(void* cls, float a){
 	((b2FrictionJoint*)cls)->SetMaxTorque(((float)a));
 }
@@ -1810,8 +2164,17 @@ float b2FrictionJoint_GetMaxTorque(void* cls){
 void* b2MouseJointDef__Create(){
 	return new b2MouseJointDef();
 }
+void* b2MouseJointDef__CreateArray(int n){
+	return new b2MouseJointDef[n];
+}
 void b2MouseJointDef__Destroy(void* cls){
 	delete (b2MouseJointDef*)cls;
+}
+void b2MouseJointDef__DestroyArray(void* arr){
+	delete[] (b2MouseJointDef*)arr;
+}
+unsigned int b2MouseJointDef__Size(){
+	return sizeof(b2MouseJointDef);
 }
 void* b2MouseJointDef__Get_Target(void* cls){
 	return &((b2MouseJointDef*)cls)->target;
@@ -1844,6 +2207,12 @@ void b2MouseJointDef__Set_DampingRatio(void* cls, float v){
 void b2Draw__Destroy(void* cls){
 	delete (b2Draw*)cls;
 }
+void b2Draw__DestroyArray(void* arr){
+	delete[] (b2Draw*)arr;
+}
+unsigned int b2Draw__Size(){
+	return sizeof(b2Draw);
+}
 void b2Draw_AppendFlags(void* cls, unsigned int a){
 	((b2Draw*)cls)->AppendFlags(((unsigned int)a));
 }
@@ -1869,8 +2238,17 @@ void* b2Vec2__Create1(float a, float b){
 void* b2Vec2__Create2(void* a){
 	return new b2Vec2(*((b2Vec2*)a));
 }
+void* b2Vec2__CreateArray(int n){
+	return new b2Vec2[n];
+}
 void b2Vec2__Destroy(void* cls){
 	delete (b2Vec2*)cls;
+}
+void b2Vec2__DestroyArray(void* arr){
+	delete[] (b2Vec2*)arr;
+}
+unsigned int b2Vec2__Size(){
+	return sizeof(b2Vec2);
 }
 float b2Vec2_Normalize(void* cls){
 	return ((b2Vec2*)cls)->Normalize();
@@ -1912,8 +2290,17 @@ void b2Vec2__Set_Y(void* cls, float v){
 void* b2PulleyJointDef__Create(){
 	return new b2PulleyJointDef();
 }
+void* b2PulleyJointDef__CreateArray(int n){
+	return new b2PulleyJointDef[n];
+}
 void b2PulleyJointDef__Destroy(void* cls){
 	delete (b2PulleyJointDef*)cls;
+}
+void b2PulleyJointDef__DestroyArray(void* arr){
+	delete[] (b2PulleyJointDef*)arr;
+}
+unsigned int b2PulleyJointDef__Size(){
+	return sizeof(b2PulleyJointDef);
 }
 void b2PulleyJointDef_Initialize(void* cls, void* a, void* b, void* c, void* d, void* e, void* f, float g){
 	((b2PulleyJointDef*)cls)->Initialize(((b2Body*)a), ((b2Body*)b), *((b2Vec2*)c), *((b2Vec2*)d), *((b2Vec2*)e), *((b2Vec2*)f), ((float)g));
@@ -1967,8 +2354,17 @@ void b2PulleyJointDef__Set_Ratio(void* cls, float v){
 void* b2FixtureProxy__Create(){
 	return new b2FixtureProxy;
 }
+void* b2FixtureProxy__CreateArray(int n){
+	return new b2FixtureProxy[n];
+}
 void b2FixtureProxy__Destroy(void* cls){
 	delete (b2FixtureProxy*)cls;
+}
+void b2FixtureProxy__DestroyArray(void* arr){
+	delete[] (b2FixtureProxy*)arr;
+}
+unsigned int b2FixtureProxy__Size(){
+	return sizeof(b2FixtureProxy);
 }
 void* b2FixtureProxy__Get_Aabb(void* cls){
 	return &((b2FixtureProxy*)cls)->aabb;
@@ -1995,8 +2391,17 @@ void b2FixtureProxy__Set_ProxyId(void* cls, int v){
 void* b2DistanceInput__Create(){
 	return new b2DistanceInput;
 }
+void* b2DistanceInput__CreateArray(int n){
+	return new b2DistanceInput[n];
+}
 void b2DistanceInput__Destroy(void* cls){
 	delete (b2DistanceInput*)cls;
+}
+void b2DistanceInput__DestroyArray(void* arr){
+	delete[] (b2DistanceInput*)arr;
+}
+unsigned int b2DistanceInput__Size(){
+	return sizeof(b2DistanceInput);
 }
 void* b2DistanceInput__Get_ProxyA(void* cls){
 	return &((b2DistanceInput*)cls)->proxyA;
@@ -2035,6 +2440,12 @@ void b2DistanceInput__Set_UseRadii(void* cls, unsigned char v){
 void b2GearJoint__Destroy(void* cls){
 	delete (b2GearJoint*)cls;
 }
+void b2GearJoint__DestroyArray(void* arr){
+	delete[] (b2GearJoint*)arr;
+}
+unsigned int b2GearJoint__Size(){
+	return sizeof(b2GearJoint);
+}
 void* b2GearJoint_GetAnchorA(void* cls){
 	return new b2Vec2(((b2GearJoint*)cls)->GetAnchorA());
 }
@@ -2060,8 +2471,17 @@ void* b2GearJoint_GetAnchorB(void* cls){
 void* b2SimplexCache__Create(){
 	return new b2SimplexCache;
 }
+void* b2SimplexCache__CreateArray(int n){
+	return new b2SimplexCache[n];
+}
 void b2SimplexCache__Destroy(void* cls){
 	delete (b2SimplexCache*)cls;
+}
+void b2SimplexCache__DestroyArray(void* arr){
+	delete[] (b2SimplexCache*)arr;
+}
+unsigned int b2SimplexCache__Size(){
+	return sizeof(b2SimplexCache);
 }
 float b2SimplexCache__Get_Metric(void* cls){
 	return ((b2SimplexCache*)cls)->metric;
@@ -2085,8 +2505,17 @@ void* b2Rot__Create0(){
 void* b2Rot__Create1(float a){
 	return new b2Rot(((float)a));
 }
+void* b2Rot__CreateArray(int n){
+	return new b2Rot[n];
+}
 void b2Rot__Destroy(void* cls){
 	delete (b2Rot*)cls;
+}
+void b2Rot__DestroyArray(void* arr){
+	delete[] (b2Rot*)arr;
+}
+unsigned int b2Rot__Size(){
+	return sizeof(b2Rot);
 }
 void b2Rot_Set(void* cls, float a){
 	((b2Rot*)cls)->Set(((float)a));
@@ -2122,8 +2551,17 @@ void b2Rot__Set_C(void* cls, float v){
 void* b2DistanceProxy__Create(){
 	return new b2DistanceProxy();
 }
+void* b2DistanceProxy__CreateArray(int n){
+	return new b2DistanceProxy[n];
+}
 void b2DistanceProxy__Destroy(void* cls){
 	delete (b2DistanceProxy*)cls;
+}
+void b2DistanceProxy__DestroyArray(void* arr){
+	delete[] (b2DistanceProxy*)arr;
+}
+unsigned int b2DistanceProxy__Size(){
+	return sizeof(b2DistanceProxy);
 }
 void* b2DistanceProxy_GetVertex(void* cls, int a){
 	return const_cast<b2Vec2*>(&((b2DistanceProxy*)cls)->GetVertex(((int)a)));
@@ -2164,6 +2602,12 @@ void b2DistanceProxy__Set_MRadius(void* cls, float v){
 //
 void b2MouseJoint__Destroy(void* cls){
 	delete (b2MouseJoint*)cls;
+}
+void b2MouseJoint__DestroyArray(void* arr){
+	delete[] (b2MouseJoint*)arr;
+}
+unsigned int b2MouseJoint__Size(){
+	return sizeof(b2MouseJoint);
 }
 void b2MouseJoint_SetDampingRatio(void* cls, float a){
 	((b2MouseJoint*)cls)->SetDampingRatio(((float)a));
@@ -2208,8 +2652,17 @@ void* b2MouseJoint_GetReactionForce(void* cls, float a){
 void* b2WheelJointDef__Create(){
 	return new b2WheelJointDef();
 }
+void* b2WheelJointDef__CreateArray(int n){
+	return new b2WheelJointDef[n];
+}
 void b2WheelJointDef__Destroy(void* cls){
 	delete (b2WheelJointDef*)cls;
+}
+void b2WheelJointDef__DestroyArray(void* arr){
+	delete[] (b2WheelJointDef*)arr;
+}
+unsigned int b2WheelJointDef__Size(){
+	return sizeof(b2WheelJointDef);
 }
 void b2WheelJointDef_Initialize(void* cls, void* a, void* b, void* c, void* d){
 	((b2WheelJointDef*)cls)->Initialize(((b2Body*)a), ((b2Body*)b), *((b2Vec2*)c), *((b2Vec2*)d));
@@ -2269,8 +2722,17 @@ void b2WheelJointDef__Set_DampingRatio(void* cls, float v){
 void* b2Timer__Create(){
 	return new b2Timer();
 }
+void* b2Timer__CreateArray(int n){
+	return new b2Timer[n];
+}
 void b2Timer__Destroy(void* cls){
 	delete (b2Timer*)cls;
+}
+void b2Timer__DestroyArray(void* arr){
+	delete[] (b2Timer*)arr;
+}
+unsigned int b2Timer__Size(){
+	return sizeof(b2Timer);
 }
 void b2Timer_Reset(void* cls){
 	((b2Timer*)cls)->Reset();
@@ -2288,8 +2750,17 @@ void* b2Transform__Create0(){
 void* b2Transform__Create1(void* a, void* b){
 	return new b2Transform(*((b2Vec2*)a), *((b2Rot*)b));
 }
+void* b2Transform__CreateArray(int n){
+	return new b2Transform[n];
+}
 void b2Transform__Destroy(void* cls){
 	delete (b2Transform*)cls;
+}
+void b2Transform__DestroyArray(void* arr){
+	delete[] (b2Transform*)arr;
+}
+unsigned int b2Transform__Size(){
+	return sizeof(b2Transform);
 }
 void b2Transform_Set(void* cls, void* a, float b){
 	((b2Transform*)cls)->Set(*((b2Vec2*)a), ((float)b));
@@ -2316,8 +2787,17 @@ void b2Transform__Set_Q(void* cls, void* v){
 void* b2DynamicTree__Create(){
 	return new b2DynamicTree();
 }
+void* b2DynamicTree__CreateArray(int n){
+	return new b2DynamicTree[n];
+}
 void b2DynamicTree__Destroy(void* cls){
 	delete (b2DynamicTree*)cls;
+}
+void b2DynamicTree__DestroyArray(void* arr){
+	delete[] (b2DynamicTree*)arr;
+}
+unsigned int b2DynamicTree__Size(){
+	return sizeof(b2DynamicTree);
 }
 void* b2DynamicTree_GetFatAABB(void* cls, int a){
 	return const_cast<b2AABB*>(&((b2DynamicTree*)cls)->GetFatAABB(((int)a)));
@@ -2365,8 +2845,17 @@ void* b2Mat22__Create2(float a, float b, float c, float d){
 void* b2Mat22__Create3(void* a){
 	return new b2Mat22(*((b2Mat22*)a));
 }
+void* b2Mat22__CreateArray(int n){
+	return new b2Mat22[n];
+}
 void b2Mat22__Destroy(void* cls){
 	delete (b2Mat22*)cls;
+}
+void b2Mat22__DestroyArray(void* arr){
+	delete[] (b2Mat22*)arr;
+}
+unsigned int b2Mat22__Size(){
+	return sizeof(b2Mat22);
 }
 void b2Mat22_SetZero(void* cls){
 	((b2Mat22*)cls)->SetZero();
@@ -2402,8 +2891,17 @@ void b2Mat22__Set_Ey(void* cls, void* v){
 void* b2Velocity__Create(){
 	return new b2Velocity;
 }
+void* b2Velocity__CreateArray(int n){
+	return new b2Velocity[n];
+}
 void b2Velocity__Destroy(void* cls){
 	delete (b2Velocity*)cls;
+}
+void b2Velocity__DestroyArray(void* arr){
+	delete[] (b2Velocity*)arr;
+}
+unsigned int b2Velocity__Size(){
+	return sizeof(b2Velocity);
 }
 void* b2Velocity__Get_V(void* cls){
 	return &((b2Velocity*)cls)->v;
@@ -2424,8 +2922,17 @@ void b2Velocity__Set_W(void* cls, float v){
 void* b2StackAllocator__Create(){
 	return new b2StackAllocator();
 }
+void* b2StackAllocator__CreateArray(int n){
+	return new b2StackAllocator[n];
+}
 void b2StackAllocator__Destroy(void* cls){
 	delete (b2StackAllocator*)cls;
+}
+void b2StackAllocator__DestroyArray(void* arr){
+	delete[] (b2StackAllocator*)arr;
+}
+unsigned int b2StackAllocator__Size(){
+	return sizeof(b2StackAllocator);
 }
 int b2StackAllocator_GetMaxAllocation(void* cls){
 	return ((b2StackAllocator*)cls)->GetMaxAllocation();
@@ -2442,6 +2949,12 @@ void b2StackAllocator_Free(void* cls, void* a){
 //
 void b2RopeJoint__Destroy(void* cls){
 	delete (b2RopeJoint*)cls;
+}
+void b2RopeJoint__DestroyArray(void* arr){
+	delete[] (b2RopeJoint*)arr;
+}
+unsigned int b2RopeJoint__Size(){
+	return sizeof(b2RopeJoint);
 }
 void* b2RopeJoint_GetAnchorA(void* cls){
 	return new b2Vec2(((b2RopeJoint*)cls)->GetAnchorA());
@@ -2468,8 +2981,17 @@ unsigned int b2RopeJoint_GetLimitState(void* cls){
 void* b2WorldManifold__Create(){
 	return new b2WorldManifold;
 }
+void* b2WorldManifold__CreateArray(int n){
+	return new b2WorldManifold[n];
+}
 void b2WorldManifold__Destroy(void* cls){
 	delete (b2WorldManifold*)cls;
+}
+void b2WorldManifold__DestroyArray(void* arr){
+	delete[] (b2WorldManifold*)arr;
+}
+unsigned int b2WorldManifold__Size(){
+	return sizeof(b2WorldManifold);
 }
 void b2WorldManifold_Initialize(void* cls, void* a, void* b, float c, void* d, float e){
 	((b2WorldManifold*)cls)->Initialize(((b2Manifold*)a), *((b2Transform*)b), ((float)c), *((b2Transform*)d), ((float)e));
@@ -2487,8 +3009,17 @@ void b2WorldManifold__Set_Normal(void* cls, void* v){
 void* b2Filter__Create(){
 	return new b2Filter;
 }
+void* b2Filter__CreateArray(int n){
+	return new b2Filter[n];
+}
 void b2Filter__Destroy(void* cls){
 	delete (b2Filter*)cls;
+}
+void b2Filter__DestroyArray(void* arr){
+	delete[] (b2Filter*)arr;
+}
+unsigned int b2Filter__Size(){
+	return sizeof(b2Filter);
 }
 unsigned short b2Filter__Get_CategoryBits(void* cls){
 	return ((b2Filter*)cls)->categoryBits;
@@ -2515,8 +3046,17 @@ void b2Filter__Set_GroupIndex(void* cls, short v){
 void* b2ContactManager__Create(){
 	return new b2ContactManager();
 }
+void* b2ContactManager__CreateArray(int n){
+	return new b2ContactManager[n];
+}
 void b2ContactManager__Destroy(void* cls){
 	delete (b2ContactManager*)cls;
+}
+void b2ContactManager__DestroyArray(void* arr){
+	delete[] (b2ContactManager*)arr;
+}
+unsigned int b2ContactManager__Size(){
+	return sizeof(b2ContactManager);
 }
 void b2ContactManager_FindNewContacts(void* cls){
 	((b2ContactManager*)cls)->FindNewContacts();
@@ -2567,8 +3107,17 @@ void b2ContactManager__Set_MAllocator(void* cls, void* v){
 void* b2RayCastInput__Create(){
 	return new b2RayCastInput;
 }
+void* b2RayCastInput__CreateArray(int n){
+	return new b2RayCastInput[n];
+}
 void b2RayCastInput__Destroy(void* cls){
 	delete (b2RayCastInput*)cls;
+}
+void b2RayCastInput__DestroyArray(void* arr){
+	delete[] (b2RayCastInput*)arr;
+}
+unsigned int b2RayCastInput__Size(){
+	return sizeof(b2RayCastInput);
 }
 void* b2RayCastInput__Get_P1(void* cls){
 	return &((b2RayCastInput*)cls)->p1;
@@ -2598,8 +3147,17 @@ void* b2Color__Create0(){
 void* b2Color__Create1(float a, float b, float c){
 	return new b2Color(((float)a), ((float)b), ((float)c));
 }
+void* b2Color__CreateArray(int n){
+	return new b2Color[n];
+}
 void b2Color__Destroy(void* cls){
 	delete (b2Color*)cls;
+}
+void b2Color__DestroyArray(void* arr){
+	delete[] (b2Color*)arr;
+}
+unsigned int b2Color__Size(){
+	return sizeof(b2Color);
 }
 void b2Color_Set(void* cls, float a, float b, float c){
 	((b2Color*)cls)->Set(((float)a), ((float)b), ((float)c));
@@ -2629,8 +3187,17 @@ void b2Color__Set_B(void* cls, float v){
 void* b2EdgeShape__Create(){
 	return new b2EdgeShape();
 }
+void* b2EdgeShape__CreateArray(int n){
+	return new b2EdgeShape[n];
+}
 void b2EdgeShape__Destroy(void* cls){
 	delete (b2EdgeShape*)cls;
+}
+void b2EdgeShape__DestroyArray(void* arr){
+	delete[] (b2EdgeShape*)arr;
+}
+unsigned int b2EdgeShape__Size(){
+	return sizeof(b2EdgeShape);
 }
 void b2EdgeShape_Set(void* cls, void* a, void* b){
 	((b2EdgeShape*)cls)->Set(*((b2Vec2*)a), *((b2Vec2*)b));
@@ -2693,6 +3260,9 @@ void b2EdgeShape__Set_MHasVertex3(void* cls, unsigned char v){
 //
 // Begin class 'b2Joint'
 //
+unsigned int b2Joint__Size(){
+	return sizeof(b2Joint);
+}
 void* b2Joint_GetNext0(void* cls){
 	return ((b2Joint*)cls)->GetNext();
 }
@@ -2727,8 +3297,17 @@ unsigned char b2Joint_IsActive(void* cls){
 void* b2JointDef__Create(){
 	return new b2JointDef();
 }
+void* b2JointDef__CreateArray(int n){
+	return new b2JointDef[n];
+}
 void b2JointDef__Destroy(void* cls){
 	delete (b2JointDef*)cls;
+}
+void b2JointDef__DestroyArray(void* arr){
+	delete[] (b2JointDef*)arr;
+}
+unsigned int b2JointDef__Size(){
+	return sizeof(b2JointDef);
 }
 unsigned int b2JointDef__Get_Type(void* cls){
 	return ((b2JointDef*)cls)->type;
@@ -2761,8 +3340,17 @@ void b2JointDef__Set_CollideConnected(void* cls, unsigned char v){
 void* b2StackEntry__Create(){
 	return new b2StackEntry;
 }
+void* b2StackEntry__CreateArray(int n){
+	return new b2StackEntry[n];
+}
 void b2StackEntry__Destroy(void* cls){
 	delete (b2StackEntry*)cls;
+}
+void b2StackEntry__DestroyArray(void* arr){
+	delete[] (b2StackEntry*)arr;
+}
+unsigned int b2StackEntry__Size(){
+	return sizeof(b2StackEntry);
 }
 int b2StackEntry__Get_Size(void* cls){
 	return ((b2StackEntry*)cls)->size;
@@ -2783,8 +3371,17 @@ void b2StackEntry__Set_UsedMalloc(void* cls, unsigned char v){
 void* b2LoopShape__Create(){
 	return new b2LoopShape();
 }
+void* b2LoopShape__CreateArray(int n){
+	return new b2LoopShape[n];
+}
 void b2LoopShape__Destroy(void* cls){
 	delete (b2LoopShape*)cls;
+}
+void b2LoopShape__DestroyArray(void* arr){
+	delete[] (b2LoopShape*)arr;
+}
+unsigned int b2LoopShape__Size(){
+	return sizeof(b2LoopShape);
 }
 void* b2LoopShape_GetVertices(void* cls){
 	return const_cast<b2Vec2*>(((b2LoopShape*)cls)->GetVertices());
@@ -2826,6 +3423,12 @@ void* b2LoopShape_Clone(void* cls, void* a){
 void b2DestructionListener__Destroy(void* cls){
 	delete (b2DestructionListener*)cls;
 }
+void b2DestructionListener__DestroyArray(void* arr){
+	delete[] (b2DestructionListener*)arr;
+}
+unsigned int b2DestructionListener__Size(){
+	return sizeof(b2DestructionListener);
+}
 
 //
 // Begin class 'b2GearJointDef'
@@ -2833,8 +3436,17 @@ void b2DestructionListener__Destroy(void* cls){
 void* b2GearJointDef__Create(){
 	return new b2GearJointDef();
 }
+void* b2GearJointDef__CreateArray(int n){
+	return new b2GearJointDef[n];
+}
 void b2GearJointDef__Destroy(void* cls){
 	delete (b2GearJointDef*)cls;
+}
+void b2GearJointDef__DestroyArray(void* arr){
+	delete[] (b2GearJointDef*)arr;
+}
+unsigned int b2GearJointDef__Size(){
+	return sizeof(b2GearJointDef);
 }
 void* b2GearJointDef__Get_Joint1(void* cls){
 	return ((b2GearJointDef*)cls)->joint1;
@@ -2861,8 +3473,17 @@ void b2GearJointDef__Set_Ratio(void* cls, float v){
 void* b2ContactEdge__Create(){
 	return new b2ContactEdge;
 }
+void* b2ContactEdge__CreateArray(int n){
+	return new b2ContactEdge[n];
+}
 void b2ContactEdge__Destroy(void* cls){
 	delete (b2ContactEdge*)cls;
+}
+void b2ContactEdge__DestroyArray(void* arr){
+	delete[] (b2ContactEdge*)arr;
+}
+unsigned int b2ContactEdge__Size(){
+	return sizeof(b2ContactEdge);
 }
 void* b2ContactEdge__Get_Other(void* cls){
 	return ((b2ContactEdge*)cls)->other;
@@ -2889,8 +3510,17 @@ void b2ContactEdge__Set_Next(void* cls, void* v){
 void* b2Manifold__Create(){
 	return new b2Manifold;
 }
+void* b2Manifold__CreateArray(int n){
+	return new b2Manifold[n];
+}
 void b2Manifold__Destroy(void* cls){
 	delete (b2Manifold*)cls;
+}
+void b2Manifold__DestroyArray(void* arr){
+	delete[] (b2Manifold*)arr;
+}
+unsigned int b2Manifold__Size(){
+	return sizeof(b2Manifold);
 }
 void* b2Manifold__Get_LocalNormal(void* cls){
 	return &((b2Manifold*)cls)->localNormal;
@@ -2923,8 +3553,17 @@ void b2Manifold__Set_PointCount(void* cls, int v){
 void* b2AABB__Create(){
 	return new b2AABB;
 }
+void* b2AABB__CreateArray(int n){
+	return new b2AABB[n];
+}
 void b2AABB__Destroy(void* cls){
 	delete (b2AABB*)cls;
+}
+void b2AABB__DestroyArray(void* arr){
+	delete[] (b2AABB*)arr;
+}
+unsigned int b2AABB__Size(){
+	return sizeof(b2AABB);
 }
 unsigned char b2AABB_IsValid(void* cls){
 	return ((b2AABB*)cls)->IsValid();
@@ -2969,8 +3608,17 @@ void b2AABB__Set_UpperBound(void* cls, void* v){
 void* b2FixtureDef__Create(){
 	return new b2FixtureDef();
 }
+void* b2FixtureDef__CreateArray(int n){
+	return new b2FixtureDef[n];
+}
 void b2FixtureDef__Destroy(void* cls){
 	delete (b2FixtureDef*)cls;
+}
+void b2FixtureDef__DestroyArray(void* arr){
+	delete[] (b2FixtureDef*)arr;
+}
+unsigned int b2FixtureDef__Size(){
+	return sizeof(b2FixtureDef);
 }
 void* b2FixtureDef__Get_Shape(void* cls){
 	return const_cast<b2Shape*>(((b2FixtureDef*)cls)->shape);
@@ -3015,8 +3663,17 @@ void b2FixtureDef__Set_Filter(void* cls, void* v){
 void* b2ManifoldPoint__Create(){
 	return new b2ManifoldPoint;
 }
+void* b2ManifoldPoint__CreateArray(int n){
+	return new b2ManifoldPoint[n];
+}
 void b2ManifoldPoint__Destroy(void* cls){
 	delete (b2ManifoldPoint*)cls;
+}
+void b2ManifoldPoint__DestroyArray(void* arr){
+	delete[] (b2ManifoldPoint*)arr;
+}
+unsigned int b2ManifoldPoint__Size(){
+	return sizeof(b2ManifoldPoint);
 }
 void* b2ManifoldPoint__Get_LocalPoint(void* cls){
 	return &((b2ManifoldPoint*)cls)->localPoint;
@@ -3043,8 +3700,17 @@ void b2ManifoldPoint__Set_TangentImpulse(void* cls, float v){
 void* b2BodyDef__Create(){
 	return new b2BodyDef();
 }
+void* b2BodyDef__CreateArray(int n){
+	return new b2BodyDef[n];
+}
 void b2BodyDef__Destroy(void* cls){
 	delete (b2BodyDef*)cls;
+}
+void b2BodyDef__DestroyArray(void* arr){
+	delete[] (b2BodyDef*)arr;
+}
+unsigned int b2BodyDef__Size(){
+	return sizeof(b2BodyDef);
 }
 unsigned int b2BodyDef__Get_Type(void* cls){
 	return ((b2BodyDef*)cls)->type;
@@ -3131,8 +3797,17 @@ void b2BodyDef__Set_GravityScale(void* cls, float v){
 void* b2WeldJointDef__Create(){
 	return new b2WeldJointDef();
 }
+void* b2WeldJointDef__CreateArray(int n){
+	return new b2WeldJointDef[n];
+}
 void b2WeldJointDef__Destroy(void* cls){
 	delete (b2WeldJointDef*)cls;
+}
+void b2WeldJointDef__DestroyArray(void* arr){
+	delete[] (b2WeldJointDef*)arr;
+}
+unsigned int b2WeldJointDef__Size(){
+	return sizeof(b2WeldJointDef);
 }
 void b2WeldJointDef_Initialize(void* cls, void* a, void* b, void* c){
 	((b2WeldJointDef*)cls)->Initialize(((b2Body*)a), ((b2Body*)b), *((b2Vec2*)c));
@@ -3162,8 +3837,17 @@ void b2WeldJointDef__Set_ReferenceAngle(void* cls, float v){
 void* b2ClipVertex__Create(){
 	return new b2ClipVertex;
 }
+void* b2ClipVertex__CreateArray(int n){
+	return new b2ClipVertex[n];
+}
 void b2ClipVertex__Destroy(void* cls){
 	delete (b2ClipVertex*)cls;
+}
+void b2ClipVertex__DestroyArray(void* arr){
+	delete[] (b2ClipVertex*)arr;
+}
+unsigned int b2ClipVertex__Size(){
+	return sizeof(b2ClipVertex);
 }
 void* b2ClipVertex__Get_V(void* cls){
 	return &((b2ClipVertex*)cls)->v;
@@ -3178,8 +3862,17 @@ void b2ClipVertex__Set_V(void* cls, void* v){
 void* b2BroadPhase__Create(){
 	return new b2BroadPhase();
 }
+void* b2BroadPhase__CreateArray(int n){
+	return new b2BroadPhase[n];
+}
 void b2BroadPhase__Destroy(void* cls){
 	delete (b2BroadPhase*)cls;
+}
+void b2BroadPhase__DestroyArray(void* arr){
+	delete[] (b2BroadPhase*)arr;
+}
+unsigned int b2BroadPhase__Size(){
+	return sizeof(b2BroadPhase);
 }
 float b2BroadPhase_GetTreeQuality(void* cls){
 	return ((b2BroadPhase*)cls)->GetTreeQuality();
@@ -3218,6 +3911,9 @@ void b2BroadPhase_DestroyProxy(void* cls, int a){
 //
 // Begin class 'b2Contact'
 //
+unsigned int b2Contact__Size(){
+	return sizeof(b2Contact);
+}
 float b2Contact_GetRestitution(void* cls){
 	return ((b2Contact*)cls)->GetRestitution();
 }

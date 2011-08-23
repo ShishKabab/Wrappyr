@@ -1,7 +1,7 @@
 from itertools import chain
-from collections import defaultdict
-from lxml.etree import parse as parse_xml, fromstring as parse_xml_from_string
+from lxml.etree import parse as parse_xml
 from utils.MultiDict import OrderedMultiDict
+from utils.str import SourceBlock
 
 def _add_named_item(prop):
 	def add(self, item):
@@ -27,7 +27,7 @@ def _add_single_item(prop):
 		item.parent = self
 
 		if cur:
-			remove_from_children(self, cur)
+			_remove_from_children(self, cur)
 		self.children[item.name] = item
 
 		setattr(self, prop, item)
@@ -45,7 +45,7 @@ def _remove_from_children(parent, child):
 def _remove_named_item(prop):
 	def remove(self, item):
 		item.parent = None
-		remove_from_children(self, item)
+		_remove_from_children(self, item)
 		del getattr(self, prop)[item.name]
 
 	return remove
@@ -131,10 +131,12 @@ def _setup_list_child(cls, prop, name, type, singular = None, add = None, remove
 def _setup_single_child(cls, prop, name, type, singular = None, add = None, remove = None, every = None):
 	_setup_child('single', cls, prop, name, type, singular, add, remove, every)
 
-def _bool_from_string(s):
-	return s.lower() in ('1', 'true')
+def _bool_from_string(s, default = False):
+	return s.lower() in ('1', 'true') if s else default
 
 class Node(object):
+	layout = {}
+
 	types = {}
 
 	def __init__(self, name = None):
@@ -211,7 +213,7 @@ class Node(object):
 
 		node = cls(**kwds)
 		for layout in layouts:
-			for name, group in layout.get('children', {}).items():
+			for group in layout.get('children', {}).values():
 				add = group['add']
 				add = getattr(node, add)
 				tp = cls.types[group['type']]
@@ -239,6 +241,7 @@ class Module(Node):
 		self.libraries = {}
 		self.functions = {}
 		self.classes = {}
+		self.pointers = {}
 
 	class LibraryNotFound(Exception): pass
 	def find_library(self, name = None):
@@ -274,6 +277,7 @@ class Module(Node):
 _setup_named_child(Module, 'libraries', 'library', 'Library')
 _setup_named_child(Module, 'functions', 'function', 'Function')
 _setup_named_child(Module, 'classes', 'class', 'Class')
+_setup_named_child(Module, 'pointers', 'pointer', 'PointerType')
 
 Node.types['Module'] = Module
 
@@ -319,11 +323,13 @@ class Class(Node):
 
 		self.methods = {}
 		self.members = {}
+		self.pointers = {}
 
 	def is_empty(self):
 		return not any((self.methods, self.members))
 _setup_named_child(Class, 'methods', 'method', 'Method')
 _setup_named_child(Class, 'members', 'member', 'Member')
+_setup_named_child(Class, 'pointers', 'pointer', 'PointerType')
 
 Node.types['Class'] = Class
 
@@ -347,6 +353,7 @@ class Function(Node):
 		self.name = name
 		self.ops = []
 		self.raw = None
+		self.pointers = {}
 
 	_add_operation = _add_list_item('ops')
 	def add_operation(self, op):
@@ -359,27 +366,56 @@ class Function(Node):
 		self.raw = isinstance(op, RawCode)
 
 		self._add_operation(op)
+
+	def returns_anything(self):
+		return any(call.returns for call in self.ops)
 _setup_list_child(Function, 'ops', ('call', 'raw'), 'Operation', add = False)
+_setup_named_child(Function, 'pointers', 'pointer', 'PointerType')
 
 Node.types['Function'] = Function
 
 class Method(Function):
-	layout = {}
+	layout = {
+		'properties': {
+			'static': _bool_from_string
+		}
+	}
+
+	def __init__(self, name, static = False):
+		Function.__init__(self, name)
+
+		self.static = static
+
+	def is_static(self):
+		if self.name in ('__newarray__', '__delarray__'):
+			return True
+		return self.static
+
+	def returns_anything(self):
+		returns = self.name != "__init__"
+		returns = returns or self.name == '__newarray__'
+		returns = returns or Function.returns_anything(self)
+		return returns
 Node.types['Method'] = Method
 
 class Member(Node):
 	layout = {
 		'properties': {
-			'name': str
+			'name': str,
+			'static': _bool_from_string
 		},
 	}
 
-	def __init__(self, name, getter = None, setter = None):
+	def __init__(self, name, getter = None, setter = None, static = False):
 		Node.__init__(self, name)
 
 		self.name = name
 		self.getter = getter
 		self.setter = setter
+		self.static = static
+
+	def is_static(self):
+		return self.static
 _setup_single_child(Member, 'getter', 'getter', 'Method', singular = 'getter')
 _setup_single_child(Member, 'setter', 'setter', 'Method', singular = 'setter')
 
@@ -422,6 +458,9 @@ class Call(Operation):
 		if isinstance(self.returns.type, Class):
 			return "ctypes.c_void_p"
 		return self.returns.type
+
+	def get_library(self):
+		return self.get_closest_parent_module().find_library(self.library)
 _setup_list_child(Call, 'args', 'argument', 'Argument')
 _setup_single_child(Call, 'returns', 'returns', 'ReturnValue', singular = 'return_value')
 
@@ -441,6 +480,12 @@ class RawCode(Operation):
 
 		self.code = code
 		self.args = args
+
+	def get_code_block(self):
+		if isinstance(self.code, SourceBlock):
+			return self.code
+		return SourceBlock(self.code)
+
 Operation.op_types['raw'] = RawCode
 Node.types['Raw'] = RawCode
 
@@ -465,7 +510,7 @@ class ReturnValue(Node):
 	layout = {
 		'properties': {
 			'type': str,
-			'ownership': lambda v: False if v is None else _bool_from_string(v)
+			'ownership': _bool_from_string
 		}
 	}
 
@@ -476,11 +521,59 @@ class ReturnValue(Node):
 		self.ownership = ownership
 Node.types['ReturnValue'] = ReturnValue
 
+class PointerType(Node):
+	"""
+	Since a C pointer is used for numerous purposes in C, a PointerType
+	describes what type it points to and what a C call intends to do
+	with the pointer. You can create a PointerType in XML with the
+	<pointer> tag and reference it by path in any type attribute.
+	Three pointer use cases and their combinations are supported.
+
+	A pointer that is just used to pass an object by reference, like:
+		void print_foo_object(foo*);
+
+	A pointer used to point to an array, like:
+		void print_array(int* arr, int num);
+		void b2PolygonShape__SetVertices(b2Vec*);
+	The array can have multiple dimensions, like:
+		char** get_names(group*);
+
+	A pointer used to return a value from a function (outparam):
+		bool get_foo(foo* out);
+
+	These can be combined in the following ways:
+		outparam and array, for functions like:
+			int sprintf(char* buffer, char* fmt, ...);
+		outparam and reference:
+			bool get_foo_ref(foo** out);
+	"""
+	layout = {
+		'properties': {
+			'type': str,
+			'name': str,
+			'array': _bool_from_string,
+			'reference': _bool_from_string,
+			'outparam': _bool_from_string,
+			'array_dimensions': lambda v: v and int(v)
+		}
+	}
+
+	def __init__(self, type, name = None, array = False, reference = False, outparam = False, array_dimensions = None):
+		Node.__init__(self)
+
+		self.type = type
+		self.array = array
+		self.reference = reference
+		self.outparam = outparam
+		self.dimensions = array_dimensions
+
+Node.types['PointerType'] = PointerType
+
 class CTypesStructure(Node):
 	layout = {}
 
 	def __init__(self):
-		Node.__init__(self, None)
+		Node.__init__(self)
 
 		self.packages = {}
 		self.modules = {}

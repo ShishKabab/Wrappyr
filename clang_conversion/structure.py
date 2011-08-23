@@ -85,6 +85,11 @@ class Class(Node):
 			all(importer.nodes.get(base.id) is not None for base in self.bases) and \
 			all(importer.nodes[base.id].is_valid(importer) for base in self.bases)
 
+	def is_default_constructable(self):
+		return not self.constructors or any(
+			len(constructor.args) == 0 and constructor.access == 'public'
+			for constructor in self.constructors)
+
 class Argument(Node):
 	def __init__(self, xml_node):
 		Node.__init__(self, xml_node)

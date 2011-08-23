@@ -69,6 +69,7 @@ Ctypes API generator
   * Would be nice so you can re-implement Python classes in C++ and vice versa without changing any client code.
   * Would require hints (in the form of decorators?) about the arguments and return values of methods.
 
+* Add support for idioms, indicating wich classes / methods represent strings, hash tables, lists, iterators, etc.
 * Template classes and functions - how?
 * Exceptions - how?
 * Tests

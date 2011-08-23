@@ -20,30 +20,49 @@ class ExportFilter(object):
 		return True
 
 	def filter_class(self, cls):
-		return cls.is_valid(self.importer) and cls.access in ('unknown', 'public')
+		return cls.is_valid(self.importer) and \
+			cls.access in ('unknown', 'public')
 
 	def filter_method(self, cls, method):
-		return any(self.filter_method_signature(cls, sig) for sig in method)
+		return any(self.filter_method_signature(cls, sig)
+			for sig in method)
 
 	def filter_method_signature(self, cls, signature):
-		return self.filter_function(signature) and \
-			signature.access == 'public' and \
-			not signature.is_static
+		return (self.filter_function(signature)
+			# Export only public methods
+			and signature.access == 'public'
+			# Static methods are not supported yet
+			and not signature.is_static)
 
 	def filter_member(self, cls, member):
 		type = member.type
 
-		return (member.access == 'public' and member.name
+		return (# Export only public members
+			member.access == 'public'
+			# Some member names are empty in Clang XML, find out why
+			and member.name
+			# We don't know how to handle pointers other
+			# than C++ object pointers
 			and not (type.type in ('builtin', 'enum') and type.pointers)
 			#and (not type.id or self.importer.nodes.get(type.id))
+
+			# If this type is a struct or class, the class
+			# must be declared
 			and (type.type != 'record' or self.importer.nodes.get(type.id))
+			# We don't know how to handle multi-dimensional pointers
 			and type.pointers <= 1
+			# The type must be something we can handle
 			and type.valid)
 
 	def filter_function(self, f):
-		return (not f.name.startswith('operator')
+		return (
+			# Operator overload is not supported
+			not f.name.startswith('operator')
 			#and all(not arg.type.id or self.importer.nodes.get(arg.type.id) for arg in f.args)
 			#and (not f.returns.id or self.importer.nodes.get(f.returns.id))
+
+			# We must be able to handle all argument and
+			# return value types
 			and f.valid)
 
 class ClangExport(object):
@@ -60,8 +79,19 @@ class ClangExport(object):
 			(cls.constructors.index(constructor) if len(cls.constructors) > 1 else '')
 		)
 
+	def symbol_for_array_constructor(self, cls, cls_name_underscore):
+		return "%s__CreateArray" % (
+			cls_name_underscore
+		)
+
 	def symbol_for_destructor(self, cls, cls_name_underscore, destructor):
 		return "%s__Destroy" % cls_name_underscore
+
+	def symbol_for_array_destructor(self, cls, cls_name_underscore):
+		return "%s__DestroyArray" % cls_name_underscore
+
+	def symbol_for_class_size(self, cls, cls_name_underscore):
+		return "%s__Size" % cls_name_underscore
 
 	def symbol_for_method_signature(self, cls, cls_name_underscore, method, signature):
 		return "%s_%s%s" % (
@@ -116,10 +146,23 @@ class HeaderExport(ClangExport):
 					self.symbol_for_constructor(cls, full_name_underscore),
 				))
 
+			# Array
+			if cls.is_default_constructable():
+				block.add_line("void* %s(int);" % self.symbol_for_array_constructor(
+					cls, full_name_underscore
+				))
+
 		# Destructor
 		if not cls.destructor or cls.destructor.access == 'public':
 			block.add_line("void %s(void*);" % self.symbol_for_destructor(
 				cls, full_name_underscore, cls.destructor))
+			block.add_line("void %s(void*);" % self.symbol_for_array_destructor(
+				cls, full_name_underscore
+			))
+
+		# Class size
+		block.add_line("unsigned int %s();" % self.symbol_for_class_size(
+			cls, full_name_underscore))
 
 		# Methods
 		for method in cls.methods.values():
@@ -218,12 +261,32 @@ class SourceExport(ClangExport):
 				block.add_line("return new %s;" % full_name, 1)
 				block.add_line("}")
 
+			# Array
+			if cls.is_default_constructable():
+				block.add_line("void* %s(int n){" % self.symbol_for_array_constructor(
+					cls, full_name_underscore
+				))
+				block.add_line("return new %s[n];" % full_name, 1)
+				block.add_line("}")
+
 		# Destructor
 		if not cls.destructor or cls.destructor.access == 'public':
 			block.add_line("void %s(void* cls){" % self.symbol_for_destructor(
 				cls, full_name_underscore, cls.destructor))
 			block.add_line("delete (%s*)cls;" % full_name, 1)
 			block.add_line("}")
+
+			block.add_line("void %s(void* arr){" % self.symbol_for_array_destructor(
+				cls, full_name_underscore
+			))
+			block.add_line("delete[] (%s*)arr;" % full_name, 1)
+			block.add_line("}")
+
+		# Class size
+		block.add_line("unsigned int %s(){" % self.symbol_for_class_size(
+			cls, full_name_underscore))
+		block.add_line("return sizeof(%s);" % full_name, 1)
+		block.add_line("}")
 
 		# Methods
 		for method in cls.methods.values():

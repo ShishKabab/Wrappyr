@@ -1,12 +1,10 @@
 #!/usr/bin/python2.6
-import sys, os, time
+import sys, os
 import argparse
-import pprint
 import string
 
-from ctypes_builder.structure import CTypesStructure, Package
+from ctypes_builder.structure import CTypesStructure
 from ctypes_builder.export import export_structure
-from utils.str import SourceBlock
 
 class CTypesStructureVisitor(object):
 	def process(self, node):

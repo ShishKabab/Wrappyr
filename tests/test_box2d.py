@@ -1,9 +1,9 @@
 #!/usr/bin/env python2.6
-#from Box2D.common import b2Vec2
-#from Box2D.collision.shapes import b2PolygonShape
-#from Box2D.dynamics import b2World, b2Body, b2BodyDef, b2FixtureDef
+from Box2D.common import b2Vec2
+from Box2D.collision.shapes import b2PolygonShape
+from Box2D.dynamics import b2World, b2Body, b2BodyDef, b2FixtureDef
 
-from Box2D import *
+#from Box2D import *
 
 #import ipdb; ipdb.set_trace()
 
@@ -43,7 +43,11 @@ positionIterations = 2
 for i in range(60):
 	world.Step(timeStep, velocityIterations, positionIterations)
 	world.ClearForces()
-	position = body.GetPosition()
-	angle = body.GetAngle()
+
+	position = body.position
+	angle = body.angle
+
+#	position = body.GetPosition()
+#	angle = body.GetAngle()
 
 	print "%4.2f %4.2f %4.2f" % (position.x, position.y, angle)
