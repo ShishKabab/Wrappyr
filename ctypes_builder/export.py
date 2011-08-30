@@ -1,10 +1,19 @@
 import os
 from collections import defaultdict
 from itertools import chain, count, izip_longest
+from ctypes_builder.structure import PointerType
 from structure import Package, Class, Method, Member
 from utils.str import SourceBlock
 
 class NoCommonArguments(Exception): pass
+class UnsupportedPointerType(Exception):
+	def __init__(self, pointer):
+			types = ('array', 'reference', 'outparam')
+			types = tuple(('an ' + i) for i in types if getattr(pointer, i))
+			msg = "A pointer which is " + " and ".join(types)
+
+			Exception.__init__(msg)
+
 def get_call_args(f):
 	"""
 	Return list of calls with the arguments unique to
@@ -27,11 +36,21 @@ def get_call_args(f):
 def get_argument_list(call_args):
 	arg_list = []
 
-	first_call = True
-	for call, args in call_args:
-		for arg in args:
-			arg_list.append(arg.name + (" = NoArgument" if not first_call else ""))
-		first_call = False
+	if len(call_args) > 1:
+		first_call = True
+		for call, args in call_args:
+			for arg in args:
+				arg = arg.name
+				if not first_call:
+					arg += " = wrappyr_runtime.NoArgument"
+				arg_list.append(arg)
+			first_call = False
+	else:
+		for arg in call_args[0][1]:
+			arg_str = arg.name
+			if arg.default:
+				arg_str += " = " + arg.default
+			arg_list.append(arg_str)
 
 	return arg_list
 
@@ -39,6 +58,8 @@ def get_converted_argument(arg, name = None):
 	name = name or arg.name
 	if isinstance(arg.type, Class):
 		return "%s._inst" % name
+	elif isinstance(arg.type, PointerType):
+		return "%s.ptr" % name
 	else:
 		return "%s(%s)" % (arg.type, name)
 
@@ -73,11 +94,19 @@ def get_call_key(call, library = None):
 
 def get_call(call):
 	if isinstance(call.parent, Method):
-		register = "self._calls"
+		register = "%s._calls" % call.get_closest_parent_of_type(Class).name
 	else:
 		register = "_calls"
 
 	return "%s['%s']" % (register, get_call_key(call))
+
+def get_node_import(module, node, result_name):
+	imp = module.get_node_import(node)
+	if imp:
+		imp = "%s as %s" % (imp, result_name)
+	else:
+		imp = "%s = %s" % (result_name, node.name)
+	return imp
 
 def sort_methods(key):
 	def inner(left, right):
@@ -92,35 +121,112 @@ def sort_methods(key):
 
 	return inner
 
+def export_library_import(module, library, result_name):
+	block = SourceBlock()
+
+	distance = module.get_distance_to_parent(library.parent)
+	if distance > 0:
+		block.add_line("from %s import _libraries" % ("." * (distance + 1)))
+	block.add_line("%s = _libraries['%s']" % (result_name, library.name))
+
+	return block
+
 def export_function_signature(f, call_args = None):
-	is_static = isinstance(f, Method) and f.is_static()
+	takes_self = isinstance(f, Method) and f.takes_self_argument()
 	if not f.raw:
-		args = ['self'] if not is_static else []
+		args = ['self'] if takes_self else []
 		args += get_argument_list(call_args)
 	else:
 		args = f.ops[0].args
 
 	block = SourceBlock()
-	if is_static:
+	if isinstance(f, Method) and f.is_static():
 		block.add_line("@staticmethod")
 	block.add_line("def %s(%s):" % (f.name, ", ".join(args)))
 
 	return block
 
-def export_call(call, result_name = "", arg_names = ()):
+def export_type_check(name, type, type_var):
+	block = SourceBlock()
+
+	if isinstance(type, PointerType):
+		pointee_type = type.type
+
+		if type.outparam:
+			if type.reference:
+				raise UnsupportedPointerType(type)
+			elif type.array:
+				raise UnsupportedPointerType(type)
+			else:
+				raise UnsupportedPointerType(type)
+		elif type.array:
+			if type.reference:
+				raise UnsupportedPointerType(type)
+
+			if isinstance(pointee_type, Class):
+				check = ("if not isinstance({0}, wrappyr_runtime.CArray) "
+						 "or not issubclass({0}.cls, {2}):")
+			else:
+				check = ("if not issubclass({0}, {1}):")
+
+			error = ("\"Expected array of '{0}' type for '{1}', "
+				"got '%s'\" % {1}.__class__.__name__")
+			error = error.format(pointee_type.name, name)
+
+			block.add_line(check.format(name, pointee_type, type_var))
+			block.add_line("raise TypeError(%s)" % error, 1)
+		else:
+			raise UnsupportedPointerType(type)
+	elif isinstance(type, Class):
+		error = ("\"Expected '{0}' type for '{1}', "
+			"got '%s'\" % {1}.__class__.__name__")
+		error = error.format(type.name, name)
+
+		block.add_line("if not isinstance(%s, %s):" % (name, type_var))
+		block.add_line("raise TypeError(%s)" % error, 1)
+
+	return block
+
+def export_type_checks_for_call(call, call_var = "call"):
+	block = SourceBlock()
+	for arg, num in zip(call.args, count()):
+		type_var = "%s.arg_classes[%d]" % (call_var, num)
+		type_check = export_type_check(arg.name, arg.type, type_var)
+		block.add_block(type_check)
+
+	return block
+
+def export_call(call, result_name = "", arg_names = (),
+				export_type_checks = True, call_var = None):
 	if result_name:
 		action = "{result_name} = call({args})"
 	else:
 		action = "call({args})"
 
 	block = SourceBlock()
-	block.add_line("call = " + get_call(call))
+	if not call_var:
+		call_var = "call"
+		block.add_line("%s = %s" % (call_var, get_call(call)))
+	if export_type_checks:
+		block.add_block(export_type_checks_for_call(call))
 	block.add_line(action.format(
 		result_name = result_name,
 		args = get_converted_argument_list(call, arg_names)
 	))
-	if result_name:
-		block.add_line("{0} = call.convert_res({0})".format(result_name))
+	if not result_name or not call.returns:
+		return block
+
+	if isinstance(call.returns.type, Class):
+		conversion = "{0} = {1}.res_cls._from_c({0}, {2})"
+		conversion = conversion.format(result_name, call_var,
+									   repr(call.returns.ownership))
+	elif isinstance(call.returns, PointerType):
+		conversion = ""
+	else:
+		conversion = ""
+
+	if conversion:
+		block.add_line(conversion)
 
 	return block
 
@@ -132,11 +238,11 @@ def export_calls(f, result_name = "", call_args = None):
 	if len(call_args) > 1:
 		call, args = call_args[-1]
 		block.add_line("if %s:" % " and ".join(
-			"%s != NoArgument" % arg.name for arg in args))
+			"%s != wrappyr_runtime.NoArgument" % arg.name for arg in args))
 		block.add_block(export_call(call, result_name), 1)
 	for call, args in reversed(call_args[1:-1]):
 		block.add_line("elif %s:" % " and ".join(
-			"%s != NoArgument" % arg.name for arg in args))
+			"%s != wrappyr_runtime.NoArgument" % arg.name for arg in args))
 		block.add_block(export_call(call, result_name), 1)
 	if len(call_args) > 1:
 		block.add_line("else:")
@@ -191,7 +297,16 @@ def export_member(cls, member):
 		if setter.raw:
 			block.add_block(op.get_code_block(), 1)
 		else:
-			block.add_block(export_call(op, arg_names = ('v',)), 1)
+			type = op.args[0].type
+			block.add_line("call = " + get_call(op), 1)
+			if isinstance(type, (Class, PointerType)):
+				check = export_type_check('v', type, "call.arg_classes[0]")
+				block.add_block(check, 1)
+
+			call = export_call(op, arg_names = ('v',),
+							   export_type_checks = False,
+							   call_var = "call")
+			block.add_block(call, 1)
 
 	prop = "property(%s, %s)" % (
 		getter_name if member.getter else "None",
@@ -223,13 +338,66 @@ def export_class(cls):
 	members.append(from_c)
 
 	block = SourceBlock()
-	block.add_line("class %s(object):" % cls.name)
+	block.add_line("class %s(wrappyr_runtime.CPPClass):" % cls.name)
 	block.add_block(SourceBlock("").join(members, 1))
 	return block
 
-def export_class_setup(cls):
-	block = SourceBlock()
+def export_call_setup(call, result_name, lib, tmp_suffix = ""):
+	tmp_suffix = str(tmp_suffix)
 
+	block = SourceBlock()
+	parent_module = call.get_closest_parent_module()
+
+	store_res_cls = call.returns and isinstance(call.returns.type, Class)
+	if store_res_cls:
+		res_cls = call.returns.type
+		res_cls = get_node_import(parent_module, res_cls, "res_cls")
+		block.add_line(res_cls)
+	result_ctype = call.get_return_value_as_ctype()
+
+	argtypes = []
+	if call.parent.takes_this_pointer():
+		argtypes.append("ctypes.c_void_p")
+	for arg in call.args:
+		if isinstance(arg.type, Class):
+			argtypes.append("ctypes.c_void_p")
+		elif isinstance(arg.type, PointerType):
+			argtypes.append(arg.type.get_as_ctype())
+		else:
+			argtypes.append(arg.type)
+
+	arg_classes = []
+	for arg, num in zip(call.args, count()):
+		if not isinstance(arg.type, (Class, PointerType)):
+			arg_classes.append("None")
+			continue
+
+		if isinstance(arg.type, Class):
+			arg_type = arg.type
+		else:
+			arg_type =  arg.type.type
+		arg_cls_var = "arg_cls%d" % num
+		imp = get_node_import(parent_module, arg_type, arg_cls_var)
+		block.add_line(imp)
+		arg_classes.append(arg_cls_var)
+
+	block.add_line("%s = %s.%s" % (result_name, lib, call.symbol))
+	block.add_line("%s.arg_classes = [%s]" % (result_name,
+											  ", ".join(arg_classes)))
+	block.add_line("%s.argtypes = [%s]" % (result_name, ", ".join(argtypes)))
+	block.add_line("%s.restype = %s" % (result_name, result_ctype))
+	if store_res_cls:
+		block.add_line("%s.res_cls = res_cls" % result_name)
+
+#	if call.returns and isinstance(call.returns.type, Class):
+#		block.add_line("call.convert_res = lambda v: res_cls%s._from_c(v, %r)\n" %
+#			(tmp_suffix, call.returns.ownership), 1)
+#	else:
+#		block.add_line("call.convert_res = lambda v: v", 1)
+
+	return block
+
+def export_class_setup(cls):
 	cls_module = cls.get_closest_parent_module()
 
 	calls = []
@@ -242,44 +410,31 @@ def export_class_setup(cls):
 		if member.setter and not member.setter.raw:
 			calls.extend(member.setter.ops)
 
+	sort_key = lambda lib_calls: cls_module.get_distance_to_parent(lib_calls[0].parent)
 	calls_per_lib = get_calls_per_library(calls)
-	calls_per_lib = sorted(calls_per_lib, key =
-		lambda lib_calls: cls_module.get_distance_to_parent(lib_calls[0].parent))
+	calls_per_lib = sorted(calls_per_lib, key = sort_key)
 
 	if not calls_per_lib:
-		return block
+		return SourceBlock()
+
+	blocks = []
 
 	call_counter = count()
-	block.add_line("def init_cls():")
-	block.add_line("%s._calls = {}" % cls.name, 1)
 	for lib, calls in calls_per_lib:
-		distance = cls_module.get_distance_to_parent(lib.parent)
-		if distance > 0:
-			block.add_line("from %s import _libraries" % ("." * (distance + 1)), 1)
-		block.add_line("lib = _libraries['%s']" % lib.name, 1)
+		blocks.append(export_library_import(cls_module, lib, "lib"))
 
 		for call, call_num in zip(calls, call_counter):
-			# Import return class or just assign it to the right variable
-			if call.returns and isinstance(call.returns.type, Class):
-				imp = cls_module.get_node_import(call.returns.type)
-				if imp:
-					block.add_line("%s as retcls%d" % (imp, call_num), 1)
-				else:
-					block.add_line("retcls%d = %s" % (call_num, call.returns.type.name), 1)
+			block = SourceBlock()
+			block.add_block(export_call_setup(call, "call", "lib"))
+			block.add_line("%s._calls['%s'] = call" % (cls.name,
+													   get_call_key(call)))
+			blocks.append(block)
 
-			block.add_line("call = lib.%s" % call.symbol, 1)
-			block.add_line("call.argtypes = [%s]" % ", ".join(chain(
-				("ctypes.c_void_p",) if call.parent.name != "__init__" else (),
-				(("ctypes.c_void_p" if isinstance(arg.type, Class) else arg.type) for arg in call.args)
-			)), 1)
-			block.add_line("call.restype = %s" % call.get_return_value_as_ctype(), 1)
-			if call.returns and isinstance(call.returns.type, Class):
-				block.add_line("call.convert_res = lambda v: retcls%d._from_c(v, %r)\n" %
-					(call_num, call.returns.ownership), 1)
-			else:
-				block.add_line("call.convert_res = lambda v: v", 1)
-			block.add_line("%s._calls['%s'] = call\n" % (cls.name, get_call_key(call)), 1)
-			block.add_line("")
+	block = SourceBlock()
+	block.add_line("def init_cls():")
+	block.add_line("%s._calls = {}" % cls.name, 1)
+	block.add_line("", 1)
+	block.add_block(SourceBlock("").join(blocks, 1))
 	block.add_line("init_cls()")
 
 	return block
@@ -293,6 +448,7 @@ def export_module(mod, base_dir):
 	block = SourceBlock()
 	block.add_line("from __future__ import absolute_import")
 	block.add_line("import ctypes")
+	block.add_line("import wrappyr_runtime")
 	blocks.append(block)
 
 	if mod.libraries:
@@ -303,7 +459,6 @@ def export_module(mod, base_dir):
 		block.add_line("}")
 		blocks.append(block)
 
-	blocks.append(SourceBlock("class NoArgument(object): pass"))
 	for cls in mod.classes.values():
 		blocks.append(export_class(cls))
 

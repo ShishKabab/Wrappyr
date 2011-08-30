@@ -117,7 +117,7 @@ public:
 		} else if(const EnumDecl* ED = dyn_cast<EnumDecl>(D)){
 			HandleEnum(ED);
 		} else if(const NamespaceDecl* NsD = dyn_cast<NamespaceDecl>(D)){
-			llvm::errs() << "top-level-decl: \"" << D << "\"\n";
+// 			llvm::errs() << "top-level-decl: \"" << D << "\"\n";
 
 			HandleContextChildren(NsD);
 		}
@@ -263,6 +263,15 @@ public:
 		} else if(const ReferenceType* RT = dyn_cast<ReferenceType>(tp)){
 			llvm::outs() << "type=\"reference\">\n";
 			HandleType(RT->getPointeeType());
+		} else if(const ArrayType* AT = dyn_cast<ArrayType>(tp)){
+			llvm::outs() << "type=\"array\" ";
+			if(const ConstantArrayType* CAT = dyn_cast<ConstantArrayType>(AT)){
+				llvm::outs() << "has_constant_size=\"1\" "
+					<< "size=\"" << CAT->getSize().toString(10, false) << "\"";
+			} else
+				llvm::outs() << "has_constant_size=\"0\"";
+			llvm::outs() << ">\n";
+			HandleType(AT->getElementType());
 		} else if(const BuiltinType* BT = dyn_cast<BuiltinType>(tp)){
 			llvm::outs() << "type=\"builtin\" name=\"" << BT->getName(m_langOpts) << "\">";
 		} else if(const RecordType* RT = dyn_cast<RecordType>(tp)){

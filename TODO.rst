@@ -38,6 +38,9 @@ Ctypes API generator
 * PEP8
 * Cleanup code
 * Pointers and arrays
+
+  * Some work has already been done, but not all pointer use cases are handled yet.
+
 * Type checking
 * Default arguments
 * Enums

@@ -161,12 +161,15 @@ class Node(object):
 		if not top or node == top:
 			return ".".join(path)
 
-	def get_closest_parent_module(self):
+	def get_closest_parent_of_type(self, type):
 		parent = self.parent
 		while parent:
-			if isinstance(parent, Module):
+			if isinstance(parent, type):
 				return parent
 			parent = parent.parent
+
+	def get_closest_parent_module(self):
+		return self.get_closest_parent_of_type(Module)
 
 	def get_distance_to_parent(self, parent):
 		i = 0
@@ -329,7 +332,8 @@ class Class(Node):
 		return not any((self.methods, self.members))
 _setup_named_child(Class, 'methods', 'method', 'Method')
 _setup_named_child(Class, 'members', 'member', 'Member')
-_setup_named_child(Class, 'pointers', 'pointer', 'PointerType')
+_setup_named_child(Class, 'pointers', 'pointer', 'PointerType',
+				   singular = 'pointer_type')
 
 Node.types['Class'] = Class
 
@@ -384,18 +388,34 @@ class Method(Function):
 	def __init__(self, name, static = False):
 		Function.__init__(self, name)
 
-		self.static = static
+		self._static = static
+
+	@property
+	def static(self):
+		return self.is_static()
 
 	def is_static(self):
-		if self.name in ('__newarray__', '__delarray__'):
+		if self.name in ('__newarray__', '__delarray__', '__arrayitem__'):
 			return True
-		return self.static
+		return self._static
 
 	def returns_anything(self):
 		returns = self.name != "__init__"
 		returns = returns or self.name == '__newarray__'
 		returns = returns or Function.returns_anything(self)
 		return returns
+
+	def takes_self_argument(self):
+		return not self._static and self.name not in (
+			'__newarray__', '__delarray__', '__arrayitem__'
+		)
+
+	def takes_this_pointer(self):
+		return not self._static and self.name not in (
+			'__init__',
+			'__newarray__', '__delarray__', '__arrayitem__'
+		)
+
 Node.types['Method'] = Method
 
 class Member(Node):
@@ -457,6 +477,8 @@ class Call(Operation):
 			return "ctypes.c_void_p" if self.parent.name == "__init__" else "None"
 		if isinstance(self.returns.type, Class):
 			return "ctypes.c_void_p"
+		if isinstance(self.returns.type, PointerType):
+			return self.returns.type.get_as_ctype()
 		return self.returns.type
 
 	def get_library(self):
@@ -558,14 +580,34 @@ class PointerType(Node):
 		}
 	}
 
-	def __init__(self, type, name = None, array = False, reference = False, outparam = False, array_dimensions = None):
+	def __init__(self, type, name = None, array = False,
+				 reference = False, outparam = False,
+				 array_dimensions = None):
 		Node.__init__(self)
 
 		self.type = type
+		self.name = name
 		self.array = array
 		self.reference = reference
 		self.outparam = outparam
-		self.dimensions = array_dimensions
+		self.dimensions = array_dimensions or (1 if self.array else None)
+
+	def get_as_ctype(self):
+		if self.array:
+			pointers = self.dimensions
+		else:
+			pointers = 1
+
+		ctype = self.type
+		if not isinstance(ctype, basestring):
+			ctype = "ctypes.c_void_p"
+		if ctype == "ctypes.c_void_p":
+			pointers -= 1
+
+		for i in xrange(pointers):
+			ctype = "ctypes.POINTER(%s)" % ctype
+
+		return ctype
 
 Node.types['PointerType'] = PointerType
 

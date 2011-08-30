@@ -3,7 +3,7 @@ import sys, os
 import argparse
 import string
 
-from ctypes_builder.structure import CTypesStructure
+from ctypes_builder.structure import CTypesStructure, Class
 from ctypes_builder.export import export_structure
 
 class CTypesStructureVisitor(object):
@@ -149,6 +149,5 @@ if __name__ == "__main__":
 	AmbigousOverloadRemover().process(s)
 	PythonKeywordRemover().process(s)
 
-	#s.display()
 	export_structure(s, args.output_path)
 

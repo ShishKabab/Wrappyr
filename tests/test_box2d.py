@@ -1,4 +1,6 @@
 #!/usr/bin/env python2.6
+from wrappyr_runtime import arrayof
+
 from Box2D.common import b2Vec2
 from Box2D.collision.shapes import b2PolygonShape
 from Box2D.dynamics import b2World, b2Body, b2BodyDef, b2FixtureDef
@@ -36,6 +38,28 @@ fixtureDef.shape = dynamicBox
 fixtureDef.density = 1.0
 fixtureDef.friction = 0.3
 body.CreateFixture(fixtureDef)
+
+slopeBodyDef = b2BodyDef()
+slopeBodyDef.position = b2Vec2(0.0, -9.0)
+slopeBody = world.CreateBody(slopeBodyDef)
+
+vertices = arrayof(b2Vec2, 3)
+vertices[0].Set(0.0, 0.0)
+vertices[1].Set(0.5, 0.0)
+vertices[2].Set(0.0, 0.5)
+for vertex in vertices:
+	print vertex.x, vertex.y
+
+slopeShape = b2PolygonShape()
+slopeShape.Set(vertices, 3)
+
+fixtureDef = b2FixtureDef()
+fixtureDef.shape = slopeShape
+fixtureDef.density = 0.0
+fixtureDef.friction = 0.3
+slopeBody.CreateFixture(fixtureDef)
+
+print "-----"
 
 timeStep = 1.0 / 60.0
 velocityIterations = 6

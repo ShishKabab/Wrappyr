@@ -1,5 +1,5 @@
 <ctypes>
-	<package name="MySQLdb">
+	<package name="_MySQLdb">
 		<library name="mysql" path="libmysqlclient.so" default="true" />
 
 		<function name="get_client_info">
@@ -15,15 +15,15 @@
 				</call>
 			</method>
 
-			<method name="__del__">
+			<!--<method name="__del__">
 				<raw>self.close()</raw>
-			</method>
+			</method>-->
 
 			<method name="connect" guard="call_once">
 				<call symbol="mysql_real_connect">
 					<argument name="host" type="ctypes.c_char_p" default="None" />
 					<argument name="user" type="ctypes.c_char_p" default="None" />
-					<argument name="pass" type="ctypes.c_char_p" default="None" />
+					<argument name="passw" type="ctypes.c_char_p" default="None" />
 					<argument name="db" type="ctypes.c_char_p" default="None" />
 					<argument name="port" type="ctypes.c_uint" default="0" />
 					<argument name="unix_socket" type="ctypes.c_char_p" default="None" />
@@ -39,7 +39,13 @@
 
 			<method name="get_result">
 				<call symbol="mysql_use_result">
-					<returns type="MySQLdb.Result" />
+					<returns type="_MySQLdb.Result" />
+				</call>
+			</method>
+
+			<method name="get_error">
+				<call symbol="mysql_error">
+					<returns type="ctypes.c_char_p" />
 				</call>
 			</method>
 
@@ -49,9 +55,13 @@
 		</class>
 
 		<class name="Result">
+			<method name="__del__">
+				<call symbol="mysql_free_result" />
+			</method>
+
 			<method name="fetch_row">
 				<call symbol="mysql_fetch_row">
-					<returns type="MySQLdb.Result.Row" />
+					<returns type="_MySQLdb.Result.Row" />
 				</call>
 			</method>
 			<pointer name="Row" type="ctypes.c_char_p" array="true" />

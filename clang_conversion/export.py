@@ -1,14 +1,3 @@
-import sys
-import os
-import time
-import re
-import argparse
-import pprint
-from itertools import chain
-from collections import defaultdict
-
-from lxml.etree import parse as parse_xml, fromstring as parse_xml_from_string
-
 from utils.str import SourceBlock, as_camelcase
 from structure import Class, Function
 
@@ -43,7 +32,7 @@ class ExportFilter(object):
 			and member.name
 			# We don't know how to handle pointers other
 			# than C++ object pointers
-			and not (type.type in ('builtin', 'enum') and type.pointers)
+			# and not (type.type in ('builtin', 'enum') and type.pointers)
 			#and (not type.id or self.importer.nodes.get(type.id))
 
 			# If this type is a struct or class, the class
@@ -107,6 +96,9 @@ class ClangExport(object):
 			"%s__Set_%s" % (cls_name_underscore, camelcased)
 		)
 
+	def symbol_for_array_element(self, cls, full_name_underscore):
+		return "%s__ArrayElement" % full_name_underscore
+
 	def setup(self, importer):
 		self.importer = importer
 		self.filter = self.get_filter(importer)
@@ -163,6 +155,11 @@ class HeaderExport(ClangExport):
 		# Class size
 		block.add_line("unsigned int %s();" % self.symbol_for_class_size(
 			cls, full_name_underscore))
+
+		# Get array element
+		block.add_line("void* %s(void*, unsigned int);" % self.symbol_for_array_element(
+			cls, full_name_underscore
+		))
 
 		# Methods
 		for method in cls.methods.values():
@@ -288,6 +285,13 @@ class SourceExport(ClangExport):
 		block.add_line("return sizeof(%s);" % full_name, 1)
 		block.add_line("}")
 
+		# Get array element
+		block.add_line("void* %s(void* arr, unsigned int idx){" % self.symbol_for_array_element(
+			cls, full_name_underscore
+		))
+		block.add_line("return &((%s*)arr)[idx];" % full_name, 1)
+		block.add_line("}")
+
 		# Methods
 		for method in cls.methods.values():
 			for i, signature in enumerate(method):
@@ -376,7 +380,6 @@ class CtypesExport(ClangExport):
 		'_Bool': 'ctypes.c_bool',
 		'char': 'ctypes.c_char',
 		'wchar_t': 'ctypes.c_wchar',
-		'char': 'ctypes.c_byte',
 		'unsigned char': 'ctypes.c_ubyte',
 		'short': 'ctypes.c_short',
 		'unsigned short': 'ctypes.c_ushort',
@@ -427,14 +430,12 @@ class CtypesExport(ClangExport):
 	def export_constructor(self, cls):
 		block = SourceBlock()
 
-		cls_name_underscore = cls.get_full_name("__")
 		block.add_line('<method name="__init__">')
-
 		for constructor in cls.constructors:
 			if self.filter.filter_method_signature:
 				block.add_block(self.export_call(constructor, cls), 1)
-
 		block.add_line('</method>')
+		
 		return block
 
 	def export_call(self, f, cls = None, method = None):
@@ -467,7 +468,7 @@ class CtypesExport(ClangExport):
 		if not returns_nothing:
 			block.add_line('<returns type="%s" ownership="%d" />' % (
 				self.type_as_ctype(f.returns),
-				bool(method and f.returns.is_cpp_only()))
+				int(bool(method and f.returns.is_cpp_only())))
 			, 1)
 
 		block.add_line('</call>')
@@ -483,8 +484,9 @@ class CtypesExport(ClangExport):
 					return "ctypes.c_char_p"
 				if type.name == 'wchar':
 					return "ctypes.c_wchar_p"
-			elif not type.pointers:
+			if not type.pointers:
 				return self.builtin_dict[type.name]
+			return "ctypes.c_void_p"
 		elif type.type == 'enum':
 			return "ctypes.c_uint"
 		elif (type.pointers + type.refs) <= 1 and type.type in ('record', 'enum'):
@@ -524,17 +526,44 @@ class CtypesExport(ClangExport):
 		block.add_line('</member>')
 		return block
 
+	def export_array_class_methods(self, cls):
+		cls_name_underscore = cls.get_full_name("__")
+
+		block = SourceBlock()
+
+		if not cls.is_abstract(self.importer) and cls.is_default_constructable():
+			symbol = self.symbol_for_array_constructor(cls, cls_name_underscore)
+
+			block.add_line('<method name="__newarray__">')
+			block.add_line('<call symbol="%s" />' % symbol, 1)
+			block.add_line('</method>')
+		if not cls.destructor or cls.destructor.access == 'public':
+			symbol = self.symbol_for_array_destructor(cls, cls_name_underscore)
+
+			block.add_line('<method name="__delarray__">')
+			block.add_line('<call symbol="%s" />' % symbol, 1)
+			block.add_line('</method>')
+
+		symbol = self.symbol_for_array_element(cls, cls_name_underscore)
+		block.add_line('<method name="__arrayitem__">')
+		block.add_line('<call symbol="%s" />' % symbol, 1)
+		block.add_line('</method>')
+
+		return block
+
 	def export_class(self, cls):
-		full_name = cls.get_full_name()
-		full_name_underscore = cls.get_full_name("__")
+#		full_name = cls.get_full_name()
+#		full_name_underscore = cls.get_full_name("__")
 
 		block = SourceBlock()
 		block.add_line('<class name="%s">' % cls.name)
 
-		if not cls.is_abstract(self.importer) and cls.constructors and self.filter.filter_method(cls, cls.constructors):
+		if (not cls.is_abstract(self.importer) and cls.constructors
+			and self.filter.filter_method(cls, cls.constructors)):
 			block.add_block(self.export_constructor(cls), 1)
 		if not cls.destructor or cls.destructor.access == 'public':
 			block.add_block(self.export_destructor(cls), 1)
+		block.add_block(self.export_array_class_methods(cls), 1)
 		for method in cls.methods.values():
 			if self.filter.filter_method(cls, method):
 				block.add_block(self.export_method(cls, method), 1)
