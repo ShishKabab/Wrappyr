@@ -37,7 +37,7 @@ Ctypes API generator
   * Some work has already been done, but not all pointer use cases are handled yet.
 
 * Enums
-* Destruction, ownership, stealing ownership, also in overriden methods
+* Destruction, ownership, stealing ownership, also in overridden methods
 * Deal with inheritance (b2Shape and b2PolygonShape)
 * Static class methods and members
 * Function overloading

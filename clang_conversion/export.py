@@ -237,7 +237,7 @@ class HeaderExport(ClangExport):
 
 		# Destructor
 		if not cls.destructor or cls.destructor.access == 'public':
-			self.export_destructors(cls, full_name_underscore)
+			block.add_block(self.export_destructors(cls, full_name_underscore))
 
 		# Class size
 		block.add_line("unsigned int %s();" % self.symbol_for_class_size(
@@ -590,7 +590,8 @@ class SourceExport(ClangExport):
 
 		# Destructor
 		if not cls.destructor or cls.destructor.access == 'public':
-			self.export_destructors(cls, full_name, full_name_underscore)
+			destructors = self.export_destructors(cls, full_name, full_name_underscore)
+			block.add_block(destructors)
 
 		# Class size
 		block.add_line("unsigned int %s(){" % self.symbol_for_class_size(
@@ -636,7 +637,7 @@ class SourceExport(ClangExport):
 
 class CtypesExport(ClangExport):
 	builtin_dict = {
-		'_Bool': 'ctypes.c_bool',
+		'bool': 'ctypes.c_ubyte',
 		'char': 'ctypes.c_char',
 		'wchar_t': 'ctypes.c_wchar',
 		'unsigned char': 'ctypes.c_ubyte',
@@ -794,19 +795,99 @@ class CtypesExport(ClangExport):
 			symbol = self.symbol_for_array_constructor(cls, cls_name_underscore)
 
 			block.add_line('<method name="__newarray__">')
-			block.add_line('<call symbol="%s" />' % symbol, 1)
+			block.add_line('<call symbol="%s">' % symbol, 1)
+			block.add_line('<argument name="size" type="ctypes.c_int" />', 2)
+			block.add_line('<returns type="ctypes.c_void_p" />', 2)
+			block.add_line('</call>', 1)
 			block.add_line('</method>')
 		if not cls.destructor or cls.destructor.access == 'public':
 			symbol = self.symbol_for_array_destructor(cls, cls_name_underscore)
 
 			block.add_line('<method name="__delarray__">')
-			block.add_line('<call symbol="%s" />' % symbol, 1)
+			block.add_line('<call symbol="%s">' % symbol, 1)
+			block.add_line('<argument name="a" type="ctypes.c_void_p" />', 2)
+			block.add_line('</call>', 1)
 			block.add_line('</method>')
 
 		symbol = self.symbol_for_array_element(cls, cls_name_underscore)
 		block.add_line('<method name="__arrayitem__">')
-		block.add_line('<call symbol="%s" />' % symbol, 1)
+		block.add_line('<call symbol="%s">' % symbol, 1)
+		block.add_line('<argument name="a" type="ctypes.c_void_p" />', 2)
+		block.add_line('<argument name="idx" type="ctypes.c_uint" />', 2)
+		block.add_line('<returns type="ctypes.c_void_p" />', 2)
+		block.add_line('</call>', 1)
 		block.add_line('</method>')
+
+		return block
+
+	def export_inherited_constructors(self, cls):
+		cls_name_underscore = cls.get_full_name("__")
+		block = SourceBlock()
+
+		filter = lambda sig: self.filter.filter_method_signature(cls, sig, inherited = True)
+		constructors = [i for i in cls.constructors if filter(i)]
+		
+		if constructors:
+			block.add_line('<method name="__newinherited__">')
+			for constructor in constructors:
+				symbol = self.symbol_for_inheritance_constructor(
+					cls, cls_name_underscore, constructor)
+				block.add_line('<call symbol="%s">' % symbol, 1)
+				block.add_line('<argument name="obj" type="ctypes.py_object" />', 2)
+				block.add_line('<argument name="vtable" type="ctypes.c_void_p" />', 2)
+				for arg, letter in zip(constructor.args, self.iletters()):
+					arg_type = self.type_as_ctype(arg.type)
+					arg_name = arg.name or letter
+					
+					block.add_line('<argument name="%s" type="%s" />' % (
+						arg_name,
+						arg_type)
+					, 2)
+				block.add_line('</call>', 1)
+			block.add_line('</method>')
+		else:
+			symbol = self.symbol_for_inheritance_constructor(
+				cls, cls_name_underscore, None)
+
+			block.add_line('<method name="__newinherited__">')
+			block.add_line('<call symbol="%s">' % symbol, 1)
+			block.add_line('<argument name="obj" type="ctypes.py_object" />', 2)
+			block.add_line('<argument name="vtable" type="ctypes.c_void_p" />', 2)
+			block.add_line('<returns type="ctypes.c_void_p" />', 2)
+			block.add_line('</call>', 1)
+			block.add_line('</method>')
+
+		return block
+
+	def export_inherited(self, cls):
+		block = SourceBlock()
+
+		overridable = cls.get_overridable_signatures(self.importer)
+		if not overridable:
+			return block
+
+		block.add_line("<vtable>")
+		for method in overridable:
+			for signature in method:
+				block.add_line('<overridable name="%s">' % signature.name, 1)
+				for arg, letter in zip(signature.args, self.iletters()):
+					arg_name = arg.name or letter
+					arg_type = self.type_as_ctype(arg.type)
+					block.add_line('<argument name="%s" type="%s" />' % (
+						arg_name,
+						arg_type
+					), 2)
+
+				returns_nothing = (signature.returns.name == 'void' and
+					not signature.returns.pointers)
+				if not returns_nothing:
+					returns = self.type_as_ctype(signature.returns)
+					block.add_line('<returns type="%s" />' % returns, 2)
+
+				block.add_line('</overridable>', 1)
+		block.add_line("</vtable>")
+
+		block.add_block(self.export_inherited_constructors(cls))
 
 		return block
 
@@ -817,12 +898,15 @@ class CtypesExport(ClangExport):
 		block = SourceBlock()
 		block.add_line('<class name="%s">' % cls.name)
 
+		if cls.dynamic:
+			block.add_block(self.export_inherited(cls), 1)
 		if (not cls.is_abstract(self.importer) and cls.constructors
 			and self.filter.filter_method(cls, cls.constructors)):
 			block.add_block(self.export_constructor(cls), 1)
 		if not cls.destructor or cls.destructor.access == 'public':
 			block.add_block(self.export_destructor(cls), 1)
 		block.add_block(self.export_array_class_methods(cls), 1)
+
 		for method in cls.methods.values():
 			if self.filter.filter_method(cls, method):
 				block.add_block(self.export_method(cls, method), 1)

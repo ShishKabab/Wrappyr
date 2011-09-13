@@ -135,6 +135,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(prog = sys.argv[0])
 	parser.add_argument("input")
 	parser.add_argument("--output-path", default = os.getcwd())
+	parser.add_argument('--display', action = 'store_true')
 	args = parser.parse_args()
 
 	s = CTypesStructure.load(args.input)
@@ -144,11 +145,12 @@ if __name__ == "__main__":
 	#print s.get_by_path('Box2D.collision.test').get_path(s.get_by_path('Box2D'))
 
 	UninterestingCopyConstructorRemover().process(s)
-	#Box2DBodyCreateFixtureFixer().process(s)
+	Box2DBodyCreateFixtureFixer().process(s)
 	ConflictingOverloadRemover().process(s)
 	AmbigousOverloadRemover().process(s)
 	PythonKeywordRemover().process(s)
 
-	s.display()
+	if args.display:
+		s.display()
 	export_structure(s, args.output_path)
 
