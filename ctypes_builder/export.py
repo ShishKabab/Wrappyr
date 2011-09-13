@@ -60,6 +60,8 @@ def get_converted_argument(arg, name = None):
 		return "%s._inst" % name
 	elif isinstance(arg.type, PointerType):
 		return "%s.ptr" % name
+	elif arg.name == "vtable": # TODO: Remove hack!
+		return "ctypes.pointer(%s)" % name
 	else:
 		return "%s(%s)" % (arg.type, name)
 
@@ -251,22 +253,70 @@ def export_calls(f, result_name = "", call_args = None):
 
 	return block
 
-def export_method(cls, method):
+def export_constructor(cls):
+	block = SourceBlock()
+	vtable = cls.vtable
+	constructor = cls.methods.get('__init__')
+	call_args = get_call_args(constructor) if constructor and not constructor.raw else None
+
+	if constructor:
+		if vtable:
+			block.add_block(export_function_signature(constructor, call_args))
+			block.add_line("if type(self) == %s:" % cls.name, 1)
+			if not constructor.raw:
+				block.add_block(export_calls(constructor, 'inst', call_args), 2)
+			else:
+				block.add_block(constructor.ops[0].get_code_block(), 2)
+			block.add_line("else:", 1)
+
+			args = [arg.name for call, args in call_args for arg in args]
+			args = ["self", "self._vtable_"] + args
+			args = ", ".join(args)
+
+			block.add_line("inst = self.__newinherited__(%s)" % args, 2)
+		else:
+			block.add_block(export_method(cls, constructor, 'inst'))
+	elif vtable:
+		newinherited = cls.methods['__newinherited__']
+		args = newinherited.ops[0].args
+		args = args[2:] # First two arguments are obj and vtable
+		args = [arg.name for arg in args]
+
+		sigargs = ["self"] + args
+		block.add_line("def __init__(%s):" % ", ".join(sigargs))
+
+		args = ["self", "self._vtable_"] + args
+		block.add_line("inst = self.__newinherited__(%s)" % ", ".join(args), 1)
+	else:
+		return block
+	
+	block.add_line("self._inst = inst", 1)
+	block.add_line("self._ownership = True", 1)
+
+	return block
+
+def export_method(cls, method, result_name = ""):
+	"""
+	Exports method and stores result in result_name variable in generated code
+	if result_name is given. If it is not given, the result will be returned.
+	"""
+
 	block = SourceBlock()
 
 	if not method.raw:
 		call_args = get_call_args(method)
 
-		keep_result = (method.name == "__init__" or method.returns_anything())
-		keep_result = "result" if keep_result else ""
+		if not result_name:
+			result_name = (method.name == "__init__" or method.returns_anything())
+			result_name = "result" if result_name else ""
+			return_result = True
+		else:
+			return_result = False
 		block.add_block(export_function_signature(method, call_args))
-		block.add_block(export_calls(method, keep_result, call_args), 1)
+		block.add_block(export_calls(method, result_name, call_args), 1)
 
-		if method.name == "__init__":
-			block.add_line("self._inst = result", 1)
-			block.add_line("self._ownership = True", 1)
-		if method.returns_anything():
-			block.add_line("return result", 1)
+		if return_result and method.returns_anything():
+			block.add_line("return " + result_name, 1)
 	else:
 		block.add_block(export_function_signature(method))
 		block.add_block(method.ops[0].get_code_block(), 1)
@@ -322,9 +372,17 @@ def export_member(cls, member):
 
 def export_class(cls):
 	members = []
+	if cls.vtable:
+		members.append(SourceBlock("_polymorphism_info_ = wrappyr_runtime.PolymorphismInfo()"))
+
+	constructor = export_constructor(cls)
+	if constructor:
+		members.append(constructor)
+
 	for method in sorted(cls.methods.values(),
 						 cmp = sort_methods(lambda method: method.name)):
-		members.append(export_method(cls, method))
+		if method.name != '__init__':
+			members.append(export_method(cls, method))
 	for member in sorted(cls.members.values(), key = lambda member: member.name):
 		members.append(export_member(cls, member))
 
@@ -358,6 +416,8 @@ def export_call_setup(call, result_name, lib, tmp_suffix = ""):
 	argtypes = []
 	if call.parent.takes_this_pointer():
 		argtypes.append("ctypes.c_void_p")
+#	elif call.parent.name == "__newinherited__":
+#		argtypes += ["ctypes.c_void_p", "ctypes.c_void_p"]
 	for arg in call.args:
 		if isinstance(arg.type, Class):
 			argtypes.append("ctypes.c_void_p")
@@ -397,6 +457,58 @@ def export_call_setup(call, result_name, lib, tmp_suffix = ""):
 
 	return block
 
+def export_overridable_setup(cls, overridable, polyinfo_var = "polyinfo"):
+	block = SourceBlock()
+	parent_module = cls.get_closest_parent_module()
+
+	argtypes = []
+	for arg in overridable.args:
+		if isinstance(arg.type, Class):
+			argtypes.append("ctypes.c_void_p")
+		elif isinstance(arg.type, PointerType):
+			argtypes.append(arg.type.get_as_ctype())
+		else:
+			argtypes.append(arg.type)
+
+	arg_converters = []
+	for i, arg in enumerate(overridable.args):
+		arg_type = arg.type
+		if isinstance(arg_type, Class):
+			arg_cls_var = "arg_cls%d" % i
+			imp = get_node_import(parent_module, arg_type, arg_cls_var)
+			block.add_line(imp)
+			arg_converters.append("%s._from_c" % arg_cls_var)
+		else:
+			arg_converters.append("None")
+
+	result_ctype = overridable.get_return_value_as_ctype()
+	if overridable.returns and isinstance(overridable.returns.type, Class):
+		res_cls = "res_cls"
+		returns = overridable.returns
+		imp = get_node_import(parent_module, returns.type, res_cls)
+		block.add_line(imp)
+	else:
+		res_cls = None
+
+	block.add_line("overridable = wrappyr_runtime.Overridable(%r)" % overridable.name)
+	block.add_line("overridable.argtypes = [%s]" % ", ".join(argtypes))
+	block.add_line("overridable.arg_converters = [%s]" % ", ".join(arg_converters))
+	block.add_line("overridable.restypes = %s" % result_ctype)
+	if res_cls:
+		block.add_line("overridable.res_cls = %s" % res_cls)
+	block.add_line("%s.add_overridable(overridable)" % polyinfo_var)
+	return block
+
+def export_vtable_setup(cls):
+	blocks = [SourceBlock("polyinfo = %s._polymorphism_info_" % cls.name)]
+
+	vtable = cls.vtable
+	for overridable in vtable.overridables:
+		blocks.append(export_overridable_setup(cls, overridable))
+	blocks.append(SourceBlock("%s._polymorphism_info_ = polyinfo" % cls.name))
+
+	return SourceBlock("").join(blocks)
+
 def export_class_setup(cls):
 	cls_module = cls.get_closest_parent_module()
 
@@ -414,9 +526,6 @@ def export_class_setup(cls):
 	calls_per_lib = get_calls_per_library(calls)
 	calls_per_lib = sorted(calls_per_lib, key = sort_key)
 
-	if not calls_per_lib:
-		return SourceBlock()
-
 	blocks = []
 
 	call_counter = count()
@@ -429,6 +538,8 @@ def export_class_setup(cls):
 			block.add_line("%s._calls['%s'] = call" % (cls.name,
 													   get_call_key(call)))
 			blocks.append(block)
+	if cls.vtable:
+		blocks.append(export_vtable_setup(cls))
 
 	block = SourceBlock()
 	block.add_line("def init_cls():")
@@ -448,6 +559,7 @@ def export_module(mod, base_dir):
 	block = SourceBlock()
 	block.add_line("from __future__ import absolute_import")
 	block.add_line("import ctypes")
+	block.add_line("import functools")
 	block.add_line("import wrappyr_runtime")
 	blocks.append(block)
 
@@ -459,10 +571,10 @@ def export_module(mod, base_dir):
 		block.add_line("}")
 		blocks.append(block)
 
-	for cls in mod.classes.values():
+	classes = mod.classes.values()
+	for cls in classes:
 		blocks.append(export_class(cls))
-
-	for cls in mod.classes.values():
+	for cls in classes:
 		blocks.append(export_class_setup(cls))
 
 	block = SourceBlock("").join(blocks)

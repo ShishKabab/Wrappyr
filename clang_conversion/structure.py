@@ -45,6 +45,7 @@ class Class(Node):
 		self.destructor = tuple(Function(i) for i in xml_node.findall('Method') if i.get('destructor') == '1')
 		self.destructor = self.destructor and self.destructor[0]
 		self.abstract = any(i.is_pure for methods in self.methods.values() for i in methods)
+		self.dynamic = xml_node.get('dynamic') == '1'
 
 	def get_pure_virtual_signatures(self, importer = None, recursive = True):
 		signatures = [signature
@@ -80,6 +81,21 @@ class Class(Node):
 		return bool(pure - nonpure)
 		#return self.abstract or any(importer.nodes[base.id].is_abstract(importer) for base in self.bases)
 
+	def get_overridable_signatures(self, importer, implemented = None):
+		implemented = implemented or self.get_implemented_signatures(importer)
+
+		methods = []
+		for name, method in self.methods.items():
+			signatures = [i for i in method if i.is_virtual and i not in implemented]
+			if signatures:
+				methods.append(signatures)
+
+		for base_ref in self.bases:
+			base = importer.nodes[base_ref.id]
+			methods += base.get_overridable_signatures(importer, implemented)
+
+		return methods
+
 	def is_valid(self, importer):
 		return self.name != None and len(self.name) > 0 and \
 			all(importer.nodes.get(base.id) is not None for base in self.bases) and \
@@ -89,6 +105,16 @@ class Class(Node):
 		return not self.constructors or any(
 			len(constructor.args) == 0 and constructor.access == 'public'
 			for constructor in self.constructors)
+
+	def get_class_implementing_signature(self, importer, signature):
+		if any(i == signature and not i.is_pure for method in self.methods for i in method):
+			return self
+
+		for base_ref in self.bases:
+			base = importer.nodes[base_ref.id]
+			cls = base.get_class_implementing_signature(importer, signature)
+			if cls:
+				return cls
 
 class Argument(Node):
 	def __init__(self, xml_node):
@@ -123,7 +149,7 @@ class Type(Node):
 				self.id = xml_node.get('id')
 				self.name = xml_node.get('name')
 				if self.name == '_Bool':
-					self.name = 'unsigned char'
+					self.name = 'bool'
 			else:
 				self.valid = False
 			self.type = tp
@@ -135,17 +161,24 @@ class Type(Node):
 		#print self.name, self.type, self.pointers, self.refs
 		return self.type == 'record' and not self.pointers and not self.refs
 
-	def as_string(self, c_compat_names = True, c_compat_refs = True):
+	def as_string(self, c_compat_names = True, c_compat_refs = True,
+				  c_compat_const = True):
 		if c_compat_names and self.type == "record":
 			name = "void"
 		elif c_compat_names and self.type == "enum":
 			name = "unsigned int"
-		elif c_compat_names and self.type == "builtin" and self.type == "bool":
+		elif c_compat_names and self.type == "builtin" and self.name == "bool":
 			name = "unsigned char"
 		else:
 			name = str(self.name)
 
+		if not c_compat_const:
+			const = "const " if self.const else ""
+		else:
+			const = ""
+
 		return "".join((
+			const,
 			name,
 			("*" * self.pointers),
 			(("*" if c_compat_refs else "&") * self.refs),
@@ -178,18 +211,30 @@ class Function(Node):
 		self.is_method = (xml_node.tag == 'Method')
 		self.is_virtual = (xml_node.get('virtual') == '1')
 		self.is_pure = (xml_node.get('pure') == '1')
-		self.is_static = (xml_node.get('pure') == '1')
+		self.is_static = (xml_node.get('static') == '1')
+		self.is_const = (xml_node.get('const') == '1')
 		self.args = tuple(Argument(i) for i in xml_node.findall('Argument'))
 		self.returns = Type(xml_node.find('Returns').find('Type'))
 		self.valid = all(i.type.valid for i in self.args) and self.returns.valid
 		self.extern_c = (xml_node.get('extern_c') == '1')
 
-	def args_as_string(self, names = ()):
+	def args_as_string(self, names = (), c_compat_names = True,
+					   c_compat_refs = True, c_compat_const = True):
 		if len(names) < len(self.args):
 			names = names + (None,) * (len(self.args) - len(names))
 		names = tuple(" " + name if name else "" for name in names)
 
-		return ", ".join(arg.type.as_string() + name for arg, name in zip(self.args, names))
+		conv = lambda arg, name: (arg.type.as_string(c_compat_names,
+													 c_compat_refs,
+													 c_compat_const) + name)
+		args = (conv(arg, name) for arg, name in zip(self.args, names))
+		return ", ".join(args)
+
+	def returns_anything(self):
+		returns_anything = self.returns.pointers
+		returns_anything = returns_anything or self.returns.name != 'void'
+		returns_anything = bool(returns_anything)
+		return returns_anything
 
 	def to_function_pointer(self, name = ""):
 		#int (*pt2Func)(float, char, char)

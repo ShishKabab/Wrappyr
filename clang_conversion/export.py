@@ -1,3 +1,5 @@
+from itertools import chain, count
+
 from utils.str import SourceBlock, as_camelcase
 from structure import Class, Function
 
@@ -5,25 +7,26 @@ class ExportFilter(object):
 	def __init__(self, importer):
 		self.importer = importer
 
-	def filter_namespace(self, ns):
+	def filter_namespace(self, ns, **opts):
 		return True
 
-	def filter_class(self, cls):
+	def filter_class(self, cls, **opts):
 		return cls.is_valid(self.importer) and \
 			cls.access in ('unknown', 'public')
 
-	def filter_method(self, cls, method):
+	def filter_method(self, cls, method, **opts):
 		return any(self.filter_method_signature(cls, sig)
 			for sig in method)
 
-	def filter_method_signature(self, cls, signature):
+	def filter_method_signature(self, cls, signature, **opts):
 		return (self.filter_function(signature)
 			# Export only public methods
-			and signature.access == 'public'
+			and (signature.access == 'public' or
+				 (opts.get("inherited") == True and signature.access == "protected"))
 			# Static methods are not supported yet
 			and not signature.is_static)
 
-	def filter_member(self, cls, member):
+	def filter_member(self, cls, member, **opts):
 		type = member.type
 
 		return (# Export only public members
@@ -43,7 +46,7 @@ class ExportFilter(object):
 			# The type must be something we can handle
 			and type.valid)
 
-	def filter_function(self, f):
+	def filter_function(self, f, **opts):
 		return (
 			# Operator overload is not supported
 			not f.name.startswith('operator')
@@ -99,6 +102,13 @@ class ClangExport(object):
 	def symbol_for_array_element(self, cls, full_name_underscore):
 		return "%s__ArrayElement" % full_name_underscore
 
+	def symbol_for_inheritance_constructor(self, cls, cls_name_underscore,
+										   constructor):
+		return "%s__CreateInherited%s" % (
+			cls_name_underscore,
+			(cls.constructors.index(constructor) if len(cls.constructors) > 1 else '')
+		)
+
 	def setup(self, importer):
 		self.importer = importer
 		self.filter = self.get_filter(importer)
@@ -114,7 +124,105 @@ class ClangExport(object):
 
 		return block
 
+
 class HeaderExport(ClangExport):
+	def export_constructors(self, cls, full_name_underscore):
+		block = SourceBlock()
+
+		if cls.constructors:
+			for constructor in cls.constructors:
+				if not self.filter.filter_method_signature(cls, constructor):
+					continue
+				block.add_line("void* %s(%s);" % (
+					self.symbol_for_constructor(cls, full_name_underscore, constructor),
+					constructor.args_as_string()
+				))
+		else:
+			block.add_line("void* %s();" % (
+				self.symbol_for_constructor(cls, full_name_underscore),
+			))
+
+		# Array
+		if cls.is_default_constructable():
+			block.add_line("void* %s(int);" % self.symbol_for_array_constructor(
+				cls, full_name_underscore
+			))
+
+		return block
+
+	def export_destructors(self, cls, full_name_underscore):
+		block = SourceBlock()
+		block.add_line("void %s(void*);" % self.symbol_for_destructor(
+			cls, full_name_underscore, cls.destructor))
+		block.add_line("void %s(void*);" % self.symbol_for_array_destructor(
+			cls, full_name_underscore
+		))
+		return block
+
+	def export_methods(self, cls, full_name_underscore):
+		block = SourceBlock()
+
+		for method in cls.methods.values():
+			for i, signature in enumerate(method):
+				if not self.filter.filter_method_signature(cls, signature):
+						continue
+
+				returns = signature.returns.as_string()
+				args = "void*%s%s" % (
+					", " if signature.args else '',
+					signature.args_as_string() if signature.args else ''
+				)
+				symbol = self.symbol_for_method_signature(cls,
+														  full_name_underscore,
+														  method, signature)
+				block.add_line("%s %s(%s);" % (
+					returns,
+					symbol,
+					args
+				))
+
+		return block
+
+	def export_members(self, cls, full_name_underscore):
+		block = SourceBlock()
+
+		for member in cls.members:
+			if not self.filter.filter_member(cls, member):
+				continue
+
+			returns = member.type.as_string()
+			getter, setter = self.symbols_for_member(cls, full_name_underscore,
+													 member)
+
+			block.add_line("%s %s(void*);" % (
+				returns,
+				getter
+			))
+			block.add_line("void %s(void*, %s);" % (
+				setter,
+				member.type.as_string(),
+			))
+		return block
+
+	def export_inheritance_class(self, cls, full_name_underscore):
+		block = SourceBlock()
+		if cls.constructors:
+			for constructor in cls.constructors:
+				if not self.filter.filter_method_signature(cls, constructor, inherited = True):
+					continue
+
+				args = constructor.args_as_string()
+				if args:
+					args = ", " + args
+				symbol = self.symbol_for_inheritance_constructor(cls, full_name_underscore,
+													 constructor)
+				block.add_line("void* %s(void*, void*%s);" % (symbol, args))
+		else:
+			block.add_line("void* %s(void*, void*);" % (
+				self.symbol_for_inheritance_constructor(cls, full_name_underscore, None),
+			))
+		return block
+
 	def export_class(self, cls):
 		full_name_underscore = cls.get_full_name("__")
 		block = SourceBlock()
@@ -125,32 +233,11 @@ class HeaderExport(ClangExport):
 
 		# Constructor
 		if not cls.is_abstract(self.importer):
-			if cls.constructors:
-				for i, constructor in enumerate(cls.constructors):
-					if not self.filter.filter_method_signature(cls, constructor):
-						continue
-					block.add_line("void* %s(%s);" % (
-						self.symbol_for_constructor(cls, full_name_underscore, constructor),
-						constructor.args_as_string()
-					))
-			else:
-				block.add_line("void* %s();" % (
-					self.symbol_for_constructor(cls, full_name_underscore),
-				))
-
-			# Array
-			if cls.is_default_constructable():
-				block.add_line("void* %s(int);" % self.symbol_for_array_constructor(
-					cls, full_name_underscore
-				))
+			block.add_block(self.export_constructors(cls, full_name_underscore))
 
 		# Destructor
 		if not cls.destructor or cls.destructor.access == 'public':
-			block.add_line("void %s(void*);" % self.symbol_for_destructor(
-				cls, full_name_underscore, cls.destructor))
-			block.add_line("void %s(void*);" % self.symbol_for_array_destructor(
-				cls, full_name_underscore
-			))
+			self.export_destructors(cls, full_name_underscore)
 
 		# Class size
 		block.add_line("unsigned int %s();" % self.symbol_for_class_size(
@@ -162,38 +249,18 @@ class HeaderExport(ClangExport):
 		))
 
 		# Methods
-		for method in cls.methods.values():
-			for i, signature in enumerate(method):
-				if not self.filter.filter_method_signature(cls, signature):
-						continue
-
-				returns = signature.returns.as_string()
-				args = "void*%s%s" % (
-					", " if signature.args else '',
-					signature.args_as_string() if signature.args else ''
-				)
-				block.add_line("%s %s(%s);" % (
-					returns,
-					self.symbol_for_method_signature(cls, full_name_underscore, method, signature),
-					args
-				))
+		block.add_block(self.export_methods(cls, full_name_underscore))
 
 		# Members
-		for member in cls.members:
-			if not self.filter.filter_member(cls, member):
-				continue
+		block.add_block(self.export_members(cls, full_name_underscore))
 
-			returns = member.type.as_string()
-			getter, setter = self.symbols_for_member(cls, full_name_underscore, member)
-
-			block.add_line("%s %s(void*);" % (
-				returns,
-				getter
-			))
-			block.add_line("void %s(void*, %s);" % (
-				setter,
-				member.type.as_string(),
-			))
+		# C++ class to inherit from a virtual base
+		if cls.dynamic:
+			inheritance_class = self.export_inheritance_class(
+				cls,
+				full_name_underscore
+			)
+			block.add_block(inheritance_class)
 
 		return block
 
@@ -223,76 +290,56 @@ class SourceExport(ClangExport):
 
 		return ", ".join(args)
 
-	def export_class(self, cls):
-		full_name = cls.get_full_name()
-		full_name_underscore = cls.get_full_name("__")
-
+	def export_constructors(self, cls, full_name, full_name_underscore):
 		block = SourceBlock()
-		block.add_line("")
-		block.add_line("//")
-		block.add_line("// Begin class '%s'" % cls.get_full_name())
-		block.add_line("//")
-
-		#if cls.name == 'b2Body':
-			#import ipdb; ipdb.set_trace()
-
-		# Constructor
-		if not cls.is_abstract(self.importer):
-			if cls.constructors:
-				for constructor in cls.constructors:
-					if not self.filter.filter_method_signature(cls, constructor):
-						continue
-					block.add_line("void* %s(%s){" % (
-						self.symbol_for_constructor(cls, full_name_underscore, constructor),
-						constructor.args_as_string(self.letters)
-					))
-					block.add_line("return new %s(%s);" % (
-						full_name,
-						self.args_as_params(constructor))
-					, 1)
-					block.add_line("}")
-			else:
-				block.add_line("void* %s(){" % (
-					self.symbol_for_constructor(cls, full_name_underscore),
+		if cls.constructors:
+			for constructor in cls.constructors:
+				if not self.filter.filter_method_signature(cls, constructor):
+					continue
+				block.add_line("void* %s(%s){" % (
+					self.symbol_for_constructor(cls, full_name_underscore, constructor),
+					constructor.args_as_string(self.letters)
 				))
-				block.add_line("return new %s;" % full_name, 1)
+				block.add_line("return new %s(%s);" % (
+					full_name,
+					self.args_as_params(constructor))
+				, 1)
 				block.add_line("}")
-
-			# Array
-			if cls.is_default_constructable():
-				block.add_line("void* %s(int n){" % self.symbol_for_array_constructor(
-					cls, full_name_underscore
-				))
-				block.add_line("return new %s[n];" % full_name, 1)
-				block.add_line("}")
-
-		# Destructor
-		if not cls.destructor or cls.destructor.access == 'public':
-			block.add_line("void %s(void* cls){" % self.symbol_for_destructor(
-				cls, full_name_underscore, cls.destructor))
-			block.add_line("delete (%s*)cls;" % full_name, 1)
+		else:
+			block.add_line("void* %s(){" % (
+				self.symbol_for_constructor(cls, full_name_underscore),
+			))
+			block.add_line("return new %s;" % full_name, 1)
 			block.add_line("}")
 
-			block.add_line("void %s(void* arr){" % self.symbol_for_array_destructor(
+		# Array
+		if cls.is_default_constructable():
+			block.add_line("void* %s(int n){" % self.symbol_for_array_constructor(
 				cls, full_name_underscore
 			))
-			block.add_line("delete[] (%s*)arr;" % full_name, 1)
+			block.add_line("return new %s[n];" % full_name, 1)
 			block.add_line("}")
 
-		# Class size
-		block.add_line("unsigned int %s(){" % self.symbol_for_class_size(
-			cls, full_name_underscore))
-		block.add_line("return sizeof(%s);" % full_name, 1)
-		block.add_line("}")
+		return block
 
-		# Get array element
-		block.add_line("void* %s(void* arr, unsigned int idx){" % self.symbol_for_array_element(
+	def export_destructors(self, cls, full_name, full_name_underscore):
+		block = SourceBlock()
+
+		block.add_line("void %s(void* cls){" % self.symbol_for_destructor(
+			cls, full_name_underscore, cls.destructor))
+		block.add_line("delete (%s*)cls;" % full_name, 1)
+		block.add_line("}")
+		block.add_line("void %s(void* arr){" % self.symbol_for_array_destructor(
 			cls, full_name_underscore
 		))
-		block.add_line("return &((%s*)arr)[idx];" % full_name, 1)
+		block.add_line("delete[] (%s*)arr;" % full_name, 1)
 		block.add_line("}")
 
-		# Methods
+		return block
+
+	def export_methods(self, cls, full_name, full_name_underscore):
+		block = SourceBlock()
+
 		for method in cls.methods.values():
 			for i, signature in enumerate(method):
 				if not self.filter.filter_method_signature(cls, signature):
@@ -310,21 +357,30 @@ class SourceExport(ClangExport):
 				))
 
 				returns = signature.returns
-				block.add_line("%s%s%s%s((%s*)cls)->%s(%s)%s%s;" % (
-					("return " if returns.pointers or returns.name != 'void' else ''),
-					("new %s(" % returns.name if returns.is_cpp_only() else ''),
-					("const_cast<%s%s>(" % (returns.name, "*" * (returns.refs + returns.pointers))
-						if returns.const and not returns.is_cpp_only() else ''),
-					"&" if returns.refs else '',
-					full_name,
-					signature.name,
-					self.args_as_params(signature),
-					(")" if returns.const and not returns.is_cpp_only() else ''),
-					(")" if returns.is_cpp_only() else '')
-				), 1)
+				stmt = "((%s*)cls)->%s(%s)"
+				stmt = stmt % (full_name, signature.name,
+							   self.args_as_params(signature))
+				if returns.refs:
+					stmt = "&" + stmt
+				if returns.const and not returns.is_cpp_only():
+					args = (returns.name,
+							"*" * (returns.refs + returns.pointers),
+							stmt)
+					stmt = "const_cast<%s%s>(%s)" % args
+				if returns.is_cpp_only():
+					stmt = "new %s(%s)" % (returns.name, stmt)
+				if signature.returns_anything():
+					stmt = "return " + stmt
+				stmt += ";"
+
+				block.add_line(stmt, 1)
 				block.add_line("}")
 
-		# Members
+		return block
+
+	def export_members(self, cls, full_name, full_name_underscore):
+		block = SourceBlock()
+
 		for member in cls.members:
 			if not self.filter.filter_member(cls, member):
 				continue
@@ -362,6 +418,209 @@ class SourceExport(ClangExport):
 				"*" * (type.refs + type.pointers + int(type.is_cpp_only()))
 			), 1)
 			block.add_line("}")
+
+		return block
+
+	def export_class_vtable(self, full_name_underscore, overridable):
+		block = SourceBlock()
+
+		counter = count()
+		block.add_line("struct %s__VTable {" % full_name_underscore)
+		for method in overridable:
+			for signature, num in zip(method, counter):
+				args = (num, signature.name)
+				block.add_line("void* f%d; // %s" % args, 1)
+		block.add_line("};")
+
+		return block
+
+	def export_inherited_constructors(self, cls, full_name, full_name_underscore):
+		block = SourceBlock()
+		if cls.constructors:
+			for constructor in cls.constructors:
+				if not self.filter.filter_method_signature(cls, constructor, inherited = True):
+					continue
+
+				args = constructor.args_as_string(self.letters, False, False)
+				if args:
+					args = ", " + args
+				block.add_line("%s__Inherited(void* script_obj, void* vtable%s)" % (
+					full_name_underscore,
+					args
+				))
+				if args:
+					block.add_line(": %s(%s)" % (full_name, self.args_as_params(constructor)), 1)
+#					block.add_line("return new %s(%s);" % (
+#						full_name,
+#						self.args_as_params(constructor))
+#					, 1)
+				block.add_line("{")
+				block.add_line("m_script_obj = script_obj;", 1)
+				block.add_line("m_vtable = vtable;", 1)
+				block.add_line("}")
+		else:
+			block.add_line("%s__Inherited(void* script_obj, void* vtable){" % full_name)
+#			block.add_line("m_obj = new %s;" % full_name, 1)
+			block.add_line("m_script_obj = script_obj;", 1)
+			block.add_line("m_vtable = vtable;", 1)
+			block.add_line("}")
+		return block
+
+	def get_callback_cast(self, f):
+		returns = f.returns
+		pointers = returns.pointers + returns.refs
+		pointers += int(returns.is_cpp_only())
+		pointers = "*" * pointers
+		returns = returns.name + pointers
+
+		args = ["void*"]
+		for arg in f.args:
+			arg_type = arg.type
+			const = "const " if arg_type.const else ""
+			pointers = arg_type.pointers + arg_type.refs
+			pointers += int(arg_type.is_cpp_only())
+			pointers = "*" * pointers
+			args.append(const + arg_type.name + pointers)
+
+		return "(%s (*)(%s))" % (returns, ", ".join(args))
+
+	def export_inherited_methods(self, cls, full_name, full_name_underscore,
+								 overridable):
+		block = SourceBlock()
+
+		vtable_name = "%s__VTable" % full_name_underscore
+		counter = count()
+		for method in overridable:
+			for signature, num in zip(method, counter):
+				returns = signature.returns.as_string(False, False, False)
+				args = signature.args_as_string(self.letters, False, False, False)
+				const = " const " if signature.is_const else ""
+				sig_str = "%s %s(%s)%s" % (returns, signature.name, args, const)
+
+				returns = "return " if signature.returns_anything() else ""
+				args_to_parent = ", ".join(self.letters[0:len(signature.args)])
+				fptr_cast = self.get_callback_cast(signature)
+				deref = "*" if signature.returns.refs or signature.returns.is_cpp_only() else ""
+				nearest_implementation = cls.get_class_implementing_signature(self.importer, signature)
+
+				args_to_callback = ["m_script_obj"]
+				for arg, letter in zip(signature.args, self.letters):
+					arg_type = arg.type
+					pointer = int(bool(arg_type.refs or arg_type.is_cpp_only()))
+					pointer = "&" * pointer
+					args_to_callback.append(pointer + letter)
+				args_to_callback = ", ".join(args_to_callback)
+
+				block.add_line("%s{" % sig_str)
+				block.add_line("void* fptr = ((%s*)m_vtable)->f%d;" % (vtable_name, num), 1)
+				block.add_line("if(fptr)", 1)
+				block.add_line("%s%s(%sfptr)(%s);" % (returns, deref, fptr_cast, args_to_callback), 2)
+				if nearest_implementation:
+					block.add_line("else", 1)
+					block.add_line("%s%s::%s(%s);" % (returns, nearest_implementation.name, signature.name, args_to_parent), 2)
+				block.add_line("}")
+		return block
+
+	def export_inherited_class(self, cls, full_name, full_name_underscore):
+		block = SourceBlock()
+
+		overridable = cls.get_overridable_signatures(self.importer)
+		if not overridable:
+			return block
+#		print "====\n= %s\n====" % cls.name
+#		print [i.name for method in overridable for i in method]
+
+		vtable = self.export_class_vtable(full_name_underscore, overridable)
+		block.add_block(vtable)
+
+		block.add_line("class %s__Inherited : public %s {" % (full_name_underscore, full_name))
+		block.add_line("public:", 1)
+		block.add_block(self.export_inherited_constructors(cls, full_name, full_name_underscore), 2)
+		block.add_block(self.export_inherited_methods(cls, full_name, full_name_underscore, overridable), 2)
+		block.add_line("private:", 1)
+#		block.add_line("%s* m_obj;" % full_name, 2)
+		block.add_line("void* m_script_obj;", 2)
+		block.add_line("void* m_vtable;", 2)
+		block.add_line("};")
+
+		if cls.constructors:
+			for constructor in cls.constructors:
+				if not self.filter.filter_method_signature(cls, constructor, inherited = True):
+					continue
+
+				args = constructor.args_as_string(self.letters)
+				if args:
+					args = ", " + args
+
+				params = self.args_as_params(constructor)
+				if params:
+					params = "script_obj, vtable, " + params
+				else:
+					params = "script_obj, vtable"
+
+				symbol = self.symbol_for_inheritance_constructor(cls, full_name_underscore,
+													 constructor)
+				block.add_line("void* %s(void* script_obj, void* vtable%s){" % (symbol, args))
+				block.add_line("return new %s__Inherited(%s);" % (full_name_underscore, params), 1)
+				block.add_line("}")
+		else:
+			block.add_line("void* %s(void* script_obj, void* vtable){" % (
+				self.symbol_for_inheritance_constructor(cls, full_name_underscore, None),
+			))
+			block.add_line("return new %s__Inherited(script_obj, vtable);" % full_name_underscore, 1)
+			block.add_line("}")
+
+		return block
+
+	def export_class(self, cls):
+		full_name = cls.get_full_name()
+		full_name_underscore = cls.get_full_name("__")
+
+		block = SourceBlock()
+		block.add_line("")
+		block.add_line("//")
+		block.add_line("// Begin class '%s'" % cls.get_full_name())
+		block.add_line("//")
+
+		# Constructor
+		if not cls.is_abstract(self.importer):
+			constructors = self.export_constructors(cls, full_name,
+													full_name_underscore)
+			block.add_block(constructors)
+
+		# Destructor
+		if not cls.destructor or cls.destructor.access == 'public':
+			self.export_destructors(cls, full_name, full_name_underscore)
+
+		# Class size
+		block.add_line("unsigned int %s(){" % self.symbol_for_class_size(
+			cls, full_name_underscore))
+		block.add_line("return sizeof(%s);" % full_name, 1)
+		block.add_line("}")
+
+		# Get array element
+		block.add_line("void* %s(void* arr, unsigned int idx){" % self.symbol_for_array_element(
+			cls, full_name_underscore
+		))
+		block.add_line("return &((%s*)arr)[idx];" % full_name, 1)
+		block.add_line("}")
+
+		# Methods
+		block.add_block(self.export_methods(cls, full_name,
+												full_name_underscore))
+
+		# Members
+		block.add_block(self.export_members(cls, full_name,
+												full_name_underscore))
+
+		# C++ class to inherit from a virtual base
+		if cls.dynamic:
+			inheritance_class = self.export_inherited_class(
+				cls,
+				full_name,
+				full_name_underscore
+			)
+			block.add_block(inheritance_class)
 
 		return block
 

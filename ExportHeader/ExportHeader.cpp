@@ -213,7 +213,8 @@ public:
 				<< "static=\"" << MD->isStatic() << "\" "
 				<< "pure=\"" << MD->isPure() << "\" "
 				<< "constructor=\"" << (ctors.find(MD) != ctors.end()) << "\" "
-				<< "destructor=\"" << (MD == dtor) << "\">\n";
+				<< "destructor=\"" << (MD == dtor) << "\" "
+				<< "const=\"" << (MD->getTypeQualifiers() & Qualifiers::Const == Qualifiers::Const) << "\">\n";
 
 			for(FunctionDecl::param_const_iterator pi = MD->param_begin(), pe = MD->param_end(); pi != pe; ++pi){
 				const ParmVarDecl* PVD = *pi;

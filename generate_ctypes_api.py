@@ -149,5 +149,6 @@ if __name__ == "__main__":
 	AmbigousOverloadRemover().process(s)
 	PythonKeywordRemover().process(s)
 
+	s.display()
 	export_structure(s, args.output_path)
 

@@ -212,7 +212,9 @@ class Node(object):
 		layouts = cls.get_layouts()
 		for layout in layouts:
 			for prop, conv in layout.get('properties', {}).items():
-				kwds[prop] = conv(xml_node.get(prop))
+				val = xml_node.get(prop)
+				if val != None:
+					kwds[prop] = conv(val)
 
 		node = cls(**kwds)
 		for layout in layouts:
@@ -309,7 +311,6 @@ class Library(Node):
 	def __init__(self, name, path, default = False):
 		Node.__init__(self, name)
 
-		self.name = name
 		self.path = path
 		self.default = default
 Node.types['Library'] = Library
@@ -327,6 +328,7 @@ class Class(Node):
 		self.methods = {}
 		self.members = {}
 		self.pointers = {}
+		self.vtable = None
 
 	def is_empty(self):
 		return not any((self.methods, self.members))
@@ -334,6 +336,7 @@ _setup_named_child(Class, 'methods', 'method', 'Method')
 _setup_named_child(Class, 'members', 'member', 'Member')
 _setup_named_child(Class, 'pointers', 'pointer', 'PointerType',
 				   singular = 'pointer_type')
+_setup_single_child(Class, 'vtable', 'vtable', 'VTable')
 
 Node.types['Class'] = Class
 
@@ -354,7 +357,6 @@ class Function(Node):
 	def __init__(self, name):
 		Node.__init__(self, name)
 
-		self.name = name
 		self.ops = []
 		self.raw = None
 		self.pointers = {}
@@ -385,7 +387,7 @@ class Method(Function):
 		}
 	}
 
-	def __init__(self, name, static = False):
+	def __init__(self, name = None, static = False):
 		Function.__init__(self, name)
 
 		self._static = static
@@ -395,9 +397,11 @@ class Method(Function):
 		return self.is_static()
 
 	def is_static(self):
-		if self.name in ('__newarray__', '__delarray__', '__arrayitem__'):
-			return True
-		return self._static
+		static_methods = (
+			'__newarray__', '__delarray__', '__arrayitem__',
+			'__newinherited__', '__delinherited__'
+		)
+		return self.name in static_methods or self._static
 
 	def returns_anything(self):
 		returns = self.name != "__init__"
@@ -406,14 +410,11 @@ class Method(Function):
 		return returns
 
 	def takes_self_argument(self):
-		return not self._static and self.name not in (
-			'__newarray__', '__delarray__', '__arrayitem__'
-		)
+		return not self.static
 
 	def takes_this_pointer(self):
-		return not self._static and self.name not in (
+		return not self.static and self.name not in (
 			'__init__',
-			'__newarray__', '__delarray__', '__arrayitem__'
 		)
 
 Node.types['Method'] = Method
@@ -429,7 +430,6 @@ class Member(Node):
 	def __init__(self, name, getter = None, setter = None, static = False):
 		Node.__init__(self, name)
 
-		self.name = name
 		self.getter = getter
 		self.setter = setter
 		self.static = static
@@ -524,7 +524,6 @@ class Argument(Node):
 		Node.__init__(self, name)
 
 		self.type = type
-		self.name = name
 		self.default = default
 Node.types['Argument'] = Argument
 
@@ -576,21 +575,20 @@ class PointerType(Node):
 			'array': _bool_from_string,
 			'reference': _bool_from_string,
 			'outparam': _bool_from_string,
-			'array_dimensions': lambda v: v and int(v)
+			'dimensions': lambda v: v and int(v)
 		}
 	}
 
 	def __init__(self, type, name = None, array = False,
 				 reference = False, outparam = False,
-				 array_dimensions = None):
-		Node.__init__(self)
+				 dimensions = None):
+		Node.__init__(self, name)
 
 		self.type = type
-		self.name = name
 		self.array = array
 		self.reference = reference
 		self.outparam = outparam
-		self.dimensions = array_dimensions or (1 if self.array else None)
+		self.dimensions = dimensions or (1 if self.array else None)
 
 	def get_as_ctype(self):
 		if self.array:
@@ -610,6 +608,35 @@ class PointerType(Node):
 		return ctype
 
 Node.types['PointerType'] = PointerType
+
+class VTable(Node):
+	layout = {}
+
+	def __init__(self):
+		Node.__init__(self)
+
+		self.overridables = []
+_setup_list_child(VTable, 'overridables', 'overridable', 'Overridable')
+
+Node.types['VTable'] = VTable
+
+class Overridable(Call):
+	layout = {
+		'properties': {
+			'name': str,
+			'required': _bool_from_string		}
+	}
+
+	def __init__(self, name, required = False):
+		Call.__init__(self, None)
+
+		self.name = name
+		self.required = required
+#_setup_list_child(Overridable, 'args', 'argument', 'Argument')
+#_setup_single_child(Overridable, 'returns', 'returns', 'ReturnValue',
+#					singular = 'return_value')
+
+Node.types['Overridable'] = Overridable
 
 class CTypesStructure(Node):
 	layout = {}

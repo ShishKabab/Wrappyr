@@ -8,7 +8,12 @@ class SourceBlock(object):
 	to indent further. """
 
 	def __init__(self, first_line = None):
-		self.lines = [(0, first_line)] if first_line is not None else []
+		self.lines = []
+		if first_line is not None:
+			self.add_line(first_line)
+
+	def __nonzero__(self):
+		return bool(self.lines)
 
 	def add_line(self, text, level = 0):
 		self.lines.append((level, text))

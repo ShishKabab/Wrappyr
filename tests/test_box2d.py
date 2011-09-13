@@ -3,11 +3,14 @@ from wrappyr_runtime import arrayof
 
 from Box2D.common import b2Vec2
 from Box2D.collision.shapes import b2PolygonShape
-from Box2D.dynamics import b2World, b2Body, b2BodyDef, b2FixtureDef
+from Box2D.dynamics import b2World, b2Body, b2BodyDef, b2FixtureDef, b2RayCastCallback
 
 #from Box2D import *
 
-#import ipdb; ipdb.set_trace()
+class MyRayCastCallback(b2RayCastCallback):
+	def ReportFixture(self, fixture, point, normal, fraction):
+		print self, fixture, (point.x, point.y), (normal.x, normal.y), fraction
+		return 1.0
 
 gravity = b2Vec2(0.0, -9.8)
 world = b2World(gravity, False)
@@ -75,3 +78,7 @@ for i in range(60):
 #	angle = body.GetAngle()
 
 	print "%4.2f %4.2f %4.2f" % (position.x, position.y, angle)
+
+#import ipdb; ipdb.set_trace()
+
+world.RayCast(MyRayCastCallback(), b2Vec2(-0.7, -9.0), b2Vec2(0.3, -9.0))
