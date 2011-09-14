@@ -83,5 +83,7 @@ Python requirements:
 
 * Python 2.6+
 * lxml_ (installable through pip)
+* argparse, available in standard library in Python >= 2.7
+* importlib, available in standard library in Python >= 2.7
 
 .. _lxml: http://lxml.de/

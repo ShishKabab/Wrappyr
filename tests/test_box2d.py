@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.6
-from wrappyr_runtime import arrayof
+from wrappyr.runtime import arrayof
 
 #from Box2D.common import b2Vec2
 #from Box2D.collision.shapes import b2PolygonShape
@@ -79,6 +79,6 @@ for i in range(60):
 
 	print "%4.2f %4.2f %4.2f" % (position.x, position.y, angle)
 
-import ipdb; ipdb.set_trace()
+#import ipdb; ipdb.set_trace()
 
 world.RayCast(MyRayCastCallback(), b2Vec2(-0.7, -9.0), b2Vec2(0.3, -9.0))

@@ -1,9 +1,9 @@
 import os
 from collections import defaultdict
 from itertools import chain, count, izip_longest
-from ctypes_builder.structure import PointerType
-from structure import Package, Class, Method, Member
-from utils.str import SourceBlock
+from wrappyr.ctypes_builder.structure import PointerType
+from wrappyr.ctypes_builder.structure import Package, Class, Method, Member
+from wrappyr.utils.str import SourceBlock
 
 class NoCommonArguments(Exception): pass
 class UnsupportedPointerType(Exception):
@@ -42,7 +42,7 @@ def get_argument_list(call_args):
 			for arg in args:
 				arg = arg.name
 				if not first_call:
-					arg += " = wrappyr_runtime.NoArgument"
+					arg += " = wrappyr.runtime.NoArgument"
 				arg_list.append(arg)
 			first_call = False
 	else:
@@ -166,7 +166,7 @@ def export_type_check(name, type, type_var):
 				raise UnsupportedPointerType(type)
 
 			if isinstance(pointee_type, Class):
-				check = ("if not isinstance({0}, wrappyr_runtime.CArray) "
+				check = ("if not isinstance({0}, wrappyr.runtime.CArray) "
 						 "or not issubclass({0}.cls, {2}):")
 			else:
 				check = ("if not issubclass({0}, {1}):")
@@ -240,11 +240,11 @@ def export_calls(f, result_name = "", call_args = None):
 	if len(call_args) > 1:
 		call, args = call_args[-1]
 		block.add_line("if %s:" % " and ".join(
-			"%s != wrappyr_runtime.NoArgument" % arg.name for arg in args))
+			"%s != wrappyr.runtime.NoArgument" % arg.name for arg in args))
 		block.add_block(export_call(call, result_name), 1)
 	for call, args in reversed(call_args[1:-1]):
 		block.add_line("elif %s:" % " and ".join(
-			"%s != wrappyr_runtime.NoArgument" % arg.name for arg in args))
+			"%s != wrappyr.runtime.NoArgument" % arg.name for arg in args))
 		block.add_block(export_call(call, result_name), 1)
 	if len(call_args) > 1:
 		block.add_line("else:")
@@ -373,7 +373,7 @@ def export_member(cls, member):
 def export_class(cls):
 	members = []
 	if cls.vtable:
-		members.append(SourceBlock("_polymorphism_info_ = wrappyr_runtime.PolymorphismInfo()"))
+		members.append(SourceBlock("_polymorphism_info_ = wrappyr.runtime.PolymorphismInfo()"))
 
 	constructor = export_constructor(cls)
 	if constructor:
@@ -396,7 +396,7 @@ def export_class(cls):
 	members.append(from_c)
 
 	block = SourceBlock()
-	block.add_line("class %s(wrappyr_runtime.CPPClass):" % cls.name)
+	block.add_line("class %s(wrappyr.runtime.CPPClass):" % cls.name)
 	block.add_block(SourceBlock("").join(members, 1))
 	return block
 
@@ -419,12 +419,13 @@ def export_call_setup(call, result_name, lib, tmp_suffix = ""):
 #	elif call.parent.name == "__newinherited__":
 #		argtypes += ["ctypes.c_void_p", "ctypes.c_void_p"]
 	for arg in call.args:
-		if isinstance(arg.type, Class):
+		arg_type = arg.type
+		if isinstance(arg_type, Class):
 			argtypes.append("ctypes.c_void_p")
-		elif isinstance(arg.type, PointerType):
-			argtypes.append(arg.type.get_as_ctype())
+		elif isinstance(arg_type, PointerType):
+			argtypes.append(arg_type.get_as_ctype())
 		else:
-			argtypes.append(arg.type)
+			argtypes.append(arg_type)
 
 	arg_classes = []
 	for arg, num in zip(call.args, count()):
@@ -490,7 +491,7 @@ def export_overridable_setup(cls, overridable, polyinfo_var = "polyinfo"):
 	else:
 		res_cls = None
 
-	block.add_line("overridable = wrappyr_runtime.Overridable(%r)" % overridable.name)
+	block.add_line("overridable = wrappyr.runtime.Overridable(%r)" % overridable.name)
 	block.add_line("overridable.argtypes = [%s]" % ", ".join(argtypes))
 	block.add_line("overridable.arg_converters = [%s]" % ", ".join(arg_converters))
 	block.add_line("overridable.restypes = %s" % result_ctype)
@@ -560,7 +561,7 @@ def export_module(mod, base_dir):
 	block.add_line("from __future__ import absolute_import")
 	block.add_line("import ctypes")
 	block.add_line("import functools")
-	block.add_line("import wrappyr_runtime")
+	block.add_line("import wrappyr.runtime")
 	blocks.append(block)
 
 	if mod.libraries:

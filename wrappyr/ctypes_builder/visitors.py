@@ -1,24 +1,5 @@
-#!/usr/bin/python2.6
-import sys, os
-import argparse
 import string
-
-from ctypes_builder.structure import CTypesStructure, Class
-from ctypes_builder.export import export_structure
-
-class CTypesStructureVisitor(object):
-	def process(self, node):
-		vistor = getattr(self, 'visit_' + type(node).__name__, None)
-		if vistor:
-			vistor(node)
-
-		for layout in node.get_layouts():
-			for group in layout.get('children', {}).values():
-				group_children = group['every']
-				group_children = getattr(node, group_children)
-
-				for child in group_children():
-					self.process(child)
+from wrappyr.ctypes_builder.structure import CTypesStructureVisitor, CTypesStructure
 
 class UninterestingCopyConstructorRemover(CTypesStructureVisitor):
 	def visit_Method(self, f):
@@ -122,35 +103,3 @@ class Box2DBodyCreateFixtureFixer(CTypesStructureVisitor):
 			self.b2Body = node.get_by_path('Box2D.b2Body')
 
 		CTypesStructureVisitor.process(self, node)
-
-#class EmptyClassRemover(CTypesStructureVisitor):
-	#def __init__(self):
-		#self.classes_to_remove = []
-
-	#def visit_Class(self, cls):
-		#if cls.is_empty():
-			#self.classes_to_remove.append
-
-if __name__ == "__main__":
-	parser = argparse.ArgumentParser(prog = sys.argv[0])
-	parser.add_argument("input")
-	parser.add_argument("--output-path", default = os.getcwd())
-	parser.add_argument('--display', action = 'store_true')
-	args = parser.parse_args()
-
-	s = CTypesStructure.load(args.input)
-
-	#import ipdb; ipdb.set_trace()
-	#print s.get_by_path('Box2D.collision.test').find_lowest_common_parent(s.get_by_path('Box2D.dynamics.b2World')).get_path()
-	#print s.get_by_path('Box2D.collision.test').get_path(s.get_by_path('Box2D'))
-
-	UninterestingCopyConstructorRemover().process(s)
-	Box2DBodyCreateFixtureFixer().process(s)
-	ConflictingOverloadRemover().process(s)
-	AmbigousOverloadRemover().process(s)
-	PythonKeywordRemover().process(s)
-
-	if args.display:
-		s.display()
-	export_structure(s, args.output_path)
-

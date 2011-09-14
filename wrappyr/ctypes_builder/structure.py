@@ -710,3 +710,16 @@ class CTypesStructure(Node):
 		return s
 _setup_named_child(CTypesStructure, 'packages', 'package', 'Package')
 _setup_named_child(CTypesStructure, 'modules', 'module', 'Module')
+class CTypesStructureVisitor(object):
+	def process(self, node):
+		vistor = getattr(self, 'visit_' + type(node).__name__, None)
+		if vistor:
+			vistor(node)
+
+		for layout in node.get_layouts():
+			for group in layout.get('children', {}).values():
+				group_children = group['every']
+				group_children = getattr(node, group_children)
+
+				for child in group_children():
+					self.process(child)
