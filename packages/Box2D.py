@@ -1,6 +1,6 @@
-from wrappyr.clang_conversion.exports import ExportFilter, HeaderExport, SourceExport, CtypesExport
-from wrappyr.ctypes_builder.structure import CTypesStructureVisitor, CTypesStructure
-from wrappyr.ctypes_builder.visitors import UninterestingCopyConstructorRemover, ConflictingOverloadRemover, AmbigousOverloadRemover, PythonKeywordRemover
+from wrappyr.code_data_conversion.exports import ExportFilter, HeaderExport, SourceExport, CtypesExport
+from wrappyr.ctypes_api_builder.structure import CTypesStructureVisitor, CTypesStructure
+from wrappyr.ctypes_api_builder.visitors import UninterestingCopyConstructorRemover, ConflictingOverloadRemover, AmbigousOverloadRemover, PythonKeywordRemover
 
 class Box2DFilter(ExportFilter):
 	def filter_namespace(self, ns, **opts):

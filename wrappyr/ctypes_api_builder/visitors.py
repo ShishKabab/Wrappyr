@@ -1,5 +1,5 @@
 import string
-from wrappyr.ctypes_builder.structure import CTypesStructureVisitor, CTypesStructure
+from wrappyr.ctypes_api_builder.structure import CTypesStructureVisitor, CTypesStructure
 
 class UninterestingCopyConstructorRemover(CTypesStructureVisitor):
 	def visit_Method(self, f):

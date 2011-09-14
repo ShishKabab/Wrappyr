@@ -1,8 +1,8 @@
 import os
 from collections import defaultdict
 from itertools import chain, count, izip_longest
-from wrappyr.ctypes_builder.structure import PointerType
-from wrappyr.ctypes_builder.structure import Package, Class, Method, Member
+from wrappyr.ctypes_api_builder.structure import PointerType
+from wrappyr.ctypes_api_builder.structure import Package, Class, Method, Member
 from wrappyr.utils.str import SourceBlock
 
 class NoCommonArguments(Exception): pass

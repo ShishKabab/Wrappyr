@@ -5,12 +5,12 @@ import sys
 import argparse
 from importlib import import_module
 
-from wrappyr.clang_conversion.exports.header import HeaderExport
-from wrappyr.clang_conversion.exports.source import SourceExport
-from wrappyr.clang_conversion.exports.ctypes import CtypesExport
-from wrappyr.clang_conversion.imports.clang import ClangImporter
-from wrappyr.ctypes_builder.export import export_structure
-from wrappyr.ctypes_builder.structure import CTypesStructure
+from wrappyr.code_data_conversion.exports.header import HeaderExport
+from wrappyr.code_data_conversion.exports.source import SourceExport
+from wrappyr.code_data_conversion.exports.ctypes import CtypesExport
+from wrappyr.code_data_conversion.imports.clang import ClangImporter
+from wrappyr.ctypes_api_builder.structure import CTypesStructure
+from wrappyr.ctypes_api_builder.export import export_structure
 
 def import_object(path):
 	# Taken from django.core.handlers.base

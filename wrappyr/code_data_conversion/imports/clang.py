@@ -1,5 +1,5 @@
 from lxml.etree import parse as parse_xml, fromstring as parse_xml_from_string
-from wrappyr.clang_conversion.structure import Class, Function, Enum, Namespace
+from wrappyr.code_data_conversion.structure import Class, Function, Enum, Namespace
 
 class ClangImporter(object):
 	def __init__(self, path):

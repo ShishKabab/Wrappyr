@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from wrappyr.clang_conversion.structure import Class
+from wrappyr.code_data_conversion.structure import Class
 from wrappyr.utils.str import as_camelcase, SourceBlock
 
 class ExportFilter(object):
@@ -125,6 +125,6 @@ class ClangExport(object):
 
 		return block
 
-from wrappyr.clang_conversion.exports.header import HeaderExport
-from wrappyr.clang_conversion.exports.source import SourceExport
-from wrappyr.clang_conversion.exports.ctypes import CtypesExport
+from wrappyr.code_data_conversion.exports.header import HeaderExport
+from wrappyr.code_data_conversion.exports.source import SourceExport
+from wrappyr.code_data_conversion.exports.ctypes import CtypesExport
