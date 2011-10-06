@@ -134,6 +134,9 @@ def export_library_import(module, library, result_name):
 	return block
 
 def export_function_signature(f, call_args = None):
+	if not f.raw and not call_args:
+		call_args = get_call_args(f)
+
 	takes_self = isinstance(f, Method) and f.takes_self_argument()
 	if not f.raw:
 		args = ['self'] if takes_self else []
@@ -232,7 +235,7 @@ def export_call(call, result_name = "", arg_names = (),
 
 	return block
 
-def export_calls(f, result_name = "", call_args = None):
+def export_calls(f, result_name = "", call_args = None, export_call = export_call):
 	block = SourceBlock()
 
 	call_args = call_args or get_call_args(f)
@@ -254,42 +257,108 @@ def export_calls(f, result_name = "", call_args = None):
 	return block
 
 def export_constructor(cls):
-	block = SourceBlock()
 	vtable = cls.vtable
 	constructor = cls.methods.get('__init__')
-	call_args = get_call_args(constructor) if constructor and not constructor.raw else None
+	newinherited = cls.methods.get('__newinherited__')
 
+	if not constructor and not vtable:
+		return SourceBlock()
+
+	# Assemble constructor signature
 	if constructor:
-		if vtable:
-			block.add_block(export_function_signature(constructor, call_args))
-			block.add_line("if type(self) == %s:" % cls.name, 1)
-			if not constructor.raw:
-				block.add_block(export_calls(constructor, 'inst', call_args), 2)
-			else:
-				block.add_block(constructor.ops[0].get_code_block(), 2)
-			block.add_line("else:", 1)
-
-			args = [arg.name for call, args in call_args for arg in args]
-			args = ["self", "self._vtable_"] + args
-			args = ", ".join(args)
-
-			block.add_line("inst = self.__newinherited__(%s)" % args, 2)
-		else:
-			block.add_block(export_method(cls, constructor, 'inst'))
-	elif vtable:
-		newinherited = cls.methods['__newinherited__']
-		args = newinherited.ops[0].args
-		args = args[2:] # First two arguments are obj and vtable
-		args = [arg.name for arg in args]
-
-		sigargs = ["self"] + args
-		block.add_line("def __init__(%s):" % ", ".join(sigargs))
-
-		args = ["self", "self._vtable_"] + args
-		block.add_line("inst = self.__newinherited__(%s)" % ", ".join(args), 1)
+		signature = export_function_signature(constructor)
 	else:
-		return block
-	
+		call_args = get_call_args(newinherited)
+		first_call = call_args[0]
+		call_args[0] = (first_call[0], first_call[1][2:]) # Strip first two arguments
+		args = ['self']
+		args += get_argument_list(call_args)
+		signature = SourceBlock("def __init__(%s):" % ", ".join(args))
+
+	# What to do if the class is instantiated directly
+	if constructor:
+		constructor_block = SourceBlock()
+
+		call_args = get_call_args(constructor) if not constructor.raw else None
+		if not constructor.raw:
+			constructor_calls = export_calls(constructor, 'inst', call_args)
+			constructor_block.add_block(constructor_calls)
+		else:
+			constructor_block.add_block(constructor.ops[0].get_code_block())
+	else:
+		error = "raise TypeError('This class cannot be instantiated directly')"
+		constructor_block = SourceBlock(error)
+
+	# What to do if a derived class is instantiated.
+	if vtable:
+		inherited_block = SourceBlock()
+		if constructor: # If we have a constructor, just pass along all arguments
+			pass_args = [arg.name for call in constructor.ops for arg in call.args]
+		else: # If we don't have a constructor, use the arguments of __newinherited__
+			call_args = get_call_args(newinherited)
+			pass_args = [arg.name for call, args in call_args for arg in args]
+			pass_args = pass_args[2:] # First two arguments are obj and vtable
+		pass_args = ['self', 'self._vtable_'] + pass_args
+		pass_args = ", ".join(pass_args)
+
+		inherited_block.add_line("inst = self.__newinherited__(%s)" % pass_args)
+	else:
+		error = "raise TypeError('You cannot inherit from this class')"
+		inherited_block = SourceBlock(error)
+
+#	if constructor:
+#		call_args = get_call_args(constructor) if not constructor.raw else None
+#		if vtable:
+#			block.add_block(export_function_signature(constructor, call_args))
+#			block.add_line("if type(self) == %s:" % cls.name, 1)
+#			if not constructor.raw:
+#				block.add_block(export_calls(constructor, 'inst', call_args), 2)
+#			else:
+#				block.add_block(constructor.ops[0].get_code_block(), 2)
+#			block.add_line("else:", 1)
+#
+#			args = [arg.name for call, args in call_args for arg in args]
+#			args = ["self", "self._vtable_"] + args
+#			args = ", ".join(args)
+#
+#			block.add_line("inst = self.__newinherited__(%s)" % args, 2)
+#		else:
+#			block.add_block(export_method(cls, constructor, 'inst'))
+#	elif vtable:
+#		call_args = get_call_args(newinherited)
+#		block.add_block(export_function_signature(newinherited, call_args[2:], "__init__"))
+#
+#		def export_call(call, result_name):
+#			block = SourceBlock()
+#
+#			args = call.args
+#			args = args[2:] # First two arguments are obj and vtable
+#			args = [arg.name for arg in args]
+#			args = ["self", "self._vtable_"] + args
+#			args = (result_name, ", ".join(args))
+#			block.add_line("%s = self.__newinherited__(%s)" % args)
+#
+#			return block
+#		block.add_block(export_calls(newinherited, result_name="inst", export_call=export_call), 1)
+
+#		args = newinherited.ops[0].args
+#		args = args[2:] # First two arguments are obj and vtable
+#		args = [arg.name for arg in args]
+#
+#		sigargs = ["self"] + args
+#		block.add_line("def __init__(%s):" % ", ".join(sigargs))
+#
+#		args = ["self", "self._vtable_"] + args
+#		block.add_line("inst = self.__newinherited__(%s)" % ", ".join(args), 1)
+#	else:
+#		return block
+
+	block = SourceBlock()
+	block.add_block(signature)
+	block.add_line("if type(self) == %s:" % cls.name, 1)
+	block.add_block(constructor_block, 2)
+	block.add_line("else:", 1)
+	block.add_block(inherited_block, 2)
 	block.add_line("self._inst = inst", 1)
 	block.add_line("self._ownership = True", 1)
 

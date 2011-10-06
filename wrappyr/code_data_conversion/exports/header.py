@@ -20,7 +20,7 @@ class HeaderExport(ClangExport):
 
 		# Array
 		if cls.is_default_constructable():
-			block.add_line("void* %s(int);" % self.symbol_for_array_constructor(
+			block.add_line("void* %s(unsigned int);" % self.symbol_for_array_constructor(
 				cls, full_name_underscore
 			))
 
@@ -38,8 +38,8 @@ class HeaderExport(ClangExport):
 	def export_methods(self, cls, full_name_underscore):
 		block = SourceBlock()
 
-		for method in cls.methods.values():
-			for i, signature in enumerate(method):
+		for method in cls.methods:
+			for signature in method.signatures:
 				if not self.filter.filter_method_signature(cls, signature):
 						continue
 
@@ -108,7 +108,7 @@ class HeaderExport(ClangExport):
 		block.add_line("//")
 
 		# Constructor
-		if not cls.is_abstract(self.importer):
+		if not cls.is_abstract():
 			block.add_block(self.export_constructors(cls, full_name_underscore))
 
 		# Destructor
@@ -131,7 +131,7 @@ class HeaderExport(ClangExport):
 		block.add_block(self.export_members(cls, full_name_underscore))
 
 		# C++ class to inherit from a virtual base
-		if cls.dynamic:
+		if cls.is_dynamic():
 			inheritance_class = self.export_inheritance_class(
 				cls,
 				full_name_underscore
@@ -143,8 +143,9 @@ class HeaderExport(ClangExport):
 	def export(self, importer, path):
 		self.setup(importer)
 
+		block = SourceBlock('extern "C" {')
+		block.add_block(self.export_namespace(importer.root_namespace))
+		block.add_line("}")
+
 		with open(path, 'w') as f:
-			f.write('extern "C" {\n')
-			f.write(self.export_namespace(importer.root_namespace)
-				.as_text())
-			f.write('\n}\n')
+			f.write(block.as_text())

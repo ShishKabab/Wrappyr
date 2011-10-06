@@ -2,219 +2,248 @@ import pprint
 from itertools import chain
 from collections import defaultdict
 
+class AccessSpecifier(object):
+	Unknown = 0
+	Public = 1
+	Protected = 2
+	Private = 3
+
+	@classmethod
+	def from_string(cls, s):
+		return {
+			'unknown': cls.Unknown,
+			'public': cls.Public,
+			'protected': cls.Protected,
+			'private': cls.Private
+		}.get(s, cls.Unknown)
+
 class Node(object):
-	def __init__(self, xml_node):
-		self.name = xml_node.get('name')
+	def __init__(self):
+		self.context = None # Namespace, class or struct
+		self.location = None
 
-		context = xml_node.find('Context')
-		self.file = context.xpath('Physical/@path') if context != None else None
-		self.file = self.file[0] if self.file else None
-		self.namespace = context.xpath('Namespace/text()') if context != None else None
-		self.namespace = self.namespace[0].split("::") if self.namespace else []
-		self.context_cls = context.xpath('Class/text()') if context != None else None
-		self.context_cls = self.context_cls[0].split("::") if self.context_cls else []
+	def get_full_name(self, separator = "::"):
+		"""Returns the full name of this node, separated by sep.
 
-	def get_context_as_string(self, sep = "::"):
-		return sep.join(self.namespace + self.context_cls)
+		For class Foo::Bar::Cls:
+		- cls.get_full_name() returns "Foo::Bar::Cls"
+		 - cls.get_full_name(".") returns "Foo.Bar.Cls"
+		"""
 
-	def get_full_name(self, sep = "::"):
-		ctx = self.get_context_as_string(sep)
-		return "%s%s%s" % (ctx, sep, self.name) if ctx else self.name
+		names = []
+		node = self
+		while node:
+			name = getattr(node, 'name', None)
+			if not name:
+				break
 
-class NodeReference(Node):
-	def __init__(self, xml_node):
-		Node.__init__(self, xml_node)
+			names.append(name)
+			node = node.context
 
-		self.id = xml_node.get('id')
+		return separator.join(reversed(names))
 
-class Class(Node):
-	def __init__(self, xml_node):
-		Node.__init__(self, xml_node)
+	def get_namespace(self):
+		cxt = self.context
+		while cxt and not isinstance(cxt, Namespace):
+			cxt = cxt.context
 
-		self.access = xml_node.get('access')
-		self.struct = (xml_node.tag == "Struct")
-		self.bases = tuple(NodeReference(i) for i in xml_node.findall('Base'))
-		self.methods = defaultdict(list)
-		for i in xml_node.findall('Method'):
-			if '1' not in (i.get('constructor'), i.get('destructor')) and ">" not in i.get('name'):
-				self.methods[ i.get('name') ].append(Function(i))
-		self.members = tuple(Member(i) for i in xml_node.findall('Field'))
-		self.constructors = tuple(Function(i) for i in xml_node.findall('Method') if i.get('constructor') == '1')
-		self.destructor = tuple(Function(i) for i in xml_node.findall('Method') if i.get('destructor') == '1')
-		self.destructor = self.destructor and self.destructor[0]
-		self.abstract = any(i.is_pure for methods in self.methods.values() for i in methods)
-		self.dynamic = xml_node.get('dynamic') == '1'
+		return cxt
 
-	def get_pure_virtual_signatures(self, importer = None, recursive = True):
+class Struct(Node):
+	def __init__(self, name):
+		super(Struct, self).__init__()
+
+		self.name = name
+		self.access = AccessSpecifier.Unknown
+		self.members = []
+
+	def as_string(self, c_compat_names = True, c_compat_refs = True, c_compat_const = True,
+				  nested = False):
+		return self.get_full_name() if not c_compat_names else "void"
+
+class Class(Struct):
+	def __init__(self, name):
+		super(Class, self).__init__(name)
+
+		self.bases = []
+		self.methods = []
+		self.constructors = []
+		self.destructor = None
+		self.operators = []
+		# Whether this class (not including bases)
+		# contains any pure virtual methods
+		self.abstract = None
+		# Whether this class (not including bases)
+		# contains any virtual methods
+		self.dynamic = None
+
+	def determine_abstractness(self):
+		"""Sets self.abstract property based on whether this class
+		contains any pure virtual methods. To test whether this class can be
+		instantiated based on whether any (inherited) pure virtual methods
+		are not implemented, use the is_abstract() method.
+
+		"""
+
+		self.abstract = any(sig.pure
+							for method in self.methods
+							for sig in method.signatures)
+
+	def determine_dynamic(self, non_virtual = None):
+		"""Sets self.dynamic property based on whether this class
+		contains any virtual methods. To test whether this class can be
+		instantiated based on whether any (inherited) pure virtual methods
+		are not implemented, use the is_dynamic() method.
+
+		"""
+
+		self.dynamic = any(sig.virtual
+							for method in self.methods
+							for sig in method.signatures)
+
+	def iter_bases(self, include_self = False):
+		"""Recursively yields all bases (breadth first)"""
+		if include_self:
+			yield self
+		for base in self.bases:
+			yield base
+		for base in self.bases:
+			for base in base.iter_bases():
+				yield base
+
+	def iter_virtual_signatures(self, recursive = True):
+		for base in self.iter_bases(True):
+			for method in base.methods:
+				for sig in method.signatures:
+					if sig.virtual:
+						yield sig
+			if not recursive:
+				break
+
+	def get_virtual_signatures(self, recursive = True):
+		return list(self.iter_virtual_signatures(recursive))
+
+	def get_non_virtual_signatures(self, recursive = True):
 		signatures = [signature
-			for method in self.methods.values()
-			for signature in method
-			if signature.is_pure]
+					  for method in self.methods
+					  for signature in method.signatures
+					  if not signature.virtual]
 		if recursive:
-			for base_ref in self.bases:
-				base = importer.nodes[base_ref.id]
-				signatures.extend(base.get_pure_virtual_signatures(importer))
+			for base in self.bases:
+				signatures.extend(base.get_non_virtual_signatures())
 		return signatures
 
-	def get_implemented_signatures(self, importer = None, recursive = True):
+	def get_pure_virtual_signatures(self, recursive = True):
 		signatures = [signature
-			for method in self.methods.values()
-			for signature in method
-			if not signature.is_pure]
+					  for method in self.methods
+					  for signature in method.signatures
+					  if signature.pure]
 		if recursive:
-			for base_ref in self.bases:
-				base = importer.nodes[base_ref.id]
-				signatures.extend(base.get_pure_virtual_signatures(importer))
+			for base in self.bases:
+				signatures.extend(base.get_pure_virtual_signatures())
 		return signatures
 
-	def is_abstract(self, importer):
-		pure = self.get_pure_virtual_signatures(importer)
-		pure = [(sig.name,) + tuple((arg.type for arg in sig.args)) for sig in pure]
+	def get_implemented_signatures(self, recursive = True):
+		signatures = [signature
+			for method in self.methods
+			for signature in method.signatures
+			if not signature.pure]
+		if recursive:
+			for base in self.bases:
+				signatures.extend(base.get_implemented_signatures())
+		return signatures
+
+	def get_overridable_signatures(self):
+		non_virtual = self.get_non_virtual_signatures()
+		virtual = self.iter_virtual_signatures()
+
+		by_signature = {}
+		for sig in chain(non_virtual, virtual):
+			unique = (sig.context.name, sig.const)
+			unique += tuple(arg.type for arg in sig.args)
+			by_signature.setdefault(unique, sig)
+
+		by_method = defaultdict(list)
+		for sig in by_signature.itervalues():
+			if sig.virtual:
+				by_method[sig.context.name].append(sig)
+
+		return [i for i in by_method.itervalues()]
+
+	def is_abstract(self):
+		"""Determine whether this class has and/or inherits
+		any pure virtual methods which are not yet implemented.
+
+		"""
+
+		pure = self.get_pure_virtual_signatures()
+		pure = [(sig.context.name, sig.const) + tuple((arg.type for arg in sig.args)) for sig in pure]
 		pure = set(pure)
 
-		nonpure = self.get_implemented_signatures(importer)
-		nonpure = [(sig.name,) + tuple((arg.type for arg in sig.args)) for sig in nonpure]
+		nonpure = self.get_implemented_signatures()
+		nonpure = [(sig.context.name, sig.const) + tuple((arg.type for arg in sig.args)) for sig in nonpure]
 		nonpure = set(nonpure)
 
 		return bool(pure - nonpure)
-		#return self.abstract or any(importer.nodes[base.id].is_abstract(importer) for base in self.bases)
 
-	def get_overridable_signatures(self, importer, implemented = None):
-		implemented = implemented or self.get_implemented_signatures(importer)
+	def is_dynamic(self):
+		virtual = self.get_virtual_signatures()
+		virtual = [(sig.context.name, sig.const) + tuple((arg.type for arg in sig.args)) for sig in virtual]
+		virtual = set(virtual)
 
-		methods = []
-		for name, method in self.methods.items():
-			signatures = [i for i in method if i.is_virtual and i not in implemented]
-			if signatures:
-				methods.append(signatures)
+		nonvirtual = self.get_non_virtual_signatures()
+		nonvirtual = [(sig.context.name, sig.const) + tuple((arg.type for arg in sig.args)) for sig in nonvirtual]
+		nonvirtual = set(nonvirtual)
 
-		for base_ref in self.bases:
-			base = importer.nodes[base_ref.id]
-			methods += base.get_overridable_signatures(importer, implemented)
+		return bool(virtual - nonvirtual)
 
-		return methods
+	def is_valid(self):
+		"""Do all bases for this class (and their bases) exist?"""
 
-	def is_valid(self, importer):
-		return self.name != None and len(self.name) > 0 and \
-			all(importer.nodes.get(base.id) is not None for base in self.bases) and \
-			all(importer.nodes[base.id].is_valid(importer) for base in self.bases)
+		for base in self.bases:
+			if not base or not base.is_valid():
+				return False
+
+		return True
 
 	def is_default_constructable(self):
 		return not self.constructors or any(
-			len(constructor.args) == 0 and constructor.access == 'public'
+			len(constructor.args) == 0 and constructor.access == AccessSpecifier.Public
 			for constructor in self.constructors)
 
-	def get_class_implementing_signature(self, importer, signature):
-		if any(i == signature and not i.is_pure for method in self.methods for i in method):
+	def get_class_implementing_signature(self, signature):
+		if any(i == signature and not i.pure for method in self.methods for i in method.signatures):
 			return self
 
-		for base_ref in self.bases:
-			base = importer.nodes[base_ref.id]
-			cls = base.get_class_implementing_signature(importer, signature)
+		for base in self.bases:
+			cls = base.get_class_implementing_signature(signature)
 			if cls:
 				return cls
 
 class Argument(Node):
-	def __init__(self, xml_node):
-		Node.__init__(self, xml_node)
+	def __init__(self, name = None, type = None, optional = False):
+		super(Argument, self).__init__()
 
-		self.optional = (xml_node.get('optional') == '1')
-		self.type = Type(xml_node.find('Type'))
-		self.name = xml_node.get('name')
+		self.name = name
+		self.type = type
+		self.optional = optional
 
-class Type(Node):
-	def __init__(self, xml_node):
-		Node.__init__(self, xml_node)
+class FunctionSignature(Node):
+	def __init__(self):
+		super(FunctionSignature, self).__init__()
 
-		self.pointers = 0
-		self.refs = 0
-		self.name = None
-		self.id = None
-		self.valid = True
+		self.access = AccessSpecifier.Unknown
+		self.constructor = False
+		self.destructor = False
+		self.operator = False
+		self.static = False
 		self.const = False
-
-		while True:
-			tp = xml_node.get('type')
-			if tp == 'pointer':
-				self.pointers += 1
-				xml_node = xml_node.find('Type')
-				continue
-			elif tp == 'reference':
-				self.refs += 1
-				xml_node = xml_node.find('Type')
-				continue
-			elif tp in ('builtin', 'record', 'enum'):
-				self.id = xml_node.get('id')
-				self.name = xml_node.get('name')
-				if self.name == '_Bool':
-					self.name = 'bool'
-			else:
-				self.valid = False
-			self.type = tp
-			self.const = self.const or (xml_node.get('const') == '1')
-
-			break
-
-	def is_cpp_only(self): # We can pass pointers to objects to C, but not the objects themselves
-		#print self.name, self.type, self.pointers, self.refs
-		return self.type == 'record' and not self.pointers and not self.refs
-
-	def as_string(self, c_compat_names = True, c_compat_refs = True,
-				  c_compat_const = True):
-		if c_compat_names and self.type == "record":
-			name = "void"
-		elif c_compat_names and self.type == "enum":
-			name = "unsigned int"
-		elif c_compat_names and self.type == "builtin" and self.name == "bool":
-			name = "unsigned char"
-		else:
-			name = str(self.name)
-
-		if not c_compat_const:
-			const = "const " if self.const else ""
-		else:
-			const = ""
-
-		return "".join((
-			const,
-			name,
-			("*" * self.pointers),
-			(("*" if c_compat_refs else "&") * self.refs),
-			("*" if c_compat_refs and self.is_cpp_only() else "")
-		))
-
-	def as_parameter_type(self):
-		return "(%s)" % (self.as_string(False))
-
-	def __hash__(self):
-		return hash((self.pointers, self.refs, self.name,
-			self.id, self.valid, self.const))
-
-	def __eq__(self, other):
-		a = (self.pointers, self.refs, self.name,
-			self.id, self.valid, self.const)
-		b = (other.pointers, other.refs, other.name,
-			other.id, other.valid, other.const)
-
-		return a == b
-
-class Function(Node):
-	def __init__(self, xml_node):
-		Node.__init__(self, xml_node)
-
-		self.access = xml_node.get('access')
-		self.is_constructor = (xml_node.get('constructor') == '1')
-		self.is_destructor = (xml_node.get('destructor') == '1')
-		#self.is_function_pointer = (xml_node.tag == 'Function_type')
-		self.is_method = (xml_node.tag == 'Method')
-		self.is_virtual = (xml_node.get('virtual') == '1')
-		self.is_pure = (xml_node.get('pure') == '1')
-		self.is_static = (xml_node.get('static') == '1')
-		self.is_const = (xml_node.get('const') == '1')
-		self.args = tuple(Argument(i) for i in xml_node.findall('Argument'))
-		self.returns = Type(xml_node.find('Returns').find('Type'))
-		self.valid = all(i.type.valid for i in self.args) and self.returns.valid
-		self.extern_c = (xml_node.get('extern_c') == '1')
+		self.args = []
+		self.returns = None
+		self.valid = True
+		self.extern_c = False
+		self.pure = False
+		self.virtual = False
 
 	def args_as_string(self, names = (), c_compat_names = True,
 					   c_compat_refs = True, c_compat_const = True):
@@ -229,36 +258,260 @@ class Function(Node):
 		return ", ".join(args)
 
 	def returns_anything(self):
-		returns_anything = self.returns.pointers
-		returns_anything = returns_anything or self.returns.name != 'void'
-		returns_anything = bool(returns_anything)
-		return returns_anything
+		if not self.returns:
+			return False
 
-	def to_function_pointer(self, name = ""):
+		type = self.returns.type
+		if not isinstance(type, Builtin):
+			return True
+		return type.name != "void"
+
+	def as_string(self, c_compat_names = True, c_compat_refs = True, c_compat_const = True,
+				  nested = False, name = ""):
 		#int (*pt2Func)(float, char, char)
 		return "%s (*%s)(%s)" % (self.returns.as_string(), name, self.args_as_string())
 
+	def is_valid(self):
+		valid = not self.returns or self.returns.is_valid()
+		valid = valid and all(arg.type.is_valid() for arg in self.args)
+		return valid
+
+class Function(Node):
+	def __init__(self, name, signatures = None):
+		super(Function, self).__init__()
+
+		self.name = name
+		self.signatures = signatures or []
+
+class Method(Function):
+	def __init__(self, name, signatures = None, context = None):
+		super(Method, self).__init__(name, signatures)
+
+		self.context = context
+
+class Pointer(Node):
+	def __init__(self, type = None):
+		super(Pointer, self).__init__()
+
+		self.type = type
+
+	def __hash__(self):
+		return hash(self.type)
+
+	def __eq__(self, other):
+		if not isinstance(other, Pointer):
+			return False
+
+		a = self.type
+		b = other.type
+
+		return a == b
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+	def as_string(self, c_compat_names = True, c_compat_refs = True, c_compat_const = True,
+				  nested = False):
+		type = self.type.as_string(c_compat_names, c_compat_refs, c_compat_const, True)
+		return type + "*"
+
+class Reference(Node):
+	def __init__(self, type = None):
+		super(Reference, self).__init__()
+
+		self.type = type
+
+	def __hash__(self):
+		return hash(self.type)
+
+	def __eq__(self, other):
+		if not isinstance(other, Reference):
+			return False
+
+		a = self.type
+		b = other.type
+
+		return a == b
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+	def as_string(self, c_compat_names = True, c_compat_refs = True, c_compat_const = True,
+				  nested = False):
+		sign = "*" if c_compat_refs else "&"
+		type = self.type.as_string(c_compat_names, c_compat_refs, c_compat_const, True)
+		return type + sign
+
+class Enumeration(Node):
+	def __init__(self, name):
+		super(Enumeration, self).__init__()
+
+		self.name = name
+		self.fields = []
+
+	def add_field(self, name, value):
+		self.fields.append((name, value))
+
+	def as_string(self, c_compat_names = True, c_compat_refs = True, c_compat_const = True,
+				  nested = False):
+		return "unsigned char" if c_compat_names else self.get_full_name()
+
 class Member(Node):
-	def __init__(self, xml_node):
-		Node.__init__(self, xml_node)
+	def __init__(self, name):
+		super(Member, self).__init__()
 
-		self.access = xml_node.get('access')
-		self.type = Type(xml_node.find('Type'))
+		self.name = name
+		self.access = AccessSpecifier.Unknown
+		self.type = None
 
-class Enum(Node):
-	def __init__(self, xml_node):
-		Node.__init__(self, xml_node)
+class QualifiedType(Node):
+	def __init__(self, type = None, const = False):
+		super(QualifiedType, self).__init__()
 
-		self.constants = tuple((constant.get('name'), int(constant.get('value'))) for constant in xml_node.findall('Constant'))
+		self.type = type
+		self.const = const
 
-class Namespace(object):
-	def __init__(self, parent = None, name = None):
-		self.parent = parent
+	def __hash__(self):
+		return hash((self.type, self.const))
+
+	def __eq__(self, other):
+		if not isinstance(other, QualifiedType):
+			return False
+
+		a = (self.type, self.const)
+		b = (other.type, other.const)
+
+		return a == b
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+	def get_total_pointers(self):
+		"""Returns how many pointers are nested"""
+		pointers = 0
+
+		qualtype = self
+		while isinstance(qualtype.type, (Pointer, Reference)):
+			if isinstance(qualtype.type, Pointer):
+				pointers += 1
+			qualtype = qualtype.type.type
+
+		return pointers
+
+	def is_reference(self):
+		return isinstance(self.type, Reference)
+
+	def is_cpp_only(self):
+		return isinstance(self.type, Struct)
+
+	def strip_pointers_and_references(self):
+		qualtype = self
+		while isinstance(qualtype.type, (Pointer, Reference)):
+			qualtype = qualtype.type.type
+
+		return qualtype
+
+	def get_type_name(self, sep = "::"):
+		"""Get name of type ultimately reference or pointed to, separated by sep.
+
+		As an example, for type Test::Foo**&, Test::Foo is returned (if sep == "::")
+		"""
+
+		return self.strip_pointers_and_references().type.get_full_name(sep)
+
+	def as_string(self, c_compat_names = True, c_compat_refs = True, c_compat_const = True,
+				  nested = False):
+		type = self.type.as_string(c_compat_names, c_compat_refs, c_compat_const, nested)
+		if c_compat_refs and not nested and isinstance(self.type, (Class, Struct)):
+			type += "*"
+		if not c_compat_const and self.const:
+			if isinstance(self.type, (Reference, Pointer)):
+				type += " const"
+			else:
+				type = "const " + type
+		return type
+
+	def is_valid(self):
+		if isinstance(self.type, (Pointer, Reference, Array)):
+			return self.type.type.is_valid()
+		else:
+			return bool(self.type)
+
+class Typedef(Node):
+	def __init__(self, type = None):
+		super(Typedef, self).__init__()
+
+		self.type = type
+
+class Array(Node):
+	def __init__(self, type = None, size = None):
+		super(Array, self).__init__()
+
+		self.type = type
+		self.size = size
+
+	def __hash__(self):
+		return hash((self.type, self.size))
+
+	def __eq__(self, other):
+		if not isinstance(other, Array):
+			return False
+
+		a = (self.type, self.size)
+		b = (other.type, other.size)
+
+		return a == b
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+	def as_string(self, c_compat_names = True, c_compat_refs = True, c_compat_const = True,
+				  nested = False):
+		type = self.type.as_string(c_compat_names, c_compat_refs, c_compat_const, True)
+		return type + "*"
+
+class Builtin(Node):
+	def __init__(self, name):
+		super(Builtin, self).__init__()
+
+		self.name = name
+
+	def __hash__(self):
+		return hash(self.name)
+
+	def __eq__(self, other):
+		if not isinstance(other, Builtin):
+			return False
+
+		return self.name == other.name
+
+	def __ne__(self, other):
+		return not self.__eq__(other)
+
+	def as_string(self, c_compat_names = True, c_compat_refs = True, c_compat_const = True,
+				  nested = False):
+		if c_compat_names and self.name == "bool":
+			return "unsigned char"
+
+		return self.name
+
+class FunctionPointer(FunctionSignature):
+	def __init__(self):
+		super(FunctionPointer, self).__init__()
+
+class Namespace(Node):
+	def __init__(self, context = None, name = ''):
+		super(Namespace, self).__init__()
+
+		self.context = context
 		self.name = name
 		self.children = {}
 		self.nodes = []
 
 	def get_child(self, name):
+		if not name:
+			return self
+
 		ns = self
 		for part in name.split("::"):
 			if not part:
@@ -266,6 +519,28 @@ class Namespace(object):
 
 			child = ns.children.get(part)
 			if not child:
-				child = ns.children[part] = Namespace(self, part)
+				child = ns.children[part] = Namespace(ns, part)
 			ns = child
 		return ns
+
+	def get_by_full_name(self, name):
+		ns = self
+
+		parts = name.split("::")
+		for part in parts[0:-1]:
+			ns = ns.children.get(part)
+			if not ns:
+				return
+
+		name = parts[-1]
+		for node in ns.nodes:
+			if node.name == name:
+				return node
+
+class SourceLocation(Node):
+	def __init__(self, file = None, line = None, column = None):
+		super(SourceLocation, self).__init__()
+
+		self.file = file
+		self.line = line
+		self.column = column

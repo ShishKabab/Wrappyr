@@ -2,10 +2,12 @@ import re
 from unittest import TestCase
 
 class SourceBlock(object):
-	""" Collection of lines that remember indentation.
+	"""Collection of lines that remember indentation.
 
 	Useful when returning text from functions that you may need
-	to indent further. """
+	to indent further.
+
+	"""
 
 	def __init__(self, first_line = None):
 		self.lines = []

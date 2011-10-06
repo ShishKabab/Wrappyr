@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from wrappyr.code_data_conversion.structure import Class
+from wrappyr.code_data_conversion.structure import Class, AccessSpecifier, Pointer, Builtin, Array, Method
 from wrappyr.utils.str import as_camelcase, SourceBlock
 
 class ExportFilter(object):
@@ -10,54 +10,57 @@ class ExportFilter(object):
 		return True
 
 	def filter_class(self, cls, **opts):
-		return cls.is_valid(self.importer) and \
-			cls.access in ('unknown', 'public')
+		valid = cls.is_valid()
+		valid = valid and cls.access in (
+			AccessSpecifier.Unknown,
+			AccessSpecifier.Public
+		)
+		return valid
 
 	def filter_method(self, cls, method, **opts):
-		return any(self.filter_method_signature(cls, sig)
-			for sig in method)
+		signatures = method.signatures if isinstance(method, Method) else method
+		return any(self.filter_method_signature(cls, sig, **opts)
+			for sig in signatures)
 
-	def filter_method_signature(self, cls, signature, **opts):
-		return (self.filter_function(signature)
+	def filter_method_signature(self, cls, signature, inherited = False, **opts):
+		return (self.filter_function_signature(signature)
 			# Export only public methods
-			and (signature.access == 'public' or
-				 (opts.get("inherited") == True and signature.access == "protected"))
+			and (signature.access == AccessSpecifier.Public or
+				 # And protected methods if we're generating a class for inheritance
+				 (inherited and signature.access == AccessSpecifier.Protected))
 			# Static methods are not supported yet
-			and not signature.is_static)
+			and not signature.static)
 
 	def filter_member(self, cls, member, **opts):
 		type = member.type
+		stripped = type.strip_pointers_and_references()
 
 		return (# Export only public members
-			member.access == 'public'
-			# Some member names are empty in Clang XML, find out why
+			member.access == AccessSpecifier.Public
+			# TODO: Some member names are empty in Clang XML, find out why
 			and member.name
-			# We don't know how to handle pointers other
-			# than C++ object pointers
-			# and not (type.type in ('builtin', 'enum') and type.pointers)
-			#and (not type.id or self.importer.nodes.get(type.id))
-
-			# If this type is a struct or class, the class
-			# must be declared
-			and (type.type != 'record' or self.importer.nodes.get(type.id))
+			# The type must be valid, e.g. exist in memory
+			and type.is_valid()
 			# We don't know how to handle multi-dimensional pointers
-			and type.pointers <= 1
-			# The type must be something we can handle
-			and type.valid)
+			and type.get_total_pointers() <= 1
+			# We don't know how to handle members pointing to builtins
+			and not (isinstance(type.type, Pointer) and isinstance(stripped, Builtin))
+			# TODO: We do know how to handle an array member, implement in Ctypes export
+			and not isinstance(type.type, Array)
+		)
 
 	def filter_function(self, f, **opts):
-		return (
-			# Operator overload is not supported
-			not f.name.startswith('operator')
-			#and all(not arg.type.id or self.importer.nodes.get(arg.type.id) for arg in f.args)
-			#and (not f.returns.id or self.importer.nodes.get(f.returns.id))
+		return all(self.filter_function_signature(sig) for sig in f.signatures)
 
-			# We must be able to handle all argument and
-			# return value types
-			and f.valid)
+	def filter_function_signature(self, sig):
+		return sig.is_valid()
 
 class ClangExport(object):
 	filter_class = ExportFilter
+
+	def __init__(self, filter_class = None):
+		if filter_class:
+			self.filter_class = filter_class
 
 	@staticmethod
 	def iletters():
@@ -87,10 +90,11 @@ class ClangExport(object):
 		return "%s__Size" % cls_name_underscore
 
 	def symbol_for_method_signature(self, cls, cls_name_underscore, method, signature):
+		signatures = method.signatures
 		return "%s_%s%s" % (
 			cls_name_underscore,
-			signature.name,
-			(method.index(signature) if len(method) > 1 else '')
+			method.name,
+			(signatures.index(signature) if len(signatures) > 1 else '')
 		)
 
 	def symbols_for_member(self, cls, cls_name_underscore, member):
@@ -107,7 +111,7 @@ class ClangExport(object):
 										   constructor):
 		return "%s__CreateInherited%s" % (
 			cls_name_underscore,
-			(cls.constructors.index(constructor) if len(cls.constructors) > 1 else '')
+			(cls.constructors.index(constructor) if constructor and len(cls.constructors) > 1 else '')
 		)
 
 	def setup(self, importer):
@@ -124,6 +128,9 @@ class ClangExport(object):
 			block.add_block(self.export_namespace(child))
 
 		return block
+
+	def export_class(self, cls):
+		raise NotImplemented
 
 from wrappyr.code_data_conversion.exports.header import HeaderExport
 from wrappyr.code_data_conversion.exports.source import SourceExport

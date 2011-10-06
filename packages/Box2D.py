@@ -1,5 +1,7 @@
+import os
+import wrappyr
 from wrappyr.code_data_conversion.exports import ExportFilter, HeaderExport, SourceExport, CtypesExport
-from wrappyr.ctypes_api_builder.structure import CTypesStructureVisitor, CTypesStructure
+from wrappyr.ctypes_api_builder.structure import CTypesStructureVisitor, CTypesStructure, Package
 from wrappyr.ctypes_api_builder.visitors import UninterestingCopyConstructorRemover, ConflictingOverloadRemover, AmbigousOverloadRemover, PythonKeywordRemover
 
 class Box2DFilter(ExportFilter):
@@ -26,6 +28,11 @@ class Box2DCtypesExport(CtypesExport):
 	def package_for_namespace(self, ns):
 		return ns.name or "Box2D"
 
+	def libraries_for_namespace(self, ns):
+		if not ns.name:
+			return [('Box2D', './libBox2DC.so', True)]
+		return ()
+
 class Box2DBodyCreateFixtureFixer(CTypesStructureVisitor):
 	def visit_Method(self, method):
 		if method.parent != self.b2Body or method.name != "CreateFixture":
@@ -44,7 +51,10 @@ class Box2DBodyCreateFixtureFixer(CTypesStructureVisitor):
 
 		CTypesStructureVisitor.process(self, node)
 
-class Box2DPackage(object):
+class Box2DPackage(wrappyr.Package):
+	source_header_name = "Box2D/Box2D.h"
+	generated_wrapper_prefix = "/tmp/box2d"
+
 	def get_header_export(self):
 		return Box2DHeaderExport()
 
@@ -57,9 +67,46 @@ class Box2DPackage(object):
 	def get_source_language(self):
 		return "c++"
 
+	def process_code_import(self, importer):
+		self.class_namespaces = {}
+
+		source_header = self.get_source_header_path()
+		base_path = os.path.dirname(source_header) + "/"
+		for cls in importer.classes:
+			file = cls.location.file
+			if not file.startswith(base_path):
+				continue
+			file = file[len(base_path):]
+
+			ns = file[:-2].lower()
+			ns = ns.split(os.sep)
+			ns = ".".join(ns[0:-1])
+			ns = "Box2D." + ns
+			self.class_namespaces[cls.name] = ns
+
 	def process_ctypes_structure(self, structure):
 		UninterestingCopyConstructorRemover().process(structure)
 		Box2DBodyCreateFixtureFixer().process(structure)
 		ConflictingOverloadRemover().process(structure)
 		AmbigousOverloadRemover().process(structure)
 		PythonKeywordRemover().process(structure)
+
+		packages = {}
+		for name, namespace in self.class_namespaces.iteritems():
+			if "." not in namespace:
+				continue
+
+			cls = structure.get_by_path('Box2D.' + name)
+			if not cls:
+				continue
+
+			package = packages.get(namespace)
+			if not package:
+				package = namespace[namespace.rfind(".") + 1 :]
+				package = packages[namespace] = Package(package)
+			cls.parent.remove_class(cls)
+			package.add_class(cls)
+
+		for name, package in sorted(packages.iteritems(), key = lambda i: i[0].count(".")):
+			parent = structure.get_by_path(name[: name.rfind(".")])
+			parent.add_package(package)

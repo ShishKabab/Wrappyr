@@ -159,7 +159,7 @@ public:
 		const CXXRecordDecl* cls = dyn_cast<CXXRecordDecl>(RD);
 
 		llvm::outs() << "<" << (cls ? "Class" : "Struct") << " "
-			<< "id=\"" << (void*)RD << "\" "
+			<< "id=\"" << (cls ? (void*)cls : RD) << "\" "
 			<< "name=\"" << RD->getNameAsString() << "\" "
 			<< "access=\"" << accessAsString(RD->getAccess()) << "\"";
 		if(cls)

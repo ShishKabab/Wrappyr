@@ -1,3 +1,4 @@
+from itertools import count
 from wrappyr.code_data_conversion.exports import ClangExport
 from wrappyr.utils.str import SourceBlock
 
@@ -7,14 +8,20 @@ class SourceExport(ClangExport):
 	def get_includes(self):
 		pass
 
-	def args_as_params(self, f):
+	def args_as_params(self, f, from_c = True):
 		args = []
 		for arg, letter in zip(f.args, self.letters):
-			args.append("%s((%s)%s)" % (
-				"*" * (arg.type.refs + int(arg.type.is_cpp_only())),
-				arg.type.as_string(False),
-				letter
-			))
+			arg_type = arg.type
+			if from_c:
+				cast = "(%s)" % arg_type.as_string(c_compat_names = False)
+				derefs = int(arg_type.is_reference())
+				derefs += int(arg_type.is_cpp_only())
+			else:
+				cast = ""
+				derefs = 0
+			derefs *= "*"
+
+			args.append("%s(%s%s)" % (derefs, cast, letter))
 
 		return ", ".join(args)
 
@@ -25,24 +32,24 @@ class SourceExport(ClangExport):
 				if not self.filter.filter_method_signature(cls, constructor):
 					continue
 				block.add_line("void* %s(%s){" % (
-					self.symbol_for_constructor(cls, full_name_underscore, constructor),
-					constructor.args_as_string(self.letters)
+				self.symbol_for_constructor(cls, full_name_underscore, constructor),
+				constructor.args_as_string(self.letters)
 				))
 				block.add_line("return new %s(%s);" % (
-					full_name,
-					self.args_as_params(constructor))
-				, 1)
+				full_name,
+				self.args_as_params(constructor))
+							   , 1)
 				block.add_line("}")
 		else:
 			block.add_line("void* %s(){" % (
-				self.symbol_for_constructor(cls, full_name_underscore),
+			self.symbol_for_constructor(cls, full_name_underscore),
 			))
 			block.add_line("return new %s;" % full_name, 1)
 			block.add_line("}")
 
 		# Array
 		if cls.is_default_constructable():
-			block.add_line("void* %s(int n){" % self.symbol_for_array_constructor(
+			block.add_line("void* %s(unsigned int n){" % self.symbol_for_array_constructor(
 				cls, full_name_underscore
 			))
 			block.add_line("return new %s[n];" % full_name, 1)
@@ -68,8 +75,8 @@ class SourceExport(ClangExport):
 	def export_methods(self, cls, full_name, full_name_underscore):
 		block = SourceBlock()
 
-		for method in cls.methods.values():
-			for i, signature in enumerate(method):
+		for method in cls.methods:
+			for i, signature in enumerate(method.signatures):
 				if not self.filter.filter_method_signature(cls, signature):
 					continue
 
@@ -85,18 +92,19 @@ class SourceExport(ClangExport):
 				))
 
 				returns = signature.returns
+				returns_stripped = returns.strip_pointers_and_references()
 				stmt = "((%s*)cls)->%s(%s)"
-				stmt = stmt % (full_name, signature.name,
+				stmt = stmt % (full_name, method.name,
 							   self.args_as_params(signature))
-				if returns.refs:
+				if returns.is_reference():
 					stmt = "&" + stmt
-				if returns.const and not returns.is_cpp_only():
-					args = (returns.name,
-							"*" * (returns.refs + returns.pointers),
-							stmt)
+				if returns_stripped.const and not returns.is_cpp_only():
+					pointers = returns.get_total_pointers()
+					pointers += int(returns.is_reference())
+					args = (returns.get_type_name(), "*" * pointers, stmt)
 					stmt = "const_cast<%s%s>(%s)" % args
 				if returns.is_cpp_only():
-					stmt = "new %s(%s)" % (returns.name, stmt)
+					stmt = "new %s(%s)" % (returns.get_type_name(), stmt)
 				if signature.returns_anything():
 					stmt = "return " + stmt
 				stmt += ";"
@@ -115,39 +123,67 @@ class SourceExport(ClangExport):
 
 			getter, setter = self.symbols_for_member(cls, full_name_underscore, member)
 			type = member.type
+			stripped = type.strip_pointers_and_references()
 
 			# Getter
-			returns = member.type.as_string()
+			returns = type.as_string()
 			block.add_line("%s %s(void* cls){" % (
 				returns,
 				getter
 			))
-			block.add_line("return %s%s((%s*)cls)->%s%s;" % (
-				("const_cast<%s%s>(" % (type.name, "*" * (type.refs + type.pointers + int(type.is_cpp_only())))
-					if type.const else ''),
-				'&' if type.is_cpp_only() else '',
-				full_name,
-				member.name,
-				(")" if type.const else ''),
-			), 1)
-			block.add_line("}")
 
+			stmt = "((%s*)cls)->%s" % (cls.name, member.name)
+			if type.is_cpp_only():
+				stmt = "&" + stmt
+			if stripped.const:
+				pointers = type.get_total_pointers()
+				pointers += int(type.is_reference())
+				pointers += int(type.is_cpp_only())
+				args = (type.get_type_name(), "*" * pointers, stmt)
+				stmt = "const_cast<%s%s>(%s)" % args
+			stmt = "return %s;" % stmt
+
+			block.add_line(stmt, 1)
+			block.add_line("}")
 
 			# Setter
 			block.add_line("void %s(void* cls, %s v){" % (
 				setter,
 				member.type.as_string(),
 			))
-			block.add_line("((%s*)cls)->%s = %s((%s%s)v);" % (
-				full_name,
-				member.name,
-				'*' if type.is_cpp_only() else '',
-				member.type.name,
-				"*" * (type.refs + type.pointers + int(type.is_cpp_only()))
-			), 1)
+
+			pointers = int(type.is_reference())
+			pointers += type.get_total_pointers()
+			pointers += int(type.is_cpp_only())
+			pointers = "*" * pointers
+
+			stmt = "((%s%s)v);" % (type.get_type_name(), pointers)
+			if type.is_cpp_only():
+				stmt = "*" + stmt
+			stmt = "((%s*)cls)->%s = "  % (full_name, member.name) + stmt
+			block.add_line(stmt, 1)
 			block.add_line("}")
 
 		return block
+
+	def get_callback_cast(self, f):
+		returns = f.returns
+		pointers = returns.get_total_pointers() + int(returns.is_reference())
+		pointers += int(returns.is_cpp_only())
+		pointers = "*" * pointers
+		returns = returns.get_type_name() + pointers
+
+		args = ["void*"]
+		for arg in f.args:
+			arg_type = arg.type
+			stripped = arg_type.strip_pointers_and_references()
+			const = "const " if stripped.const else ""
+			pointers = arg_type.get_total_pointers() + int(arg_type.is_reference())
+			pointers += int(arg_type.is_cpp_only())
+			pointers = "*" * pointers
+			args.append(const + arg_type.get_type_name() + pointers)
+
+		return "(%s (*)(%s))" % (returns, ", ".join(args))
 
 	def export_class_vtable(self, full_name_underscore, overridable):
 		block = SourceBlock()
@@ -156,7 +192,7 @@ class SourceExport(ClangExport):
 		block.add_line("struct %s__VTable {" % full_name_underscore)
 		for method in overridable:
 			for signature, num in zip(method, counter):
-				args = (num, signature.name)
+				args = (num, signature.context.name)
 				block.add_line("void* f%d; // %s" % args, 1)
 		block.add_line("};")
 
@@ -177,40 +213,18 @@ class SourceExport(ClangExport):
 					args
 				))
 				if args:
-					block.add_line(": %s(%s)" % (full_name, self.args_as_params(constructor)), 1)
-#					block.add_line("return new %s(%s);" % (
-#						full_name,
-#						self.args_as_params(constructor))
-#					, 1)
+					args = self.args_as_params(constructor, False)
+					block.add_line(": %s(%s)" % (full_name, args), 1)
 				block.add_line("{")
 				block.add_line("m_script_obj = script_obj;", 1)
 				block.add_line("m_vtable = vtable;", 1)
 				block.add_line("}")
 		else:
 			block.add_line("%s__Inherited(void* script_obj, void* vtable){" % full_name)
-#			block.add_line("m_obj = new %s;" % full_name, 1)
 			block.add_line("m_script_obj = script_obj;", 1)
 			block.add_line("m_vtable = vtable;", 1)
 			block.add_line("}")
 		return block
-
-	def get_callback_cast(self, f):
-		returns = f.returns
-		pointers = returns.pointers + returns.refs
-		pointers += int(returns.is_cpp_only())
-		pointers = "*" * pointers
-		returns = returns.name + pointers
-
-		args = ["void*"]
-		for arg in f.args:
-			arg_type = arg.type
-			const = "const " if arg_type.const else ""
-			pointers = arg_type.pointers + arg_type.refs
-			pointers += int(arg_type.is_cpp_only())
-			pointers = "*" * pointers
-			args.append(const + arg_type.name + pointers)
-
-		return "(%s (*)(%s))" % (returns, ", ".join(args))
 
 	def export_inherited_methods(self, cls, full_name, full_name_underscore,
 								 overridable):
@@ -222,19 +236,19 @@ class SourceExport(ClangExport):
 			for signature, num in zip(method, counter):
 				returns = signature.returns.as_string(False, False, False)
 				args = signature.args_as_string(self.letters, False, False, False)
-				const = " const " if signature.is_const else ""
-				sig_str = "%s %s(%s)%s" % (returns, signature.name, args, const)
+				const = " const " if signature.const else ""
+				sig_str = "%s %s(%s)%s" % (returns, signature.context.name, args, const)
 
 				returns = "return " if signature.returns_anything() else ""
 				args_to_parent = ", ".join(self.letters[0:len(signature.args)])
 				fptr_cast = self.get_callback_cast(signature)
-				deref = "*" if signature.returns.refs or signature.returns.is_cpp_only() else ""
-				nearest_implementation = cls.get_class_implementing_signature(self.importer, signature)
+				deref = "*" if signature.returns.is_reference() or signature.returns.is_cpp_only() else ""
+				nearest_implementation = cls.get_class_implementing_signature(signature)
 
 				args_to_callback = ["m_script_obj"]
 				for arg, letter in zip(signature.args, self.letters):
 					arg_type = arg.type
-					pointer = int(bool(arg_type.refs or arg_type.is_cpp_only()))
+					pointer = int(bool(arg_type.is_reference() or arg_type.is_cpp_only()))
 					pointer = "&" * pointer
 					args_to_callback.append(pointer + letter)
 				args_to_callback = ", ".join(args_to_callback)
@@ -245,18 +259,29 @@ class SourceExport(ClangExport):
 				block.add_line("%s%s(%sfptr)(%s);" % (returns, deref, fptr_cast, args_to_callback), 2)
 				if nearest_implementation:
 					block.add_line("else", 1)
-					block.add_line("%s%s::%s(%s);" % (returns, nearest_implementation.name, signature.name, args_to_parent), 2)
+					block.add_line("%s%s::%s(%s);" % (returns, nearest_implementation.name, signature.context.name, args_to_parent), 2)
 				block.add_line("}")
 		return block
 
+	class PureMethodNotOverridden(Exception): pass
 	def export_inherited_class(self, cls, full_name, full_name_underscore):
 		block = SourceBlock()
 
-		overridable = cls.get_overridable_signatures(self.importer)
+		overridable = cls.get_overridable_signatures()
 		if not overridable:
 			return block
-#		print "====\n= %s\n====" % cls.name
-#		print [i.name for method in overridable for i in method]
+
+		filtered_out = [i for method in overridable
+						  for i in method
+						  if not self.filter.filter_method_signature(cls, i, True)]
+		if any(sig.pure for sig in filtered_out):
+			msg = ("A pure virtual signature for class %s "
+				   "was not overridden because it was filtered out.")
+			raise self.PureMethodNotOverridden(msg % full_name)
+
+		overridable = [[i for i in method if i not in filtered_out]
+						for method in overridable]
+		overridable = [method for method in overridable if method]
 
 		vtable = self.export_class_vtable(full_name_underscore, overridable)
 		block.add_block(vtable)
@@ -266,7 +291,7 @@ class SourceExport(ClangExport):
 		block.add_block(self.export_inherited_constructors(cls, full_name, full_name_underscore), 2)
 		block.add_block(self.export_inherited_methods(cls, full_name, full_name_underscore, overridable), 2)
 		block.add_line("private:", 1)
-#		block.add_line("%s* m_obj;" % full_name, 2)
+		#		block.add_line("%s* m_obj;" % full_name, 2)
 		block.add_line("void* m_script_obj;", 2)
 		block.add_line("void* m_vtable;", 2)
 		block.add_line("};")
@@ -287,13 +312,13 @@ class SourceExport(ClangExport):
 					params = "script_obj, vtable"
 
 				symbol = self.symbol_for_inheritance_constructor(cls, full_name_underscore,
-													 constructor)
+																 constructor)
 				block.add_line("void* %s(void* script_obj, void* vtable%s){" % (symbol, args))
 				block.add_line("return new %s__Inherited(%s);" % (full_name_underscore, params), 1)
 				block.add_line("}")
 		else:
 			block.add_line("void* %s(void* script_obj, void* vtable){" % (
-				self.symbol_for_inheritance_constructor(cls, full_name_underscore, None),
+			self.symbol_for_inheritance_constructor(cls, full_name_underscore, None),
 			))
 			block.add_line("return new %s__Inherited(script_obj, vtable);" % full_name_underscore, 1)
 			block.add_line("}")
@@ -311,7 +336,7 @@ class SourceExport(ClangExport):
 		block.add_line("//")
 
 		# Constructor
-		if not cls.is_abstract(self.importer):
+		if not cls.is_abstract():
 			constructors = self.export_constructors(cls, full_name,
 													full_name_underscore)
 			block.add_block(constructors)
@@ -336,14 +361,14 @@ class SourceExport(ClangExport):
 
 		# Methods
 		block.add_block(self.export_methods(cls, full_name,
-												full_name_underscore))
+											full_name_underscore))
 
 		# Members
 		block.add_block(self.export_members(cls, full_name,
-												full_name_underscore))
+											full_name_underscore))
 
 		# C++ class to inherit from a virtual base
-		if cls.dynamic:
+		if cls.is_dynamic():
 			inheritance_class = self.export_inherited_class(
 				cls,
 				full_name,
@@ -356,9 +381,13 @@ class SourceExport(ClangExport):
 	def export(self, importer, path):
 		self.setup(importer)
 
+		block = SourceBlock()
+		includes = self.get_includes()
+		if includes:
+			block.add_line('%s\n\n' % includes)
+		block.add_block(self.export_namespace(importer.root_namespace))
+
 		with open(path, 'w') as f:
-			includes = self.get_includes()
-			if includes:
-				f.write('%s\n\n' % includes)
-			f.write(self.export_namespace(importer.root_namespace)
-				.as_text())
+			f.write(block.as_text())
+
+from wrappyr.utils.str import SourceBlock
