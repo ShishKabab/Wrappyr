@@ -1,7 +1,11 @@
+"""Module containing all classes used to represent a Ctypes-based API.
+
+"""
+
 from itertools import chain
 from lxml.etree import parse as parse_xml
-from utils.MultiDict import OrderedMultiDict
-from utils.str import SourceBlock
+from wrappyr.utils.MultiDict import OrderedMultiDict
+from wrappyr.utils.str import SourceBlock
 
 def _add_named_item(prop):
 	def add(self, item):

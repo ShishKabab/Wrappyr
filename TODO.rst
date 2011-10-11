@@ -4,16 +4,14 @@ To do list
 
 Clang export
 ============
-* Find a way to get plugin running more easily
 * Overloaded operators
 * Unions
 
-Clang import
-============
+Code data conversion
+====================
 * PEP8
 
-  * Naming conventions are already PEP8
-  * But things like long lines and inconsistent quoting styles need to be fixed
+  * Things like long lines and inconsistent quoting styles need to be fixed
 
 * Functions
 
@@ -37,7 +35,7 @@ Ctypes API generator
   * Some work has already been done, but not all pointer use cases are handled yet.
 
 * Enums
-* Destruction, ownership, stealing ownership, also in overridden methods
+* Memory management: Destruction, ownership, stealing ownership, invalidation, also in overridden methods
 * Deal with inheritance (b2Shape and b2PolygonShape)
 * Static class methods and members
 * Function overloading
