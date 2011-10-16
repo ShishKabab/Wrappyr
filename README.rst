@@ -46,4 +46,6 @@ Python requirements:
 
 Documentation
 =============
-Further documentation, which includes how get started, is available in the docs/ directory and on Read the Docs in the near future.
+Further documentation, which includes how get started, is available in the docs/ directory and on `Read the Docs`_.
+
+.. _`Read the Docs`: http://readthedocs.org/docs/wrappyr/en/latest/
