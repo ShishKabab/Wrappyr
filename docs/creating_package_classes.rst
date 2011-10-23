@@ -15,27 +15,7 @@ Create a Package class is the preferred way to customize to generation of a Pyth
 To create a Package, subclass from :class:`wrappyr.Package`. Below, I will describe each method you can override and how you can use it.
 
 .. autoclass:: wrappyr.Package
-
-    Test from Sphinx.
-
-    .. automethod:: wrappyr.Package.get_header_export
-
-        Some extra text
-
-    .. automethod:: wrappyr.Package.get_source_export
-
-    .. automethod:: wrappyr.Package.get_ctypes_export
-
-    .. automethod:: wrappyr.Package.get_source_language
-
-    .. automethod:: wrappyr.Package.get_source_header_path
-
-    .. automethod:: wrappyr.Package.get_generated_header_path
-
-    .. automethod:: wrappyr.Package.get_generated_source_path
-
-    .. automethod:: wrappyr.Package.process_code_import
-
-    .. automethod:: wrappyr.Package.process_ctypes_structure
-
-    .. autoattribute:: wrappyr.Package.source_header_name
+   :members: get_header_export, get_source_export, get_ctypes_export,
+             get_source_language, get_source_header_path, get_generated_header_path,
+             get_generated_source_path, process_code_import, process_ctypes_structure,
+             source_header_name

@@ -13,10 +13,9 @@ Contents:
 
    introduction
    creating_package_classes
+   ctypes_api_generation
    .. code_data_conversion
-   .. ctypes_api_generation
    .. clang_export_plugin
-   .. ctypes_api_generation_reference
 
 Indices and tables
 ==================

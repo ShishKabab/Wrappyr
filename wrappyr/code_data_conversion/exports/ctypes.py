@@ -17,6 +17,7 @@ class CtypesExport(ClangExport):
 		'long': 'ctypes.c_long',
 		'long int': 'ctypes.c_long',
 		'unsigned long': 'ctypes.c_ulong',
+		'long unsigned int': 'ctypes.c_ulong',
 		'long long': 'ctypes.c_longlong',
 		'long long int': 'ctypes.c_longlong',
 		'unsigned long long': 'ctypes.c_ulonglong',
