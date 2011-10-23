@@ -37,8 +37,6 @@ Reference
 
         Get the dotted path from *top* to this node. If top is not given, the path from the furthest ancestor is returned.
 
-        .. doctest::
-
             >>> struct = CTypesStructure()
             >>> Box2D = Package("Box2D")
             >>> dyn = Package("dynamics")
@@ -54,8 +52,6 @@ Reference
     .. method:: get_closest_parent_of_type(type)
 
         Get the closest ancestor of *type*
-
-        .. doctest::
 
             >>> p = Package("package")
             >>> m = Module("module")
@@ -75,8 +71,6 @@ Reference
 
         Returns the depth of this node calculated from *parent* or None if *parent* is not an ancestor of this node.
 
-        .. doctest::
-
             >>> p = Package("package")
             >>> m = Module("module")
             >>> c = Class("class")
@@ -91,8 +85,6 @@ Reference
 
         Returns the first ancestor that this node shares with *other*
 
-        .. doctest::
-
             >>> dynamics = Package("dynamics")
             >>> b2Body = Class("b2Body")
             >>> joints = Package("joints")
@@ -106,8 +98,6 @@ Reference
     .. method:: parents()
 
         Returns a generator that iterates over all ancestors starting with the closest one.
-
-        .. doctest::
 
             >>> dynamics = Package("dynamics")
             >>> joints = Package("joints")
@@ -391,7 +381,19 @@ Reference
             </package>
         </ctypes>
 
-.. class:: CTypesStructureVisitor:
+    .. method:: get_by_path(path)
+
+        Return the :class:`Node` found under the dotted path *path*:
+
+                >>> structure = CTypesStructure()
+                >>> mod = Module("mod")
+                >>> cls = Class("Class")
+                >>> structure.add_module(module)
+                >>> mod.add_class(cls)
+                >>> cls == structure.get_by_path("mod.Class")
+                True
+
+.. class:: CTypesStructureVisitor
 
     A convenience class that takes a :class:`CTypesStructure` and calls visit_<class name> on itself for every node it finds. So as an example, it will call visit_Method(method) for every method it finds.
 

@@ -658,15 +658,12 @@ class CTypesStructure(Node):
         self.packages = {}
         self.modules = {}
 
-    #add_package = add_named_item('packages')
-    #add_module = add_named_item('modules')
-
     def get_by_path(self, path):
         node = self
         for name in path.split("."):
             node = node.children.get(name)
             if not node:
-                break
+                return
 
         return node
 
