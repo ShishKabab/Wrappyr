@@ -109,8 +109,10 @@ class GCCXMLImporter(object):
 
         # Make sure all pointers, references and arrays point to a qualified type
         # and all qualified types point to a type
-        for node in self.nodes.itervalues():
+        for id, node in self.nodes.iteritems():
             if not isinstance(node, (QualifiedType, Pointer, Reference, Array)):
+                continue
+            if not isinstance(node.type, basestring):
                 continue
 
             type = self.nodes.get(node.type)
