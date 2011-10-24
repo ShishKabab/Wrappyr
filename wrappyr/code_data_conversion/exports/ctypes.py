@@ -315,9 +315,9 @@ class CtypesExport(ClangExport):
                 if isinstance(node, Class):
                     if self.filter.filter_class(node):
                         block.add_block(self.export_class(node), 1)
-#				if isinstance(node, Function):
-#					if self.filter.filter_function(node):
-#						block.add_block(self.export_function(node), 1)
+#                               if isinstance(node, Function):
+#                                       if self.filter.filter_function(node):
+#                                               block.add_block(self.export_function(node), 1)
 
         child_indent = int(bool(package_name))
         for child in ns.children.values():

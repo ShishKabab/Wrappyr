@@ -291,7 +291,7 @@ class SourceExport(ClangExport):
         block.add_block(self.export_inherited_constructors(cls, full_name, full_name_underscore), 2)
         block.add_block(self.export_inherited_methods(cls, full_name, full_name_underscore, overridable), 2)
         block.add_line("private:", 1)
-        #		block.add_line("%s* m_obj;" % full_name, 2)
+        #               block.add_line("%s* m_obj;" % full_name, 2)
         block.add_line("void* m_script_obj;", 2)
         block.add_line("void* m_vtable;", 2)
         block.add_line("};")

@@ -59,8 +59,8 @@ class GCCXMLImporter(object):
         del self.nodes
         del self.namespaces
 
-#		for prop in temp:
-#			delattr(self, prop)
+#               for prop in temp:
+#                       delattr(self, prop)
 
     def process_contexts(self):
         nodes = self.nodes

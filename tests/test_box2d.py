@@ -8,9 +8,9 @@ from Box2D.dynamics import b2World, b2Body, b2BodyDef, b2FixtureDef, b2RayCastCa
 #from Box2D import *
 
 class MyRayCastCallback(b2RayCastCallback):
-	def ReportFixture(self, fixture, point, normal, fraction):
-		print self, fixture, (point.x, point.y), (normal.x, normal.y), fraction
-		return 1.0
+    def ReportFixture(self, fixture, point, normal, fraction):
+        print self, fixture, (point.x, point.y), (normal.x, normal.y), fraction
+        return 1.0
 
 gravity = b2Vec2(0.0, -9.8)
 world = b2World(gravity, False)
@@ -51,7 +51,7 @@ vertices[0].Set(0.0, 0.0)
 vertices[1].Set(0.5, 0.0)
 vertices[2].Set(0.0, 0.5)
 for vertex in vertices:
-	print vertex.x, vertex.y
+    print vertex.x, vertex.y
 
 slopeShape = b2PolygonShape()
 slopeShape.Set(vertices, 3)
@@ -68,15 +68,15 @@ timeStep = 1.0 / 60.0
 velocityIterations = 6
 positionIterations = 2
 for i in range(60):
-	world.Step(timeStep, velocityIterations, positionIterations)
-	world.ClearForces()
+    world.Step(timeStep, velocityIterations, positionIterations)
+    world.ClearForces()
 
-	#position = body.position
-	#angle = body.angle
+    #position = body.position
+    #angle = body.angle
 
-	position = body.GetPosition()
-	angle = body.GetAngle()
+    position = body.GetPosition()
+    angle = body.GetAngle()
 
-	print "%4.2f %4.2f %4.2f" % (position.x, position.y, angle)
+    print "%4.2f %4.2f %4.2f" % (position.x, position.y, angle)
 
 world.RayCast(MyRayCastCallback(), b2Vec2(-0.7, -9.0), b2Vec2(0.3, -9.0))

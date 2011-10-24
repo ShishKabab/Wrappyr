@@ -638,7 +638,7 @@ class Overridable(Call):
     layout = {
         'properties': {
             'name': str,
-            'required': _bool_from_string		}
+            'required': _bool_from_string               }
     }
 
     def __init__(self, name, required = False):
