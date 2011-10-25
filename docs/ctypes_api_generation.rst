@@ -471,8 +471,21 @@ Convert camelCase method names into lowercase_with_underscores:
         from wrappyr.ctypes_api_builder.structure import CTypesStructureVisitor
 
         class CamelCaseTerminator(CTypesStructureVisitor):
-            CAMELCASE_REGEX = re.compile(r'([a-z])([A-Z])')
+            def __init__(self):
+                self.to_rename = []
 
             def visit_Method(self, method):
+                self.to_rename.append(method)
+
+        class MyPackage(wrappyr.Package):
+            def process_ctypes_structure(structure):
+                terminator = CamelCaseTerminator()
+                terminator.process(structure)
+
+                regex = re.compile(r'([a-z])([A-Z])')
                 to_underscore = lambda match: "%s_%s" % (match.group(1), match.group(2).lower())
-                method.name = self.CAMELCASE_REGEX.sub(to_underscore, method.name)
+                for method in terminator.to_rename:
+                    parent = method.parent
+                    parent.remove_method(method)
+                    method.name = regex.sub(to_underscore, method.name)
+                    parent.add_method(method)
