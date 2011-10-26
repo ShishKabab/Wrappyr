@@ -14,8 +14,7 @@ Contents:
    introduction
    creating_package_classes
    ctypes_api_generation
-   .. code_data_conversion
-   .. clang_export_plugin
+   memory_management
 
 Indices and tables
 ==================

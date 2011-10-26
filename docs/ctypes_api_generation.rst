@@ -352,6 +352,16 @@ Reference
             </function>
         </module>
 
+    .. attribute:: steals
+
+        Boolean value indicating whether passing an object as this argument to a call will steal the ownership over the object.
+        See :doc:`memory_management` for more information.
+
+    .. attribute:: invalidates
+
+        Boolean value indicating whether passing an object as this argument to a call will invalidate the object.
+        See :doc:`memory_management` for more information.
+
 .. class:: ReturnValue(Node)
 
     Class used to represent the return value of a C function.
@@ -365,6 +375,11 @@ Reference
                 <returns type="ctypes.c_float" />
             </call>
         </function>
+
+    .. attribute:: ownership
+
+        Boolean value indicating whether we have ownership over objects returned by this call.
+        See :doc:`memory_management` for more information.
 
 .. class:: CTypesStructure(Node)
 
@@ -477,15 +492,17 @@ Convert camelCase method names into lowercase_with_underscores:
             def visit_Method(self, method):
                 self.to_rename.append(method)
 
-        class MyPackage(wrappyr.Package):
-            def process_ctypes_structure(structure):
-                terminator = CamelCaseTerminator()
-                terminator.process(structure)
-
+            def terminate(self):
                 regex = re.compile(r'([a-z])([A-Z])')
                 to_underscore = lambda match: "%s_%s" % (match.group(1), match.group(2).lower())
-                for method in terminator.to_rename:
+                for method in self.to_rename:
                     parent = method.parent
                     parent.remove_method(method)
                     method.name = regex.sub(to_underscore, method.name)
                     parent.add_method(method)
+
+        class MyPackage(wrappyr.Package):
+            def process_ctypes_structure(structure):
+                terminator = CamelCaseTerminator()
+                terminator.process(structure)
+                terminator.terminate()
