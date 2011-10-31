@@ -15,10 +15,9 @@ requires = ['lxml']
 if sys.version_info[:2] < (2, 7):
     requires.extend(('argparse', 'importlib'))
 
+tests_require = requires[:]
 if sys.version_info[:2] < (2, 7):
-    tests_require = requires + ['unittest2']
-else:
-    tests_require = requires
+    tests_require += ['unittest2', 'importlib']
 
 from setuptools import setup, find_packages
 here = os.path.abspath(os.path.normpath(os.path.dirname(__file__)))

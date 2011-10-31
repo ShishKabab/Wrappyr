@@ -105,11 +105,9 @@ class CPPClassMeta(type):
     def _create_vtable_cls(mcs, polyinfo):
         class VTable(Structure):
             _fields_ = []
-#                       _functypes_ = []
             for i, overridable in enumerate(polyinfo.overridables):
                 functype = CFUNCTYPE(overridable.restype, ctypes.py_object, *overridable.argtypes)
                 _fields_.append(('f%d' % i, functype))
-#                               _functypes_.append(functype)
         return VTable
 
     def _adjust_vtable(cls, name):

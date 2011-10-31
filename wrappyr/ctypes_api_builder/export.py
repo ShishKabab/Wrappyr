@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 from itertools import chain, count, izip_longest
-from wrappyr.ctypes_api_builder.structure import PointerType
+from wrappyr.ctypes_api_builder.structure import PointerType, Function
 from wrappyr.ctypes_api_builder.structure import Package, Class, Method, Member
 from wrappyr.utils.str import SourceBlock
 
@@ -85,22 +85,21 @@ def get_calls_per_library(calls):
 
     return calls_per_lib.items()
 
-def get_call_key(call, library = None):
-    """
-    Since all calls will be stored in a dict, we need a consistent way to
-    determine the key for a given call.
-    """
-    library = library or call.get_library()
-
-    return "{library.name}_{call.symbol}".format(call = call, library = library)
-
 def get_call(call):
-    if isinstance(call.parent, Method):
-        register = "%s._calls" % call.get_closest_parent_of_type(Class).name
+    if isinstance(call.parent.parent, Member):
+        cls = call.get_closest_parent_of_type(Class)
+        member = call.get_closest_parent_of_type(Member)
+        getter_or_setter = "getter" if call in member.getter.ops else "setter"
+        register = "%s._meta['%s']['%s']['signatures']" % (cls.name, member.name, getter_or_setter)
+    elif isinstance(call.parent, Method):
+        cls = call.get_closest_parent_of_type(Class)
+        register = "%s._meta['%s']['signatures']" % (cls.name, call.parent.name)
     else:
-        register = "_calls"
+        f = call.get_closest_parent_of_type(Function)
+        register = "%s._meta['signatures']" % f.name
 
-    return "%s['%s']" % (register, get_call_key(call))
+    index = call.parent.ops.index(call)
+    return "%s[%d]" % (register, index)
 
 def get_node_import(module, node, result_name):
     imp = module.get_node_import(node)
@@ -192,25 +191,25 @@ def export_type_check(name, type, type_var):
 
     return block
 
-def export_type_checks_for_call(call, call_var = "call"):
+def export_type_checks_for_call(call, call_var = "sig"):
     block = SourceBlock()
     for arg, num in zip(call.args, count()):
-        type_var = "%s.arg_classes[%d]" % (call_var, num)
+        type_var = "%s['arguments'][%d]" % (call_var, num)
         type_check = export_type_check(arg.name, arg.type, type_var)
         block.add_block(type_check)
 
     return block
 
 def export_call(call, result_name = "", arg_names = (),
-                                export_type_checks = True, call_var = None):
+                export_type_checks = True, call_var = None):
     if result_name:
-        action = "{result_name} = call({args})"
+        action = "{result_name} = sig['call']({args})"
     else:
-        action = "call({args})"
+        action = "sig['call']({args})"
 
     block = SourceBlock()
     if not call_var:
-        call_var = "call"
+        call_var = "sig"
         block.add_line("%s = %s" % (call_var, get_call(call)))
     if export_type_checks:
         block.add_block(export_type_checks_for_call(call))
@@ -222,9 +221,9 @@ def export_call(call, result_name = "", arg_names = (),
         return block
 
     if isinstance(call.returns.type, Class):
-        conversion = "{0} = {1}.res_cls._from_c({0}, {2})"
+        conversion = "{0} = {1}['returns']._from_c({0}, {2})"
         conversion = conversion.format(result_name, call_var,
-                                                                   repr(call.returns.ownership))
+                                       repr(call.returns.ownership))
     elif isinstance(call.returns, PointerType):
         conversion = ""
     else:
@@ -254,6 +253,16 @@ def export_calls(f, result_name = "", call_args = None, export_call = export_cal
     block.add_block(export_call(call_args[0][0], result_name),
                                     int(len(call_args) > 1))
 
+    return block
+
+def export_function(f):
+    result_name = "result" if f.returns_anything() else None
+
+    block = SourceBlock()
+    block.add_block(export_function_signature(f))
+    block.add_block(export_calls(f, result_name), 1)
+    if result_name:
+        block.add_line("return " + result_name, 1)
     return block
 
 def export_constructor(cls):
@@ -305,53 +314,6 @@ def export_constructor(cls):
     else:
         error = "raise TypeError('You cannot inherit from this class')"
         inherited_block = SourceBlock(error)
-
-#       if constructor:
-#               call_args = get_call_args(constructor) if not constructor.raw else None
-#               if vtable:
-#                       block.add_block(export_function_signature(constructor, call_args))
-#                       block.add_line("if type(self) == %s:" % cls.name, 1)
-#                       if not constructor.raw:
-#                               block.add_block(export_calls(constructor, 'inst', call_args), 2)
-#                       else:
-#                               block.add_block(constructor.ops[0].get_code_block(), 2)
-#                       block.add_line("else:", 1)
-#
-#                       args = [arg.name for call, args in call_args for arg in args]
-#                       args = ["self", "self._vtable_"] + args
-#                       args = ", ".join(args)
-#
-#                       block.add_line("inst = self.__newinherited__(%s)" % args, 2)
-#               else:
-#                       block.add_block(export_method(cls, constructor, 'inst'))
-#       elif vtable:
-#               call_args = get_call_args(newinherited)
-#               block.add_block(export_function_signature(newinherited, call_args[2:], "__init__"))
-#
-#               def export_call(call, result_name):
-#                       block = SourceBlock()
-#
-#                       args = call.args
-#                       args = args[2:] # First two arguments are obj and vtable
-#                       args = [arg.name for arg in args]
-#                       args = ["self", "self._vtable_"] + args
-#                       args = (result_name, ", ".join(args))
-#                       block.add_line("%s = self.__newinherited__(%s)" % args)
-#
-#                       return block
-#               block.add_block(export_calls(newinherited, result_name="inst", export_call=export_call), 1)
-
-#               args = newinherited.ops[0].args
-#               args = args[2:] # First two arguments are obj and vtable
-#               args = [arg.name for arg in args]
-#
-#               sigargs = ["self"] + args
-#               block.add_line("def __init__(%s):" % ", ".join(sigargs))
-#
-#               args = ["self", "self._vtable_"] + args
-#               block.add_line("inst = self.__newinherited__(%s)" % ", ".join(args), 1)
-#       else:
-#               return block
 
     block = SourceBlock()
     block.add_block(signature)
@@ -417,9 +379,9 @@ def export_member(cls, member):
             block.add_block(op.get_code_block(), 1)
         else:
             type = op.args[0].type
-            block.add_line("call = " + get_call(op), 1)
+            block.add_line("sig = " + get_call(op), 1)
             if isinstance(type, (Class, PointerType)):
-                check = export_type_check('v', type, "call.arg_classes[0]")
+                check = export_type_check('v', type, "sig['arguments'][0]")
                 block.add_block(check, 1)
 
             call = export_call(op, arg_names = ('v',),
@@ -475,18 +437,19 @@ def export_call_setup(call, result_name, lib, tmp_suffix = ""):
     block = SourceBlock()
     parent_module = call.get_closest_parent_module()
 
-    store_res_cls = call.returns and isinstance(call.returns.type, Class)
-    if store_res_cls:
-        res_cls = call.returns.type
-        res_cls = get_node_import(parent_module, res_cls, "res_cls")
-        block.add_line(res_cls)
+    if call.returns and isinstance(call.returns.type, Class):
+        returns = call.returns.type
+        returns = get_node_import(parent_module, returns, "returns")
+        block.add_line(returns)
+    elif isinstance(call.returns, basestring):
+        block.add_line("returns = %s" % call.returns)
+    else:
+        block.add_line("returns = None")
     result_ctype = call.get_return_value_as_ctype()
 
     argtypes = []
     if call.parent.takes_this_pointer():
         argtypes.append("ctypes.c_void_p")
-#       elif call.parent.name == "__newinherited__":
-#               argtypes += ["ctypes.c_void_p", "ctypes.c_void_p"]
     for arg in call.args:
         arg_type = arg.type
         if isinstance(arg_type, Class):
@@ -511,19 +474,12 @@ def export_call_setup(call, result_name, lib, tmp_suffix = ""):
         block.add_line(imp)
         arg_classes.append(arg_cls_var)
 
-    block.add_line("%s = %s.%s" % (result_name, lib, call.symbol))
-    block.add_line("%s.arg_classes = [%s]" % (result_name,
-                                                                                      ", ".join(arg_classes)))
-    block.add_line("%s.argtypes = [%s]" % (result_name, ", ".join(argtypes)))
-    block.add_line("%s.restype = %s" % (result_name, result_ctype))
-    if store_res_cls:
-        block.add_line("%s.res_cls = res_cls" % result_name)
-
-#       if call.returns and isinstance(call.returns.type, Class):
-#               block.add_line("call.convert_res = lambda v: res_cls%s._from_c(v, %r)\n" %
-#                       (tmp_suffix, call.returns.ownership), 1)
-#       else:
-#               block.add_line("call.convert_res = lambda v: v", 1)
+    block.add_line("%s = {}" % result_name)
+    block.add_line("%s['call'] = %s.%s" % (result_name, lib, call.symbol))
+    block.add_line("%s['call'].argtypes = [%s]" % (result_name, ", ".join(argtypes)))
+    block.add_line("%s['call'].restype = %s" % (result_name, result_ctype))
+    block.add_line("%s['arguments'] = [%s]" % (result_name, ", ".join(arg_classes)))
+    block.add_line("%s['returns'] = returns" % result_name)
 
     return block
 
@@ -579,45 +535,58 @@ def export_vtable_setup(cls):
 
     return SourceBlock("").join(blocks)
 
+def export_callable_setup(f, result_name = "signatures"):
+    module = f.get_closest_parent_module()
+
+    block = SourceBlock("%s = []" % result_name)
+    for call in f.ops:
+        block.add_block(export_library_import(module, call.get_library(), "lib"))
+        block.add_block(export_call_setup(call, "signature", "lib"))
+        block.add_line("%s.append(signature)" % result_name)
+    return block
+
+def export_function_setup(f):
+    block = SourceBlock()
+    block.add_line("def _init_function():")
+    block.add_block(export_callable_setup(f), 1)
+    block.add_line("%s._meta = {'signatures': signatures}" % f.name, 1)
+    block.add_line("_init_function()")
+    return block
+
 def export_class_setup(cls):
-    cls_module = cls.get_closest_parent_module()
-
-    calls = []
-    for method in cls.methods.values():
-        if not method.raw:
-            calls.extend(method.ops)
-    for member in cls.members.values():
-        if member.getter and not member.getter.raw:
-            calls.extend(member.getter.ops)
-        if member.setter and not member.setter.raw:
-            calls.extend(member.setter.ops)
-
-    sort_key = lambda lib_calls: cls_module.get_distance_to_parent(lib_calls[0].parent)
-    calls_per_lib = get_calls_per_library(calls)
-    calls_per_lib = sorted(calls_per_lib, key = sort_key)
-
     blocks = []
 
-    call_counter = count()
-    for lib, calls in calls_per_lib:
-        blocks.append(export_library_import(cls_module, lib, "lib"))
+    for method in cls.methods.values():
+        if method.raw:
+            continue
 
-        for call, call_num in zip(calls, call_counter):
-            block = SourceBlock()
-            block.add_block(export_call_setup(call, "call", "lib"))
-            block.add_line("%s._calls['%s'] = call" % (cls.name,
-                                                                                               get_call_key(call)))
-            blocks.append(block)
+        block = export_callable_setup(method)
+        block.add_line("%s._meta['%s'] = {'signatures': signatures}" % (cls.name, method.name))
+        blocks.append(block)
+
+    for member in cls.members.values():
+        getter, setter = False, False
+        if member.getter and not member.getter.raw:
+            blocks.append(export_callable_setup(member.getter, 'getter_signatures'))
+            getter = True
+        if member.setter and not member.setter.raw:
+            blocks.append(export_callable_setup(member.setter, 'setter_signatures'))
+            setter = True
+
+        getter = "{'signatures': getter_signatures}" if getter else "None"
+        setter = "{'signatures': setter_signatures}" if setter else "None"
+        format = "%s._meta['%s'] = {'getter': %s, 'setter': %s}"
+        blocks.append(SourceBlock(format % (cls.name, member.name, getter, setter)))
+
     if cls.vtable:
         blocks.append(export_vtable_setup(cls))
-
+    
     block = SourceBlock()
-    block.add_line("def init_cls():")
-    block.add_line("%s._calls = {}" % cls.name, 1)
+    block.add_line("def _init_cls():")
+    block.add_line("%s._meta = {}" % cls.name, 1)
     block.add_line("", 1)
     block.add_block(SourceBlock("").join(blocks, 1))
-    block.add_line("init_cls()")
-
+    block.add_line("_init_cls()")
     return block
 
 def export_module(mod, base_dir):
@@ -641,11 +610,18 @@ def export_module(mod, base_dir):
         block.add_line("}")
         blocks.append(block)
 
-    classes = mod.classes.values()
+    classes = mod.every_class()
     for cls in classes:
         blocks.append(export_class(cls))
+
+    functions = mod.every_function()
+    for f in functions:
+        blocks.append(export_function(f))
+
     for cls in classes:
         blocks.append(export_class_setup(cls))
+    for f in functions:
+        blocks.append(export_function_setup(f))
 
     block = SourceBlock("").join(blocks)
     with open(os.path.join(base_dir, "%s.py" % name), 'w') as f:

@@ -20,7 +20,7 @@ class Box2DSourceExport(SourceExport):
     filter_class = Box2DFilter
 
     def get_includes(self):
-        return '#include <Box2D.h>\n#include "box2d.h"'
+        return '#include <Box2D/Box2D.h>\n#include "box2d.h"'
 
 class Box2DCtypesExport(CtypesExport):
     filter_class = Box2DFilter
@@ -54,6 +54,9 @@ class Box2DBodyCreateFixtureFixer(CTypesStructureVisitor):
 class Box2DPackage(wrappyr.Package):
     source_header_name = "Box2D/Box2D.h"
     generated_wrapper_prefix = "/tmp/box2d"
+
+    def __init__(self):
+        self.class_namespaces = None
 
     def get_header_export(self):
         return Box2DHeaderExport()
@@ -90,6 +93,9 @@ class Box2DPackage(wrappyr.Package):
         ConflictingOverloadRemover().process(structure)
         AmbigousOverloadRemover().process(structure)
         PythonKeywordRemover().process(structure)
+
+        if not self.class_namespaces:
+            return
 
         packages = {}
         for name, namespace in self.class_namespaces.iteritems():

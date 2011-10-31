@@ -202,9 +202,35 @@ Reference
             ...
         </module>
 
+    .. method:: add_package(package)
+
+        Add :class:`Package` instance *package* to this package and set its parent to this node.
+        This does not remove it from its current parent, so you must remove it from its parent first (if it has one of course).
+
+    .. method:: remove_package(package)
+
+        Remove :class:`Package` instance *package* from this package and set its parent to ``None``.
+
+    .. method:: every_package()
+
+        Returns all :class:`Package` instances that this package contains.
+
+    .. method:: add_module(module)
+
+        Add :class:`Module` instance *module* to this package and set its parent to this node.
+        This does not remove it from its current parent, so you must remove it from its parent first (if it has one of course).
+
+    .. method:: remove_module(module)
+
+        Remove :class:`Module` instance *module* from this package and set its parent to ``None``.
+
+    .. method:: every_module()
+
+        Returns all :class:`Module` instances that this package contains.
+
 .. class:: Library(Node)
 
-    Class used to represent a C library.
+    Class used to represent a C library. A library will be available for the :class:`Node` it's placed in (either a :class:`Package` or a :class:`Module`) and all of its descendents.
 
     You can create a :class:`Library` from XML by using the <library> tag:
 
@@ -233,6 +259,51 @@ Reference
                 </call>
             </function>
         </module>
+
+.. class:: Class(Node)
+
+    Class used to represent a Python class.
+
+    .. method:: add_method(method)
+
+        Add :class:`Method` instance *method* to this class and set its parent to this node.
+        This does not remove it from its current parent, so you must remove it from its parent first (if it has one of course).
+
+    .. method:: remove_method(method)
+
+        Remove :class:`Method` instance *method* from this class and set its parent to ``None``.
+
+    .. method:: every_module()
+
+        Returns all :class:`Method` instances that this class contains.
+
+    .. method:: add_member(member)
+
+        Add :class:`Member` instance *member* to this class and set its parent to this node.
+        This does not remove it from its current parent, so you must remove it from its parent first (if it has one of course).
+
+    .. method:: remove_member(member)
+
+        Remove :class:`Member` instance *member* from this class and set its parent to ``None``.
+
+    .. method:: every_module()
+
+        Returns all :class:`Member` instances that this class contains.
+
+    .. method:: add_pointer(pointer)
+
+        Add :class:`PointerType` instance *pointer* to this class and set its parent to this node.
+        This does not remove it from its current parent, so you must remove it from its parent first (if it has one of course).
+
+        Since a :class:`PointerType` does not need to be a child of a Node to be used, this is probably only useful for loading from XML.
+
+    .. method:: remove_pointer(pointer)
+
+        Remove :class:`PointerType` instance *pointer* from this class and set its parent to ``None``.
+
+    .. method:: every_pointer()
+
+        Returns all :class:`PointerType` instances that this class contains.
 
 .. class:: Function(Node)
 
@@ -354,12 +425,12 @@ Reference
 
     .. attribute:: steals
 
-        Boolean value indicating whether passing an object as this argument to a call will steal the ownership over the object.
+        Boolean value indicating whether passing an object as this argument to a call will steal the ownership over the object. Defaults to ``False``.
         See :doc:`memory_management` for more information.
 
     .. attribute:: invalidates
 
-        Boolean value indicating whether passing an object as this argument to a call will invalidate the object.
+        Boolean value indicating whether passing an object as this argument to a call will invalidate the object. Defaults to ``False``.
         See :doc:`memory_management` for more information.
 
 .. class:: ReturnValue(Node)

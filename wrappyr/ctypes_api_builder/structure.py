@@ -379,6 +379,12 @@ class Function(Node):
 
     def returns_anything(self):
         return any(call.returns for call in self.ops)
+
+    def takes_self_argument(self):
+        return False
+
+    def takes_this_pointer(self):
+        return False
 _setup_list_child(Function, 'ops', ('call', 'raw'), 'Operation', add = False)
 _setup_named_child(Function, 'pointers', 'pointer', 'PointerType')
 
@@ -527,14 +533,20 @@ class Argument(Node):
             'type': str,
             'name': str,
             'default': str,
+            'steals': _bool_from_string,
+            'invalidates': _bool_from_string,
         }
     }
 
-    def __init__(self, type, name = None, default = None):
+    def __init__(self, type, name, default = None,
+                 steals = False, invalidates = False):
         Node.__init__(self, name)
 
         self.type = type
         self.default = default
+        self.steals = steals
+        self.invalidates = invalidates
+
 Node.types['Argument'] = Argument
 
 
@@ -638,7 +650,8 @@ class Overridable(Call):
     layout = {
         'properties': {
             'name': str,
-            'required': _bool_from_string               }
+            'required': _bool_from_string
+        }
     }
 
     def __init__(self, name, required = False):

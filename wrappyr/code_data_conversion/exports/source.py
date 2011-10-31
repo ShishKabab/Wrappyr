@@ -389,5 +389,3 @@ class SourceExport(ClangExport):
 
         with open(path, 'w') as f:
             f.write(block.as_text())
-
-from wrappyr.utils.str import SourceBlock
