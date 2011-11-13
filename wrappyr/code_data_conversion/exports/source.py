@@ -1,5 +1,6 @@
 from itertools import count
 from wrappyr.code_data_conversion.exports import ClangExport
+from wrappyr.code_data_conversion.structure import AccessSpecifier
 from wrappyr.utils.str import SourceBlock
 
 class SourceExport(ClangExport):
@@ -342,7 +343,7 @@ class SourceExport(ClangExport):
             block.add_block(constructors)
 
         # Destructor
-        if not cls.destructor or cls.destructor.access == 'public':
+        if not cls.destructor or cls.destructor.access == AccessSpecifier.Public:
             destructors = self.export_destructors(cls, full_name, full_name_underscore)
             block.add_block(destructors)
 

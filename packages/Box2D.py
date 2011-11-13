@@ -2,7 +2,7 @@ import os
 import wrappyr
 from wrappyr.code_data_conversion.exports import ExportFilter, HeaderExport, SourceExport, CtypesExport
 from wrappyr.ctypes_api_builder.structure import CTypesStructureVisitor, CTypesStructure, Package
-from wrappyr.ctypes_api_builder.visitors import UninterestingCopyConstructorRemover, ConflictingOverloadRemover, AmbigousOverloadRemover, PythonKeywordRemover
+from wrappyr.ctypes_api_builder.visitors import UninterestingCopyConstructorRemover, ConflictingOverloadRemover, AmbiguousOverloadRemover, PythonKeywordRemover
 
 class Box2DFilter(ExportFilter):
     def filter_namespace(self, ns, **opts):
@@ -91,7 +91,7 @@ class Box2DPackage(wrappyr.Package):
         UninterestingCopyConstructorRemover().process(structure)
         Box2DBodyCreateFixtureFixer().process(structure)
         ConflictingOverloadRemover().process(structure)
-        AmbigousOverloadRemover().process(structure)
+        AmbiguousOverloadRemover().process(structure)
         PythonKeywordRemover().process(structure)
 
         if not self.class_namespaces:

@@ -80,7 +80,7 @@ class ClangExport(object):
             cls_name_underscore
         )
 
-    def symbol_for_destructor(self, cls, cls_name_underscore, destructor):
+    def symbol_for_destructor(self, cls, cls_name_underscore, destructor = None):
         return "%s__Destroy" % cls_name_underscore
 
     def symbol_for_array_destructor(self, cls, cls_name_underscore):

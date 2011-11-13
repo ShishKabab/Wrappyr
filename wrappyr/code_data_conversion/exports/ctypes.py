@@ -1,5 +1,5 @@
 from wrappyr.code_data_conversion.exports import ClangExport
-from wrappyr.code_data_conversion.structure import Class, Function, Builtin, Enumeration, Struct
+from wrappyr.code_data_conversion.structure import Class, Function, Builtin, Enumeration, Struct, AccessSpecifier
 from wrappyr.utils.str import SourceBlock
 
 class CtypesExport(ClangExport):
@@ -49,9 +49,9 @@ class CtypesExport(ClangExport):
 
         first_signature = method.signatures[0]
         if first_signature.constructor:
-            name = "__init__"
+            name = "__alloc__"
         elif first_signature.destructor:
-            name = "__del__"
+            name = "__dealloc__"
         else:
             name = method.name
 
@@ -66,7 +66,7 @@ class CtypesExport(ClangExport):
     def export_constructors(self, cls):
         block = SourceBlock()
 
-        block.add_line('<method name="__init__">')
+        block.add_line('<method name="__alloc__">')
         for constructor in cls.constructors:
             if self.filter.filter_method_signature(cls, constructor):
                 block.add_block(self.export_call(constructor, cls), 1)
@@ -110,6 +110,16 @@ class CtypesExport(ClangExport):
 
         return block
 
+    def node_as_ctype(self, stripped):
+        path = [stripped.type.name]
+        ns = stripped.type.get_namespace()
+        while ns:
+            part = self.package_for_namespace(ns)
+            if part:
+                path.insert(0, part)
+            ns = ns.context
+        return ".".join(path)
+
     def type_as_ctype(self, type):
         stripped = type.strip_pointers_and_references()
         if isinstance(stripped.type, Builtin) and not type.is_reference():
@@ -128,20 +138,25 @@ class CtypesExport(ClangExport):
             return "ctypes.c_uint"
         elif ((type.get_total_pointers() + int(type.is_reference())) <= 1 and
                 isinstance(stripped.type, (Struct, Enumeration))):
-
-            path = [stripped.type.name]
-            ns = stripped.type.get_namespace()
-            while ns:
-                part = self.package_for_namespace(ns)
-                if part:
-                    path.insert(0, part)
-                ns = ns.context
-            return ".".join(path)
+            return self.node_as_ctype(stripped)
 
         raise Exception("Don't know how to export type '%s'" % type.as_string(False, False, False))
 
     def export_destructors(self, cls):
+        cls_name_underscore = cls.get_full_name("__")
+
         block = SourceBlock()
+
+        symbol = self.symbol_for_destructor(cls, cls_name_underscore)
+        block.add_line('<method name="__dealloc__">')
+        block.add_line('<call symbol="%s" />' % symbol, 1)
+        block.add_line('</method>')
+
+        symbol = self.symbol_for_array_destructor(cls, cls_name_underscore)
+        block.add_line('<method name="__delarray__">')
+        block.add_line('<call symbol="%s" />' % symbol, 1)
+        block.add_line('</method>')
+
         return block
 
     def export_member(self, cls, member):
@@ -159,7 +174,7 @@ class CtypesExport(ClangExport):
 
         block.add_line('<setter>', 1)
         block.add_line('<call symbol="%s">' % setter, 2)
-        block.add_line('<argument type="%s" />' % type, 3)
+        block.add_line('<argument name="v" type="%s" />' % type, 3)
         block.add_line('</call>', 2)
         block.add_line('</setter>', 1)
 
@@ -286,7 +301,7 @@ class CtypesExport(ClangExport):
         if (not cls.is_abstract() and cls.constructors
             and self.filter.filter_method(cls, cls.constructors)):
             block.add_block(self.export_constructors(cls), 1)
-        if not cls.destructor or cls.destructor.access == 'public':
+        if not cls.destructor or cls.destructor.access == AccessSpecifier.Public:
             block.add_block(self.export_destructors(cls), 1)
         block.add_block(self.export_array_class_methods(cls), 1)
 
@@ -315,9 +330,9 @@ class CtypesExport(ClangExport):
                 if isinstance(node, Class):
                     if self.filter.filter_class(node):
                         block.add_block(self.export_class(node), 1)
-#                               if isinstance(node, Function):
-#                                       if self.filter.filter_function(node):
-#                                               block.add_block(self.export_function(node), 1)
+#                if isinstance(node, Function):
+#                    if self.filter.filter_function(node):
+#                        block.add_block(self.export_function(node), 1)
 
         child_indent = int(bool(package_name))
         for child in ns.children.values():

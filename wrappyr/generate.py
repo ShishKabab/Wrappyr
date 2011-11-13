@@ -35,7 +35,7 @@ def import_object(path):
     return obj
 
 def generate_code_data(input, output = None, backend = 'clang', language = 'c++',
-                                           clang_binary = 'clang', clang_export_plugin = None):
+                       clang_binary = 'clang', clang_export_plugin = None):
 
     # TODO: cleanup
 
@@ -71,7 +71,8 @@ def generate_code_data(input, output = None, backend = 'clang', language = 'c++'
     if not output:
         return proc.returncode == 0, stdout, stderr
     else:
-        print stderr
+        if stderr.strip():
+            print stderr
         return proc.returncode == 0
 
 def convert_code_data(input, header = None, source = None, ctypes = None, package = None, backend = "clang"):

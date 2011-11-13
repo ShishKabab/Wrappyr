@@ -1,4 +1,5 @@
 from wrappyr.code_data_conversion.exports import ClangExport
+from wrappyr.code_data_conversion.structure import AccessSpecifier
 from wrappyr.utils.str import SourceBlock
 
 class HeaderExport(ClangExport):
@@ -49,8 +50,8 @@ class HeaderExport(ClangExport):
                         signature.args_as_string() if signature.args else ''
                 )
                 symbol = self.symbol_for_method_signature(cls,
-                                                                                                  full_name_underscore,
-                                                                                                  method, signature)
+                                                          full_name_underscore,
+                                                          method, signature)
                 block.add_line("%s %s(%s);" % (
                         returns,
                         symbol,
@@ -67,8 +68,7 @@ class HeaderExport(ClangExport):
                 continue
 
             returns = member.type.as_string()
-            getter, setter = self.symbols_for_member(cls, full_name_underscore,
-                                                                                             member)
+            getter, setter = self.symbols_for_member(cls, full_name_underscore, member)
 
             block.add_line("%s %s(void*);" % (
                     returns,
@@ -90,8 +90,7 @@ class HeaderExport(ClangExport):
                 args = constructor.args_as_string()
                 if args:
                     args = ", " + args
-                symbol = self.symbol_for_inheritance_constructor(cls, full_name_underscore,
-                                                                                         constructor)
+                symbol = self.symbol_for_inheritance_constructor(cls, full_name_underscore, constructor)
                 block.add_line("void* %s(void*, void*%s);" % (symbol, args))
         else:
             block.add_line("void* %s(void*, void*);" % (
@@ -112,7 +111,7 @@ class HeaderExport(ClangExport):
             block.add_block(self.export_constructors(cls, full_name_underscore))
 
         # Destructor
-        if not cls.destructor or cls.destructor.access == 'public':
+        if not cls.destructor or cls.destructor.access == AccessSpecifier.Public:
             block.add_block(self.export_destructors(cls, full_name_underscore))
 
         # Class size

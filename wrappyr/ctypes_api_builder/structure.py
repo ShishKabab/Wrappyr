@@ -409,6 +409,7 @@ class Method(Function):
 
     def is_static(self):
         static_methods = (
+            '__alloc__', '__dealloc__',
             '__newarray__', '__delarray__', '__arrayitem__',
             '__newinherited__', '__delinherited__'
         )
@@ -488,7 +489,7 @@ class Call(Operation):
 
     def get_return_value_as_ctype(self):
         if not self.returns:
-            return "ctypes.c_void_p" if self.parent.name == "__init__" else "None"
+            return "ctypes.c_void_p" if self.parent.name in ("__alloc__",) else "None"
         if isinstance(self.returns.type, Class):
             return "ctypes.c_void_p"
         if isinstance(self.returns.type, PointerType):

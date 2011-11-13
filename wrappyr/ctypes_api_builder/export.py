@@ -267,60 +267,35 @@ def export_function(f):
 
 def export_constructor(cls):
     vtable = cls.vtable
-    constructor = cls.methods.get('__init__')
-    newinherited = cls.methods.get('__newinherited__')
+#    constructor = cls.methods.get('__init__')
+    alloc = cls.methods.get('__alloc__')
+    allocderived = cls.methods.get('__newinherited__')
 
-    if not constructor and not vtable:
+    if not alloc and not vtable:
         return SourceBlock()
 
-    # Assemble constructor signature
-    if constructor:
-        signature = export_function_signature(constructor)
-    else:
-        call_args = get_call_args(newinherited)
-        first_call = call_args[0]
-        call_args[0] = (first_call[0], first_call[1][2:]) # Strip first two arguments
-        args = ['self']
-        args += get_argument_list(call_args)
-        signature = SourceBlock("def __init__(%s):" % ", ".join(args))
+    signature = SourceBlock("def __init__(self, *args, **kwargs):")
 
     # What to do if the class is instantiated directly
-    if constructor:
-        constructor_block = SourceBlock()
-
-        call_args = get_call_args(constructor) if not constructor.raw else None
-        if not constructor.raw:
-            constructor_calls = export_calls(constructor, 'inst', call_args)
-            constructor_block.add_block(constructor_calls)
-        else:
-            constructor_block.add_block(constructor.ops[0].get_code_block())
+    if alloc:
+        constructor_block = SourceBlock("inst = self.__alloc__(*args, **kwargs)")
     else:
         error = "raise TypeError('This class cannot be instantiated directly')"
         constructor_block = SourceBlock(error)
 
     # What to do if a derived class is instantiated.
     if vtable:
-        inherited_block = SourceBlock()
-        if constructor: # If we have a constructor, just pass along all arguments
-            pass_args = [arg.name for call in constructor.ops for arg in call.args]
-        else: # If we don't have a constructor, use the arguments of __newinherited__
-            call_args = get_call_args(newinherited)
-            pass_args = [arg.name for call, args in call_args for arg in args]
-            pass_args = pass_args[2:] # First two arguments are obj and vtable
-        pass_args = ['self', 'self._vtable_'] + pass_args
-        pass_args = ", ".join(pass_args)
-
-        inherited_block.add_line("inst = self.__newinherited__(%s)" % pass_args)
+        derived_block = SourceBlock("inst = self.__newinherited__(self, self._vtable_, *args, **kwargs)")
     else:
         error = "raise TypeError('You cannot inherit from this class')"
-        inherited_block = SourceBlock(error)
+        derived_block = SourceBlock(error)
 
     block = SourceBlock()
     block.add_block(signature)
     block.add_line("if type(self) == %s:" % cls.name, 1)
     block.add_block(constructor_block, 2)
     block.add_line("else:", 1)
-    block.add_block(inherited_block, 2)
+    block.add_block(derived_block, 2)
     block.add_line("self._inst = inst", 1)
     block.add_line("self._ownership = True", 1)
 

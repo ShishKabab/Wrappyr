@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from ctypes import CDLL, c_int
+import inspect
 import os
 import shutil
 import subprocess
@@ -27,29 +28,22 @@ class TestExport(unittest.TestCase):
         subprocess.call(args, stdout = open('/dev/null', 'w'), stderr = open('/dev/null', 'w'))
         cls.mock = CDLL(cls.mock_library_path)
 
-        cls.package_tests_path = mkdtemp()
+        cls.package_tests_path = os.environ.get('WRAPPYR_EXPORT_TESTS_PATH')
+        if not cls.package_tests_path:
+            cls.package_tests_path = mkdtemp()
         sys.path.append(cls.package_tests_path)
 
     @classmethod
     def tearDownClass(cls):
         os.remove(cls.mock_library_path)
-        shutil.rmtree(cls.package_tests_path)
-
-    def create_test_package(self, structure = None):
-        if not structure:
-            structure = CTypesStructure()
-        path = mkdtemp(dir = self.package_tests_path)
-        shutil.rmtree(path)
-        name = os.path.basename(path)
-        pkg = Package(name)
-        pkg.add_library(Library("mock", self.mock_library_path, True))
-        structure.add_package(pkg)
-        return pkg
+        if 'WRAPPYR_EXPORT_TESTS_PATH' not in os.environ:
+            shutil.rmtree(cls.package_tests_path)
 
     def create_and_import(self, xml):
-        path = mkdtemp(dir = self.package_tests_path)
-        shutil.rmtree(path)
-        name = os.path.basename(path)
+        name = inspect.stack()[1][3]
+        path = os.path.join(self.package_tests_path, name)
+        if os.access(path, os.F_OK):
+            shutil.rmtree(path)
 
         xml = xml.format(root = name)
         structure = CTypesStructure.from_xml(xml_from_string(xml))
@@ -160,7 +154,7 @@ class TestExport(unittest.TestCase):
         <ctypes>
             <package name="{root}">
                 <class name="Point">
-                    <method name="__init__">
+                    <method name="__alloc__">
                         <call symbol="Point_CreateZero" />
                     </method>
                 </class>
@@ -187,7 +181,7 @@ class TestExport(unittest.TestCase):
         <ctypes>
             <package name="{root}">
                 <class name="Point">
-                    <method name="__init__">
+                    <method name="__alloc__">
                         <call symbol="Point_CreateZero" />
                     </method>
                 </class>
@@ -213,7 +207,7 @@ class TestExport(unittest.TestCase):
         <ctypes>
             <package name="{root}">
                 <class name="Point">
-                    <method name="__init__">
+                    <method name="__alloc__">
                         <call symbol="Point_CreateZero" />
                     </method>
                 </class>
@@ -229,7 +223,7 @@ class TestExport(unittest.TestCase):
         <ctypes>
             <package name="{root}">
                 <class name="Point">
-                    <method name="__init__">
+                    <method name="__alloc__">
                         <call symbol="Point_CreateZero" />
                         <call symbol="Point_Create">
                             <argument type="ctypes.c_int" name="x" />
@@ -272,7 +266,7 @@ class TestExport(unittest.TestCase):
         <ctypes>
             <package name="{root}">
                 <class name="Point">
-                    <method name="__init__">
+                    <method name="__alloc__">
                         <call symbol="Point_CreateZero" />
                         <call symbol="Point_Create">
                             <argument type="ctypes.c_int" name="x" />
@@ -317,7 +311,7 @@ class TestExport(unittest.TestCase):
                         <overridable name="speak" />
                     </vtable>
 
-                    <method name="__init__">
+                    <method name="__alloc__">
                         <call symbol="Animal_Create" />
                     </method>
                     <method name="__newinherited__">
