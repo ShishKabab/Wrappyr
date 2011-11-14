@@ -108,7 +108,6 @@ class TestExport(unittest.TestCase):
         with confirm_flag(self, 'gSecondCalled'):
             self.assertEqual(mod.func(348), 348)
 
-    @unittest.skip("Not implemented yet")
     def test_function_return_class_without_ownership(self):
         mod = self.create_and_import("""
         <ctypes>
@@ -128,7 +127,6 @@ class TestExport(unittest.TestCase):
             animal = mod.create_animal()
         self.assertFalse(animal._ownership)
 
-    @unittest.skip("Not implemented yet")
     def test_function_return_class_with_ownership(self):
         mod = self.create_and_import("""
         <ctypes>
@@ -148,7 +146,6 @@ class TestExport(unittest.TestCase):
             animal = mod.create_animal()
         self.assertTrue(animal._ownership)
 
-    @unittest.skip("Not implemented yet")
     def test_function_argument_steals(self):
         mod = self.create_and_import("""
         <ctypes>
@@ -175,7 +172,6 @@ class TestExport(unittest.TestCase):
             mod.distance_squared(p)
         self.assertFalse(p._ownership)
 
-    @unittest.skip("Not implemented yet")
     def test_function_argument_invalidates(self):
         mod = self.create_and_import("""
         <ctypes>
@@ -314,7 +310,7 @@ class TestExport(unittest.TestCase):
                     <method name="__alloc__">
                         <call symbol="Animal_Create" />
                     </method>
-                    <method name="__newinherited__">
+                    <method name="__alloc_derived__">
                         <call symbol="UserAnimal_Create">
                             <argument name="obj" type="ctypes.py_object" />
                             <argument name="vtable" type="ctypes.c_void_p" />
@@ -359,7 +355,7 @@ class TestExport(unittest.TestCase):
                         <overridable name="speak" />
                     </vtable>
 
-                    <method name="__newinherited__">
+                    <method name="__alloc_derived__">
                         <call symbol="UserAnimal_Create">
                             <argument name="obj" type="ctypes.py_object" />
                             <argument name="vtable" type="ctypes.c_void_p" />
@@ -388,3 +384,113 @@ class TestExport(unittest.TestCase):
             with confirm_flag(self, 'gUserAnimalSpeakDispatched'):
                 mod.speak(python)
         self.assertTrue(spoken[0])
+
+    def test_class_cleanup(self):
+        mod = self.create_and_import("""
+        <ctypes>
+            <package name="{root}">
+                <class name="Point">
+                    <method name="__alloc__">
+                        <call symbol="Point_CreateZero" />
+                    </method>
+                    <method name="__dealloc__">
+                        <call symbol="Point_Destroy" />
+                    </method>
+                </class>
+            </package>
+        </ctypes>
+        """)
+
+        with confirm_flag(self, 'gZeroPointCreated'):
+            p = mod.Point()
+        with confirm_flag(self, 'gPointDestroyed'):
+            p.__del__()
+        self.assertFalse(p._valid)
+
+    def test_derived_class_cleanup(self):
+        mod = self.create_and_import("""
+        <ctypes>
+            <package name="{root}">
+                <class name="Animal">
+                    <vtable>
+                        <overridable name="speak" />
+                    </vtable>
+
+                    <method name="__alloc_derived__">
+                        <call symbol="UserAnimal_Create">
+                            <argument name="obj" type="ctypes.py_object" />
+                            <argument name="vtable" type="ctypes.c_void_p" />
+                            <returns type="ctypes.c_void_p" />
+                        </call>
+                    </method>
+                    <method name="__dealloc_derived__">
+                        <call symbol="UserAnimal_Destroy" />
+                    </method>
+                </class>
+            </package>
+        </ctypes>
+        """)
+
+        spoken = [False]
+        class Python(mod.Animal):
+            def speak(self):
+                spoken[0] = True
+
+        with confirm_flag(self, 'gUserAnimalCreated'):
+            python = Python()
+        with confirm_flag(self, 'gUserAnimalDestroyed'):
+            python.__del__()
+        self.assertFalse(python._valid)
+
+    def test_cleanup_invalidated_class(self):
+        mod = self.create_and_import("""
+        <ctypes>
+            <package name="{root}">
+                <class name="Point">
+                    <method name="__alloc__">
+                        <call symbol="Point_CreateZero" />
+                    </method>
+                    <method name="__dealloc__">
+                        <call symbol="Point_Destroy" />
+                    </method>
+                </class>
+            </package>
+        </ctypes>
+        """)
+
+        with confirm_flag(self, 'gZeroPointCreated'):
+            p = mod.Point()
+        with confirm_flag(self, 'gPointDestroyed'):
+            p.__del__()
+        
+        self.assertFalse(p._valid)
+        p.__del__()
+        self.assertFalse(p._valid)
+
+    def test_cleanup_unowned_class(self):
+        mod = self.create_and_import("""
+        <ctypes>
+            <package name="{root}">
+                <class name="Animal">
+                    <method name="__dealloc__">
+                        <call symbol="Animal_Destroy" />
+                    </method>
+                </class>
+
+                <function name="create_animal">
+                    <call symbol="Animal_Create">
+                        <returns type="{root}.Animal" ownership="false" />
+                    </call>
+                </function>
+            </package>
+        </ctypes>
+        """)
+
+        with confirm_flag(self, 'gAnimalCreated'):
+            animal = mod.create_animal()
+        self.assertFalse(animal._ownership)
+        self.assertTrue(animal._valid)
+        
+        animal.__del__()
+        self.assertFalse(animal._ownership)
+        self.assertTrue(animal._valid)

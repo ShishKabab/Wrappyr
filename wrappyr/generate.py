@@ -43,7 +43,7 @@ def generate_code_data(input, output = None, backend = 'clang', language = 'c++'
     if backend == 'clang':
         if not clang_export_plugin:
             raise TypeError("clang_export_plugin argument required "
-                                            "for 'clang' backend")
+                            "for 'clang' backend")
 
         cmd = [clang_binary, '-cc1', '-load', clang_export_plugin]
         cmd += ['-plugin', 'export-hdr']

@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 from itertools import chain, count, izip_longest
-from wrappyr.ctypes_api_builder.structure import PointerType, Function
+from wrappyr.ctypes_api_builder.structure import PointerType, Function, Node
 from wrappyr.ctypes_api_builder.structure import Package, Class, Method, Member
 from wrappyr.utils.str import SourceBlock
 
@@ -200,6 +200,35 @@ def export_type_checks_for_call(call, call_var = "sig"):
 
     return block
 
+def export_memory_management_before_call(call):
+    block = SourceBlock()
+    for arg, num in zip(call.args, count()):
+        if not isinstance(arg.type, Class):
+            continue
+
+        block.add_line("if not %s._valid:" % arg.name)
+        block.add_line("""raise RuntimeError("Invalid object passed as argument '%s'")""" % arg.name, 1)
+        if arg.steals:
+            block.add_line("if not %s._ownership:" % arg.name)
+            msg = "Unowned object passed as argument '%s' to a call that steals ownership" % arg.name
+            msg = 'raise RuntimeError("%s")' % msg
+            block.add_line(msg, 1)
+
+    return block
+
+def export_memory_management_after_call(call):
+    block = SourceBlock()
+    for arg, num in zip(call.args, count()):
+        if not isinstance(arg.type, Class):
+            continue
+
+        if arg.invalidates:
+            block.add_line("%s._valid = False" % arg.name)
+        if arg.steals:
+            block.add_line("%s._ownership = False" % arg.name)
+
+    return block
+
 def export_call(call, result_name = "", arg_names = (),
                 export_type_checks = True, call_var = None):
     if result_name:
@@ -213,10 +242,14 @@ def export_call(call, result_name = "", arg_names = (),
         block.add_line("%s = %s" % (call_var, get_call(call)))
     if export_type_checks:
         block.add_block(export_type_checks_for_call(call))
+
+    block.add_block(export_memory_management_before_call(call))
     block.add_line(action.format(
             result_name = result_name,
             args = get_converted_argument_list(call, arg_names)
     ))
+    block.add_block(export_memory_management_after_call(call))
+
     if not result_name or not call.returns:
         return block
 
@@ -267,9 +300,8 @@ def export_function(f):
 
 def export_constructor(cls):
     vtable = cls.vtable
-#    constructor = cls.methods.get('__init__')
     alloc = cls.methods.get('__alloc__')
-    allocderived = cls.methods.get('__newinherited__')
+#    allocderived = cls.methods.get('__alloc_derived__')
 
     if not alloc and not vtable:
         return SourceBlock()
@@ -285,7 +317,7 @@ def export_constructor(cls):
 
     # What to do if a derived class is instantiated.
     if vtable:
-        derived_block = SourceBlock("inst = self.__newinherited__(self, self._vtable_, *args, **kwargs)")
+        derived_block = SourceBlock("inst = self.__alloc_derived__(self, self._vtable_, *args, **kwargs)")
     else:
         error = "raise TypeError('You cannot inherit from this class')"
         derived_block = SourceBlock(error)
@@ -298,6 +330,26 @@ def export_constructor(cls):
     block.add_block(derived_block, 2)
     block.add_line("self._inst = inst", 1)
     block.add_line("self._ownership = True", 1)
+    block.add_line("self._valid = True", 1)
+
+    return block
+
+def export_destructor(cls):
+    block = SourceBlock()
+    if not any(i in cls.methods for i in ("__dealloc__", "__dealloc_derived__")):
+        return block
+
+    block.add_line("def __del__(self):")
+    block.add_line("if not self._ownership or not self._valid:", 1)
+    block.add_line("return", 2)
+
+    if "__dealloc__" in cls.methods:
+        block.add_line("if type(self) == %s:" % cls.name, 1)
+        block.add_line("self.__dealloc__()", 2)
+    if "__dealloc_derived__" in cls.methods:
+        block.add_line("if type(self) != %s:" % cls.name, 1)
+        block.add_line("self.__dealloc_derived__()", 2)
+    block.add_line("self._valid = False", 1)
 
     return block
 
@@ -381,14 +433,13 @@ def export_class(cls):
     if cls.vtable:
         members.append(SourceBlock("_polymorphism_info_ = wrappyr.runtime.PolymorphismInfo()"))
 
-    constructor = export_constructor(cls)
-    if constructor:
-        members.append(constructor)
+    for block in (export_constructor(cls), export_destructor(cls)):
+        if block:
+            members.append(block)
 
     for method in sorted(cls.methods.values(),
-                                             cmp = sort_methods(lambda method: method.name)):
-        if method.name != '__init__':
-            members.append(export_method(cls, method))
+                         cmp = sort_methods(lambda method: method.name)):
+        members.append(export_method(cls, method))
     for member in sorted(cls.members.values(), key = lambda member: member.name):
         members.append(export_member(cls, member))
 
@@ -398,6 +449,7 @@ def export_class(cls):
     from_c.add_line("cls = %s.__new__(%s)" % (cls.name, cls.name), 1)
     from_c.add_line("cls._inst = inst", 1)
     from_c.add_line("cls._ownership = ownership", 1)
+    from_c.add_line("cls._valid = True", 1)
     from_c.add_line("return cls", 1)
     members.append(from_c)
 

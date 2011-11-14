@@ -409,9 +409,9 @@ class Method(Function):
 
     def is_static(self):
         static_methods = (
-            '__alloc__', '__dealloc__',
-            '__newarray__', '__delarray__', '__arrayitem__',
-            '__newinherited__', '__delinherited__'
+            '__alloc__', # '__dealloc__',
+            '__alloc_derived__', # '__dealloc_derived__',
+            '__alloc_array__', '__dealloc_array__', '__arrayitem__',
         )
         return self.name in static_methods or self._static
 

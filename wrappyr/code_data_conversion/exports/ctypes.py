@@ -152,10 +152,10 @@ class CtypesExport(ClangExport):
         block.add_line('<call symbol="%s" />' % symbol, 1)
         block.add_line('</method>')
 
-        symbol = self.symbol_for_array_destructor(cls, cls_name_underscore)
-        block.add_line('<method name="__delarray__">')
-        block.add_line('<call symbol="%s" />' % symbol, 1)
-        block.add_line('</method>')
+#        symbol = self.symbol_for_array_destructor(cls, cls_name_underscore)
+#        block.add_line('<method name="__dealloc_array__">')
+#        block.add_line('<call symbol="%s" />' % symbol, 1)
+#        block.add_line('</method>')
 
         return block
 
@@ -189,20 +189,20 @@ class CtypesExport(ClangExport):
         if not cls.is_abstract() and cls.is_default_constructable():
             symbol = self.symbol_for_array_constructor(cls, cls_name_underscore)
 
-            block.add_line('<method name="__newarray__">')
+            block.add_line('<method name="__alloc_array__">')
             block.add_line('<call symbol="%s">' % symbol, 1)
             block.add_line('<argument name="size" type="ctypes.c_uint" />', 2)
             block.add_line('<returns type="ctypes.c_void_p" />', 2)
             block.add_line('</call>', 1)
             block.add_line('</method>')
-        if not cls.destructor or cls.destructor.access == 'public':
-            symbol = self.symbol_for_array_destructor(cls, cls_name_underscore)
-
-            block.add_line('<method name="__delarray__">')
-            block.add_line('<call symbol="%s">' % symbol, 1)
-            block.add_line('<argument name="a" type="ctypes.c_void_p" />', 2)
-            block.add_line('</call>', 1)
-            block.add_line('</method>')
+#        if not cls.destructor or cls.destructor.access == 'public':
+#            symbol = self.symbol_for_array_destructor(cls, cls_name_underscore)
+#
+#            block.add_line('<method name="__dealloc_array__">')
+#            block.add_line('<call symbol="%s">' % symbol, 1)
+#            block.add_line('<argument name="a" type="ctypes.c_void_p" />', 2)
+#            block.add_line('</call>', 1)
+#            block.add_line('</method>')
 
         symbol = self.symbol_for_array_element(cls, cls_name_underscore)
         block.add_line('<method name="__arrayitem__">')
@@ -223,7 +223,7 @@ class CtypesExport(ClangExport):
         constructors = [i for i in cls.constructors if filter(i)]
 
         if constructors:
-            block.add_line('<method name="__newinherited__">')
+            block.add_line('<method name="__alloc_derived__">')
             for constructor in constructors:
                 symbol = self.symbol_for_inheritance_constructor(
                     cls, cls_name_underscore, constructor)
@@ -245,7 +245,7 @@ class CtypesExport(ClangExport):
             symbol = self.symbol_for_inheritance_constructor(
                 cls, cls_name_underscore, None)
 
-            block.add_line('<method name="__newinherited__">')
+            block.add_line('<method name="__alloc_derived__">')
             block.add_line('<call symbol="%s">' % symbol, 1)
             block.add_line('<argument name="obj" type="ctypes.py_object" />', 2)
             block.add_line('<argument name="vtable" type="ctypes.c_void_p" />', 2)

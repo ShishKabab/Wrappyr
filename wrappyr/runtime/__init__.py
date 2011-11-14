@@ -10,15 +10,18 @@ class CArray(object):
         self.ptr = ptr
         self.cls = cls
         self.size = size
-        self.ownership = ownership
         self.dimensions = dimensions
 
+        self._ownership = ownership
+        self._valid = True
+
     def __del__(self):
-        if not self.ownership:
+        if not self._ownership:
             return
 
-        if self.cls:
-            self.cls.__delarray__(self.ptr)
+        dealloc = getattr(self.cls, '__dealloc_array__', None)
+        if dealloc:
+            dealloc(self.ptr)
 
     def elements(self, size = None):
         size = size or self.size
@@ -49,7 +52,7 @@ class CArray(object):
         return item
 
 def arrayof(cls, size):
-    return CArray(cls.__newarray__(size), cls, size, True)
+    return CArray(cls.__alloc_array__(size), cls, size, True)
 
 class Overridable(object):
     def __init__(self, name):

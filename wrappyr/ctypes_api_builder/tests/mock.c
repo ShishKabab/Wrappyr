@@ -144,6 +144,12 @@ struct UserAnimal* UserAnimal_Create(void* obj, struct UserVTable* userVTable){
     return animal;
 }
 
+int gUserAnimalDestroyed = 0;
+void UserAnimal_Destroy(struct UserAnimal* animal){
+    gUserAnimalDestroyed = 1;
+    Animal_Destroy(animal);
+}
+
 //void MySpeak(int* obj){
 //    printf("Speak: %p, %d\n", obj, *obj);
 //}
