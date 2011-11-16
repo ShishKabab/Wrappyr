@@ -25,7 +25,7 @@ class TestExport(unittest.TestCase):
         cls.mock_source = os.path.join(os.path.dirname(__file__), 'mock.c')
         cls.mock_library_path = mkstemp(suffix='.so')[1]
         args = ["gcc", "-shared", "-g", "-o", cls.mock_library_path, cls.mock_source]
-        subprocess.call(args, stdout = open('/dev/null', 'w'), stderr = open('/dev/null', 'w'))
+        subprocess.call(args)
         cls.mock = CDLL(cls.mock_library_path)
 
         cls.package_tests_path = os.environ.get('WRAPPYR_EXPORT_TESTS_PATH')
@@ -494,3 +494,41 @@ class TestExport(unittest.TestCase):
         animal.__del__()
         self.assertFalse(animal._ownership)
         self.assertTrue(animal._valid)
+
+    def test_internal_inheritance(self):
+        mod = self.create_and_import("""
+        <ctypes>
+            <package name="{root}">
+                <class name="Animal">
+                    <method name="__alloc__">
+                        <call symbol="Animal_Create" />
+                    </method>
+                </class>
+
+                <class name="Dog">
+                    <base type="{root}.Animal" />
+
+                    <method name="__alloc__">
+                        <call symbol="Dog_Create" />
+                    </method>
+                </class>
+
+                <function name="speak">
+                    <call symbol="Animal_Speak">
+                        <argument type="{root}.Animal" name="animal" />
+                    </call>
+                </function>
+            </package>
+        </ctypes>
+        """)
+
+        with confirm_flag(self, 'gAnimalCreated'):
+            animal = mod.Animal()
+        with confirm_flag(self, 'gAnimalSpeakDefault'):
+            mod.speak(animal)
+        with confirm_flag(self, 'gDogCreated'):
+            dog = mod.Dog()
+
+        self.assertIsInstance(dog, mod.Animal)
+        with confirm_flag(self, 'gDogSpeak'):
+            mod.speak(dog)

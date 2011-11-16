@@ -110,9 +110,9 @@ class CtypesExport(ClangExport):
 
         return block
 
-    def node_as_ctype(self, stripped):
-        path = [stripped.type.name]
-        ns = stripped.type.get_namespace()
+    def node_as_ctype(self, node):
+        path = [node.name]
+        ns = node.get_namespace()
         while ns:
             part = self.package_for_namespace(ns)
             if part:
@@ -138,7 +138,7 @@ class CtypesExport(ClangExport):
             return "ctypes.c_uint"
         elif ((type.get_total_pointers() + int(type.is_reference())) <= 1 and
                 isinstance(stripped.type, (Struct, Enumeration))):
-            return self.node_as_ctype(stripped)
+            return self.node_as_ctype(stripped.type)
 
         raise Exception("Don't know how to export type '%s'" % type.as_string(False, False, False))
 
@@ -295,6 +295,9 @@ class CtypesExport(ClangExport):
     def export_class(self, cls):
         block = SourceBlock()
         block.add_line('<class name="%s">' % cls.name)
+
+        for base in cls.bases:
+            block.add_line('<base type="%s" />' % self.node_as_ctype(base), 1)
 
         if cls.is_dynamic():
             block.add_block(self.export_inherited(cls), 1)

@@ -114,6 +114,29 @@ void Animal_Speak(struct Animal* animal){
     animal->vtable->speak(animal);
 }
 
+/*
+ * Test inheritance - Internal inheritance
+ */
+int gDogSpeak = 0;
+void Dog_Speak(struct Animal* dog){
+    gDogSpeak = 1;
+}
+
+int gDogCreated = 0;
+struct Animal* Dog_Create(){
+    gDogCreated = 1;
+
+    struct Animal* dog = Animal_Create();
+    dog->vtable->speak = Dog_Speak;
+
+    return dog;
+}
+
+
+/*
+ * Test inheritance - Python inheritance
+ */
+
 struct UserVTable {
     void (*speak)(void*);
 };
@@ -134,7 +157,7 @@ struct UserAnimal* UserAnimal_Create(void* obj, struct UserVTable* userVTable){
     gUserAnimalCreated = 1;
 
     struct AnimalVTable* vtable = malloc(sizeof(struct AnimalVTable));
-    vtable->speak = UserAnimal_Speak;
+    vtable->speak = (void (*)(struct Animal*))UserAnimal_Speak;
 
     struct UserAnimal* animal = malloc(sizeof(struct UserAnimal));
     animal->vtable = vtable;
@@ -147,7 +170,7 @@ struct UserAnimal* UserAnimal_Create(void* obj, struct UserVTable* userVTable){
 int gUserAnimalDestroyed = 0;
 void UserAnimal_Destroy(struct UserAnimal* animal){
     gUserAnimalDestroyed = 1;
-    Animal_Destroy(animal);
+    Animal_Destroy((struct Animal*)animal);
 }
 
 //void MySpeak(int* obj){

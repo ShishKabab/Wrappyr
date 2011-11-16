@@ -3,6 +3,7 @@ from collections import defaultdict
 from itertools import chain, count, izip_longest
 from wrappyr.ctypes_api_builder.structure import PointerType, Function, Node
 from wrappyr.ctypes_api_builder.structure import Package, Class, Method, Member
+from wrappyr.utils import cmp_to_key
 from wrappyr.utils.str import SourceBlock
 
 class NoCommonArguments(Exception): pass
@@ -114,13 +115,27 @@ def sort_methods(key):
         left = key(left)
         right = key(right)
 
-        if "__init__" in (left, right):
-            return -1 if left == "__init__" else 1
         if left.startswith("__") ^ right.startswith("__"):
             return -1 if left.startswith("__") else 1
         return cmp(left, right)
 
     return inner
+
+def sort_classes(left, right):
+    right_needs_left = left in (base.type for base in right.bases)
+    left_needs_right = right in (base.type for base in left.bases)
+
+    if left_needs_right and right_needs_left:
+        raise Exception("Circular dependency between classes '%s' and '%s'" % (left.name, right.name))
+    elif right_needs_left:
+        return -1
+    elif left_needs_right:
+        return 1
+    elif not left.bases and right.bases:
+        return -1
+    elif not right.bases and left.bases:
+        return 1
+    return cmp(left.name, right.name)
 
 def export_library_import(module, library, result_name):
     block = SourceBlock()
@@ -438,7 +453,7 @@ def export_class(cls):
             members.append(block)
 
     for method in sorted(cls.methods.values(),
-                         cmp = sort_methods(lambda method: method.name)):
+                         key = cmp_to_key(sort_methods(lambda method: method.name))):
         members.append(export_method(cls, method))
     for member in sorted(cls.members.values(), key = lambda member: member.name):
         members.append(export_member(cls, member))
@@ -453,8 +468,21 @@ def export_class(cls):
     from_c.add_line("return cls", 1)
     members.append(from_c)
 
+    parent_module = cls.get_closest_parent_module()
+
+    base_imports = []
+    bases = []
+    for base, num in zip(cls.bases, count()):
+        base_var = "_Base%d" % num
+        base_import = get_node_import(parent_module, base.type, base_var)
+        base_imports.append(base_import)
+        bases.append(base_var)
+    bases = ", ".join(bases) if bases else "wrappyr.runtime.CPPClass"
+
     block = SourceBlock()
-    block.add_line("class %s(wrappyr.runtime.CPPClass):" % cls.name)
+    for base_import in base_imports:
+        block.add_line(base_import)
+    block.add_line("class %s(%s):" % (cls.name, bases))
     block.add_block(SourceBlock("").join(members, 1))
     return block
 
@@ -637,7 +665,7 @@ def export_module(mod, base_dir):
         block.add_line("}")
         blocks.append(block)
 
-    classes = mod.every_class()
+    classes = sorted(mod.every_class(), key=cmp_to_key(sort_classes))
     for cls in classes:
         blocks.append(export_class(cls))
 

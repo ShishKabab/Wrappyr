@@ -317,6 +317,20 @@ class Library(Node):
         self.default = default
 Node.types['Library'] = Library
 
+class ClassBase(Node):
+    """A base of a class"""
+
+    layout = {
+        'properties': {
+            'type': str,
+        },
+    }
+
+    def __init__(self, type):
+        Node.__init__(self)
+        
+        self.type = type
+Node.types['ClassBase'] = ClassBase
 
 class Class(Node):
     layout = {
@@ -328,6 +342,7 @@ class Class(Node):
     def __init__(self, name):
         Node.__init__(self, name)
 
+        self.bases = []
         self.methods = {}
         self.members = {}
         self.pointers = {}
@@ -335,6 +350,7 @@ class Class(Node):
 
     def is_empty(self):
         return not any((self.methods, self.members))
+_setup_list_child(Class, 'bases', 'base', 'ClassBase')
 _setup_named_child(Class, 'methods', 'method', 'Method')
 _setup_named_child(Class, 'members', 'member', 'Member')
 _setup_named_child(Class, 'pointers', 'pointer', 'PointerType',
