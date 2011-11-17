@@ -39,11 +39,11 @@ class Box2DBodyCreateFixtureFixer(CTypesStructureVisitor):
             return
 
         to_remove = None
-        for call in method.ops:
+        for call in method.calls:
             if len(call.args) > 1:
                 to_remove = call
         if to_remove:
-            method.remove_operation(to_remove)
+            method.remove_call(to_remove)
 
     def process(self, node):
         if isinstance(node, CTypesStructure):

@@ -21,18 +21,15 @@ def get_call_args(f):
     each call sorted by length of argument list
     """
 
-    if f.raw:
-        return
-
-    ops = sorted(f.ops, key = lambda op: len(op.args))
+    calls = sorted(f.calls, key = lambda call: len(call.args))
     args = []
-    for op in ops:
-        if args and any(left.type != right.type for left, right in zip(args[-1], op.args)):
+    for call in calls:
+        if args and any(left.type != right.type for left, right in zip(args[-1], call.args)):
             raise NoCommonArguments("Arguments of function '%s' don't share common arguments" % f.name)
 
-        args.append(op.args[len(args[-1]) if args else 0:])
+        args.append(call.args[len(args[-1]) if args else 0:])
 
-    return zip(ops, args)
+    return zip(calls, args)
 
 def get_argument_list(call_args):
     arg_list = []
@@ -90,7 +87,7 @@ def get_call(call):
     if isinstance(call.parent.parent, Member):
         cls = call.get_closest_parent_of_type(Class)
         member = call.get_closest_parent_of_type(Member)
-        getter_or_setter = "getter" if call in member.getter.ops else "setter"
+        getter_or_setter = "getter" if call in member.getter.calls else "setter"
         register = "%s._meta['%s']['%s']['signatures']" % (cls.name, member.name, getter_or_setter)
     elif isinstance(call.parent, Method):
         cls = call.get_closest_parent_of_type(Class)
@@ -99,7 +96,7 @@ def get_call(call):
         f = call.get_closest_parent_of_type(Function)
         register = "%s._meta['signatures']" % f.name
 
-    index = call.parent.ops.index(call)
+    index = call.parent.calls.index(call)
     return "%s[%d]" % (register, index)
 
 def get_node_import(module, node, result_name):
@@ -148,16 +145,13 @@ def export_library_import(module, library, result_name):
     return block
 
 def export_function_signature(f, call_args = None):
-    if not f.raw and not call_args:
+    if not call_args:
         call_args = get_call_args(f)
 
     takes_self = isinstance(f, Method) and f.takes_self_argument()
-    if not f.raw:
-        args = ['self'] if takes_self else []
-        args += get_argument_list(call_args)
-    else:
-        args = f.ops[0].args
-
+    args = ['self'] if takes_self else []
+    args += get_argument_list(call_args)
+    
     block = SourceBlock()
     if isinstance(f, Method) and f.is_static():
         block.add_line("@staticmethod")
@@ -376,23 +370,19 @@ def export_method(cls, method, result_name = ""):
 
     block = SourceBlock()
 
-    if not method.raw:
-        call_args = get_call_args(method)
+    call_args = get_call_args(method)
 
-        if not result_name:
-            result_name = (method.name == "__init__" or method.returns_anything())
-            result_name = "result" if result_name else ""
-            return_result = True
-        else:
-            return_result = False
-        block.add_block(export_function_signature(method, call_args))
-        block.add_block(export_calls(method, result_name, call_args), 1)
-
-        if return_result and method.returns_anything():
-            block.add_line("return " + result_name, 1)
+    if not result_name:
+        result_name = (method.name == "__init__" or method.returns_anything())
+        result_name = "result" if result_name else ""
+        return_result = True
     else:
-        block.add_block(export_function_signature(method))
-        block.add_block(method.ops[0].get_code_block(), 1)
+        return_result = False
+    block.add_block(export_function_signature(method, call_args))
+    block.add_block(export_calls(method, result_name, call_args), 1)
+
+    if return_result and method.returns_anything():
+        block.add_line("return " + result_name, 1)
 
     return block
 
@@ -402,38 +392,32 @@ def export_member(cls, member):
     if member.getter:
         getter = member.getter
         getter_name = "__get_%s" % member.name
-        op = getter.ops[0]
+        call = getter.calls[0]
 
         block.add_line("def %s(self):" % getter_name)
-        if getter.raw:
-            block.add_block(op.get_code_block(), 1)
-        else:
-            block.add_block(export_call(op, "result"), 1)
-            block.add_line("return result", 1)
+        block.add_block(export_call(call, "result"), 1)
+        block.add_line("return result", 1)
 
     if member.setter:
         setter = member.setter
         setter_name = "__set_%s" % member.name
-        op = setter.ops[0]
+        call = setter.calls[0]
 
         block.add_line("def %s(self, v):" % setter_name)
-        if setter.raw:
-            block.add_block(op.get_code_block(), 1)
-        else:
-            type = op.args[0].type
-            block.add_line("sig = " + get_call(op), 1)
-            if isinstance(type, (Class, PointerType)):
-                check = export_type_check('v', type, "sig['arguments'][0]")
-                block.add_block(check, 1)
+        type = call.args[0].type
+        block.add_line("sig = " + get_call(call), 1)
+        if isinstance(type, (Class, PointerType)):
+            check = export_type_check('v', type, "sig['arguments'][0]")
+            block.add_block(check, 1)
 
-            call = export_call(op, arg_names = ('v',),
-                                               export_type_checks = False,
-                                               call_var = "call")
-            block.add_block(call, 1)
+        call = export_call(call, arg_names = ('v',),
+                           export_type_checks = False,
+                           call_var = "call")
+        block.add_block(call, 1)
 
     prop = "property(%s, %s)" % (
-            getter_name if member.getter else "None",
-            setter_name if member.setter else "None",
+        getter_name if member.getter else "None",
+        setter_name if member.setter else "None",
     )
     block.add_line("%s = %s" % (member.name, prop))
     if member.getter:
@@ -594,7 +578,7 @@ def export_callable_setup(f, result_name = "signatures"):
     module = f.get_closest_parent_module()
 
     block = SourceBlock("%s = []" % result_name)
-    for call in f.ops:
+    for call in f.calls:
         block.add_block(export_library_import(module, call.get_library(), "lib"))
         block.add_block(export_call_setup(call, "signature", "lib"))
         block.add_line("%s.append(signature)" % result_name)
@@ -612,19 +596,16 @@ def export_class_setup(cls):
     blocks = []
 
     for method in cls.methods.values():
-        if method.raw:
-            continue
-
         block = export_callable_setup(method)
         block.add_line("%s._meta['%s'] = {'signatures': signatures}" % (cls.name, method.name))
         blocks.append(block)
 
     for member in cls.members.values():
         getter, setter = False, False
-        if member.getter and not member.getter.raw:
+        if member.getter:
             blocks.append(export_callable_setup(member.getter, 'getter_signatures'))
             getter = True
-        if member.setter and not member.setter.raw:
+        if member.setter:
             blocks.append(export_callable_setup(member.setter, 'setter_signatures'))
             setter = True
 

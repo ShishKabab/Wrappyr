@@ -315,16 +315,8 @@ Reference
 
         <function name="func_a">
             <call symbol="funcA">
-                <!-- A function can make calls to C functions. -->
+                <!-- A function makes calls to C functions. -->
             </call>
-        </function>
-
-        <function name="func_b">
-            <raw><![CDATA[
-        # Or it can contain raw Python code.
-        print "Hello world!"
-        ]]>
-            </raw>
         </function>
 
 .. class:: Method(Function)
@@ -353,7 +345,6 @@ Reference
         <class name="Vector">
             <member name="x">
                 <getter>
-                    <!-- You could also put raw python code here using the <raw> tag -->
                     <call symbol="Vector_GetX">
                         <returns type="ctypes.c_float" />
                     </call>
@@ -366,11 +357,7 @@ Reference
             </method>
         </class>
 
-.. class:: Operation(Node)
-
-    The base class for the :class:`Call` and :class:`RawCode` classes.
-
-.. class:: Call(Operation)
+.. class:: Call(Node)
 
     Class used to represent a call to a C function.
 
@@ -387,18 +374,6 @@ Reference
                 <argument name="timeout" type="ctypes.c_uint" />
                 <returns type="ctypes.c_bool">
             </call>
-        </function>
-
-.. class:: RawCode(Operation)
-
-    Class used to hold a block of raw Python code.
-
-    You can create a :class:`RawCode` instance from XML by using the <raw> tag:
-
-    .. code-block:: xml
-
-        <function name="test">
-            <raw>return "something"</raw>
         </function>
 
 .. class:: Argument(Node)

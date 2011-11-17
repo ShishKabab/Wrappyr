@@ -22,10 +22,7 @@ def import_object(path):
         raise ImportError('%s isn\'t a module' % path)
 
     mod, obj = path[:dot], path[dot+1:]
-    try:
-        mod = import_module(mod)
-    except ImportError, e:
-        raise ImportError('Error importing module %s: "%s"' % (mod, e))
+    mod = import_module(mod)
 
     try:
         obj = getattr(mod, obj)

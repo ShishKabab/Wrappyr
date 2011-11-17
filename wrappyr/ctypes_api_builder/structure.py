@@ -367,41 +367,23 @@ class Function(Node):
         'properties': {
             'name': str
         },
-        'children': {
-            'ops': {
-                'add': 'add_operation',
-            }
-        }
     }
 
     def __init__(self, name):
         Node.__init__(self, name)
 
-        self.ops = []
-        self.raw = None
+        self.calls = []
         self.pointers = {}
 
-    _add_operation = _add_list_item('ops')
-    def add_operation(self, op):
-        if self.raw:
-            raise self.CannotAddOperation("Function '%s' has raw code and you tried to add a '%s' operation" %
-                (self.name, type(op).__name__))
-        if self.raw == False and not isinstance(op, Call):
-            raise self.CannotAddOperation("Function '%s' has C calls and you tried to add a '%s' operation" %
-                (self.name, type(op).__name__))
-        self.raw = isinstance(op, RawCode)
-
-        self._add_operation(op)
-
     def returns_anything(self):
-        return any(call.returns for call in self.ops)
+        return any(call.returns for call in self.calls)
 
     def takes_self_argument(self):
         return False
 
     def takes_this_pointer(self):
         return False
-_setup_list_child(Function, 'ops', ('call', 'raw'), 'Operation', add = False)
+_setup_list_child(Function, 'calls', 'call', 'Call')
 _setup_named_child(Function, 'pointers', 'pointer', 'PointerType')
 
 Node.types['Function'] = Function
@@ -471,23 +453,7 @@ _setup_single_child(Member, 'setter', 'setter', 'Method', singular = 'setter')
 Node.types['Member'] = Member
 
 
-class Operation(Node):
-    layout = {}
-    op_types = {}
-
-    def __init__(self):
-        Node.__init__(self)
-
-    @classmethod
-    def from_xml(cls, xml_node):
-        if cls == Operation:
-            return cls.op_types[xml_node.tag].from_xml(xml_node)
-        else:
-            return Node.from_xml.__func__(cls, xml_node)
-Node.types['Operation'] = Operation
-
-
-class Call(Operation):
+class Call(Node):
     layout = {
         'properties': {
             'symbol': str,
@@ -496,7 +462,7 @@ class Call(Operation):
     }
 
     def __init__(self, symbol, library = None):
-        Operation.__init__(self)
+        Node.__init__(self)
 
         self.symbol = symbol
         self.library = library
@@ -517,31 +483,7 @@ class Call(Operation):
 _setup_list_child(Call, 'args', 'argument', 'Argument')
 _setup_single_child(Call, 'returns', 'returns', 'ReturnValue', singular = 'return_value')
 
-Operation.op_types['call'] = Call
 Node.types['Call'] = Call
-
-
-class RawCode(Operation):
-    layout = {
-        'properties': {
-            'code': str,
-            'args': lambda v: (() if not v else v.split(','))
-        }
-    }
-
-    def __init__(self, code, args = ''):
-        Operation.__init__(self)
-
-        self.code = code
-        self.args = args
-
-    def get_code_block(self):
-        if isinstance(self.code, SourceBlock):
-            return self.code
-        return SourceBlock(self.code)
-
-Operation.op_types['raw'] = RawCode
-Node.types['Raw'] = RawCode
 
 
 class Argument(Node):

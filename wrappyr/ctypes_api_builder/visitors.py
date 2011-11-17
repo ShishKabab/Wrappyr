@@ -3,34 +3,28 @@ from wrappyr.ctypes_api_builder.structure import CTypesStructureVisitor, CTypesS
 
 class UninterestingCopyConstructorRemover(CTypesStructureVisitor):
     def visit_Method(self, f):
-        if f.raw:
-            return
-
-        ops_to_remove = []
-        for op in f.ops:
-            if f.name == '__alloc__' and len(f.ops) > 1 \
-                    and f.parent and len(op.args) == 1 \
-                    and op.args[0].type == f.parent:
-                ops_to_remove.append(op)
-        for op in ops_to_remove:
-            f.remove_operation(op)
+        calls_to_remove = []
+        for call in f.calls:
+            if f.name == '__alloc__' and len(f.calls) > 1 \
+                    and f.parent and len(call.args) == 1 \
+                    and call.args[0].type == f.parent:
+                calls_to_remove.append(call)
+        for call in calls_to_remove:
+            f.remove_call(call)
 
 class ConflictingOverloadRemover(CTypesStructureVisitor):
     def process_function(self, f):
-        if f.raw:
-            return
-
-        ops = sorted(f.ops, key = lambda op: len(op.args))
+        calls = sorted(f.calls, key = lambda call: len(call.args))
         args = []
-        ops_to_remove = []
-        for op in ops:
+        calls_to_remove = []
+        for call in calls:
             if args and any(left.type != right.type for left, right
-                    in zip(args[-1], op.args)):
-                ops_to_remove.append(op)
+                    in zip(args[-1], call.args)):
+                calls_to_remove.append(call)
             else:
-                args.append(op.args[len(args[-1]) if args else 0:])
-        for op in ops_to_remove:
-            f.remove_operation(op)
+                args.append(call.args[len(args[-1]) if args else 0:])
+        for call in calls_to_remove:
+            f.remove_call(call)
 
     def visit_Method(self, method):
         self.process_function(method)
@@ -40,19 +34,19 @@ class ConflictingOverloadRemover(CTypesStructureVisitor):
 
 class AmbiguousOverloadRemover(CTypesStructureVisitor):
     def process_function(self, f):
-        if f.raw or len(f.ops) <= 1:
+        if len(f.calls) <= 1:
             return
 
         calls_to_remove = []
         arg_lists = []
-        for call in f.ops:
+        for call in f.calls:
             arg_list = tuple(arg.type for arg in call.args)
             if arg_list in arg_lists:
                 calls_to_remove.append(call)
             else:
                 arg_lists.append(arg_list)
         for call in calls_to_remove:
-            f.remove_operation(call)
+            f.remove_call(call)
 
     def visit_Method(self, method):
         self.process_function(method)
@@ -67,11 +61,8 @@ class PythonKeywordRemover(CTypesStructureVisitor):
         self.letters = set(string.ascii_lowercase)
 
     def process_function(self, f):
-        if f.raw:
-            return
-
         available_letters = None
-        for call in f.ops:
+        for call in f.calls:
             for arg in call.args:
                 if not arg.name in self.python_keywords:
                     continue
